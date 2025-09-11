@@ -27,7 +27,7 @@ export const useGameStore = () => {
     async function fetchData() {
         isLoading.value = true
         try {
-            const response = await fetch('/history.json')
+            const response = await fetch('./history.json')
             rawData.value = await response.json()
         } catch (e) {
             error.value = e.message
