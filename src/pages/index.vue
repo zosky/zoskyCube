@@ -16,17 +16,26 @@
             {{ error }}
         </div>
         <div v-else>
-            <GameLivesLineChart :games="gamesForChart" :visible="visible" :colorMap="colorMap" class="mb-8" />
+            <GameLivesLineChart :games="gamesForChartFiltered" :visible="visibleFiltered" :colorMap="colorMap" class="mb-8" />
+            <div class="mb-4">
+                <input
+                    v-model="searchTerm"
+                    type="search"
+                    placeholder="Search games..."
+                    class="border-blue-900 bg-transparent w-full p-2 border rounded shadow focus:outline-none focus:ring"
+                />
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
                 <SteamIdEntry 
-                    v-for="(steamId, idx) in steamIdStats" 
+                    v-for="(steamId, idx) in filteredSteamIdStats" 
                     :key="steamId.id"
                     :steam-id="steamId.id"
                     :entry-count="steamId.count"
                     :entries="groupedBySteamId[steamId.id]"
                     :color="colorMap[steamId.id]"
-                    :active="visible[idx]"
-                    @click.prevent="toggleLine(idx)"
+                    :name="steamNames[steamId.id] || 'UnknownId:' + steamId.id"
+                    :active="visibleFiltered[idx]"
+                    @click.prevent="toggleLineFiltered(idx)"
                 />
             </div>
         </div>
@@ -45,12 +54,14 @@ const {
     error, 
     groupedBySteamId, 
     steamIdStats, 
+    steamNames,
     fetchData 
 } = useGameStore()
 
 const gamesForChart = computed(() =>
     steamIdStats?.value?.map((s, idx) => ({
-        name: s.id,
+        id: s.id,
+        name: steamNames.value[s.id] || 'UnknownId:' + s.id,
         entries: (groupedBySteamId?.value[s.id] || []).map(e => ({
             time: e.time * 1000,
             lives: e.lives || e.deaths || 0
@@ -85,4 +96,60 @@ function toggleLine(idx) {
 onMounted(() => {
     fetchData()
 })
+
+const searchTerm = ref("")
+
+watch(searchTerm, (val) => {
+    if (!val) {
+        // Reset all to visible when search is cleared
+        visible.value = (steamIdStats.value || []).map(() => true)
+    } else {
+        // Hide all rows, then show only filtered
+        const filteredIds = new Set(filteredSteamIdStats.value.map(s => s.id))
+        visible.value = (steamIdStats.value || []).map(s => filteredIds.has(s.id))
+    }
+})
+
+const filteredSteamIdStats = computed(() => {
+    if (!searchTerm.value) return steamIdStats.value || []
+    const term = searchTerm.value.toLowerCase()
+    return (steamIdStats.value || []).filter(s => {
+        const name = steamNames.value[s.id] || ''
+        return name.toLowerCase().includes(term)
+    })
+})
+
+const gamesForChartFiltered = computed(() =>
+    filteredSteamIdStats.value.map((s, idx) => ({
+        name: steamNames.value[s.id] || 'UnknownId:' + s.id,
+        entries: (groupedBySteamId?.value[s.id] || []).map(e => ({
+            time: e.time * 1000,
+            lives: e.lives || e.deaths || 0
+        }))
+    }))
+)
+
+// Track which lines are visible for filtered list
+const visibleFiltered = computed({
+    get() {
+        // Map visible to filteredSteamIdStats
+        return filteredSteamIdStats.value.map(s => {
+            const idx = (steamIdStats.value || []).findIndex(x => x.id === s.id)
+            return visible.value[idx]
+        })
+    },
+    set(newVal) {
+        // Update visible for the filtered indices
+        filteredSteamIdStats.value.forEach((s, i) => {
+            const idx = (steamIdStats.value || []).findIndex(x => x.id === s.id)
+            visible.value[idx] = newVal[i]
+        })
+    }
+})
+
+function toggleLineFiltered(idx) {
+    const newVal = visibleFiltered.value.map((v, i) => i === idx ? !v : v)
+    visibleFiltered.value = newVal
+    console.log(idx, 'now', newVal[idx] ? 'visible' : 'hidden')
+}
 </script>

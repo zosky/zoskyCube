@@ -69,7 +69,9 @@ function getOption() {
       borderColor: dark ? '#444' : '#ccc',
       textStyle: { color: dark ? '#fff' : '#222' },
       formatter: params => {
-        return params.map(p => `${p.seriesName}: ${p.data[1]} lives @ ${new Date(p.data[0]).toLocaleString()}`).join('<br/>')
+        return params.map(p => 
+            [ p.seriesName, new Date(p.data[0]).toLocaleString(), `${p.data[1]} lives`].join('<br>')
+        ).join('<br/>')
       }
     },
     grid: { left: 40, right: 20, bottom: 40, top: 60 },
@@ -96,8 +98,8 @@ function getOption() {
       symbol: 'circle',
       symbolSize: 7,
       data: props.visible[idx] ? game.entries.map(e => [e.time, e.lives]) : [],
-      lineStyle: { width: 2, color: props.colorMap[game.name] || getColor(idx) },
-      itemStyle: { color: props.colorMap[game.name] || getColor(idx) },
+      lineStyle: { width: 2, color: props.colorMap[game.id] },
+      itemStyle: { color: props.colorMap[game.id] },
       emphasis: { focus: 'series' },
       showSymbol: props.visible[idx],
     }))
@@ -141,7 +143,11 @@ onBeforeUnmount(() => {
 })
 
 watch([() => props.games, () => props.visible, () => props.colorMap, isDark], () => {
-  if (chartInstance) renderChart()
+  if (chartInstance) {
+    chartInstance.dispose()
+    chartInstance = null
+  }
+  renderChart()
 }, { deep: true })
 </script>
 

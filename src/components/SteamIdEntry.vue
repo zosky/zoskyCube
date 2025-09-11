@@ -5,6 +5,7 @@
             :class="active?'shadow-pink-500/50':'shadow-yellow-500/50 opacity-50'"
             :style="{ backgroundColor: color, borderColor: active ? color : '#444' }">
             <img :src="coverImg" :alt="steamId" class="h-24 w-auto mr-2 rounded" />
+            <span class="text-black">{{ name }}</span>
             <span class="bg-black bg-opacity-20 text-blue-100 px-2 py-1 rounded-full text-sm mr-2 min-w-max flex flex-row items-center gap-1 font-bold">
                   {{ entries.at(-1).lives }} <SkullCrossbones class="scale-150 mr-0.5" />
             </span>
@@ -42,6 +43,10 @@ const props = defineProps({
     },
     active: {
         type: Boolean,
+        required: false
+    },
+    name: { 
+        type: String,
         required: false
     }
 })
