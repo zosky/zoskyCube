@@ -8,7 +8,7 @@
             <Steam />
             <SkullCrossbones />
             <GamepadVariantOutline />
-            getting good</h1>
+        </h1>
         <div v-if="isLoading" class="text-center py-8">
             <p>Loading data...</p>
         </div>
@@ -17,7 +17,7 @@
         </div>
         <div v-else>
             <GameLivesLineChart :games="gamesForChart" :visible="visible" :colorMap="colorMap" class="mb-8" />
-            <div class="flex flex-row flex-wrap gap-x-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
                 <SteamIdEntry 
                     v-for="(steamId, idx) in steamIdStats" 
                     :key="steamId.id"

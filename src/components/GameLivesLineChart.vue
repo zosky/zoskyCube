@@ -1,5 +1,5 @@
 <template>
-  <div ref="chartRef" class="w-full h-96"></div>
+  <div ref="chartRef" class="w-full h-64 xl:h-96"></div>
 </template>
 
 <script setup>
@@ -46,6 +46,15 @@ function getColor(idx) {
   return palette[idx % palette.length]
 }
 
+function getSplitNumber() {
+  if (!chartRef.value) return 6
+  const width = chartRef.value.offsetWidth
+  if (width < 400) return 2
+  if (width < 600) return 3
+  if (width < 900) return 4
+  return 6
+}
+
 function getOption() {
   const dark = isDark.value
   return {
@@ -70,7 +79,7 @@ function getOption() {
       axisLabel: { formatter: value => new Date(value).toLocaleString(), color: dark ? '#ccc' : '#222' },
       axisLine: { lineStyle: { color: dark ? '#888' : '#222' } },
       splitLine: { lineStyle: { color: dark ? '#444' : '#eee' } },
-      splitNumber: 6 // Limit to max 6 labels
+      splitNumber: getSplitNumber() // Dynamically set based on width
     },
     yAxis: {
       type: 'value',
@@ -102,6 +111,12 @@ function renderChart() {
   chartInstance.setOption(getOption())
 }
 
+function handleResize() {
+  if (chartInstance) {
+    chartInstance.resize()
+  }
+}
+
 onMounted(() => {
   renderChart()
   if (window.matchMedia) {
@@ -114,6 +129,7 @@ onMounted(() => {
       renderChart()
     })
   }
+  window.addEventListener('resize', handleResize)
 })
 
 onBeforeUnmount(() => {
@@ -121,6 +137,7 @@ onBeforeUnmount(() => {
     chartInstance.dispose()
     chartInstance = null
   }
+  window.removeEventListener('resize', handleResize)
 })
 
 watch([() => props.games, () => props.visible, () => props.colorMap, isDark], () => {
