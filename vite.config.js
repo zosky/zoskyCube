@@ -7,6 +7,7 @@ import Components from 'unplugin-vue-components/vite'
 import { HeadlessUiResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineConfig({
+  base: process.env.NODE_ENV === 'production' ? '/zoskyCube/' : '/',
   server: { 
     open: true, 
     // proxy: { '^/api/.*': {
