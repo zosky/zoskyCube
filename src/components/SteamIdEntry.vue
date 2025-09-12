@@ -6,10 +6,15 @@
             :style="{ backgroundColor: color, borderColor: active ? color : '#444' }">
             <img :src="coverImg" :alt="steamId" class="h-24 w-auto mr-2 rounded" />
             <span class="text-black flex flex-grow leading-none max-h-24 overflow-hidden">{{ name }}</span>
-            <span class="bg-black bg-opacity-20 text-blue-100 px-2 py-1 rounded-full text-sm mr-2 min-w-max flex flex-row items-center gap-1 font-bold">
-                  {{ entries.at(-1).lives }} <SkullCrossbones class="scale-150 mr-0.5" />
+            <span class="flex flex-col gap-1">
+                <span class="bg-black bg-opacity-20 text-blue-100 px-2 py-1 rounded-full text-sm mr-2 min-w-max flex flex-row items-center gap-1 font-bold">
+                    {{ entries.at(-1).lives }} <SkullCrossbones class="scale-150 mr-0.5" />
+                </span>
+                <span v-if="youtube?.length" class="bg-black bg-opacity-20 text-blue-100 px-2 py-1 rounded-full text-sm mr-2 min-w-max flex flex-row items-center justify-end  gap-1 font-medium">
+                    {{ youtube?.length }} <Youtube class="scale-150 mr-0.5" />
+                </span>
             </span>
-        </summary>
+            </summary>
         <!-- <div class="p-4 bg-white bg-opacity-10 h-32 overflow-y-scroll">
             <div v-for="(entry, index) in entries.reverse()" :key="index" class="mb-2 p-2 bg-white bg-opacity-10 rounded shadow-sm">
                 <div class="flex flex-row gap-2">
@@ -22,7 +27,7 @@
 </template>
 
 <script setup>
-import { Twitch, Steam, GamepadVariantOutline, SkullCrossbones } from 'mdue'
+import { Twitch, Steam, GamepadVariantOutline, SkullCrossbones, Youtube } from 'mdue'
 
 const props = defineProps({
     steamId: {
@@ -48,7 +53,11 @@ const props = defineProps({
     name: { 
         type: String,
         required: false
-    }
+    },
+    youtube: {
+        type: Array,
+        required: true
+    },
 })
 const coverImg=`https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${props.steamId}/header.jpg`
 </script>

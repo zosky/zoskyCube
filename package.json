@@ -8,7 +8,9 @@
     "build": "vite build",
     "serve": "vite preview",
     "lint": "vue-tsc --noEmit && vite lint",
-    "json": "./scripts/git-hook-pre-push.sh"
+    "json": "./scripts/git-hook-pre-push.sh",
+    "yt": "./scripts/youTubeList.sh",
+    "goTime": "npm run yt && npm run json"
   },
   "devDependencies": {
     "@tailwindcss/aspect-ratio": "^0.4.0",

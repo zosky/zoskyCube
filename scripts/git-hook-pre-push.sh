@@ -15,9 +15,9 @@ node scripts/cacheSteamNames.js
 changes=false
 
 # Check if files changed
-
-files=("public/steamNames.json" "public/history.json")
+files=("steamNames.json" "history.json "youtube.json")
 for file in "${files[@]}"; do
+    file="public/$file"
     ! git diff --quiet "$file" \
         && git add "$file" \
             && changes=true

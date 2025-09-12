@@ -25,7 +25,7 @@
                     class="border-blue-900 bg-transparent w-full p-2 border rounded shadow focus:outline-none focus:ring"
                 />
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                 <SteamIdEntry 
                     v-for="(steamId, idx) in filteredSteamIdStats" 
                     :key="steamId.id"
@@ -35,6 +35,7 @@
                     :color="colorMap[steamId.id]"
                     :name="steamNames[steamId.id] || 'UnknownId:' + steamId.id"
                     :active="visibleFiltered[idx]"
+                    :youtube="youtubeVodsBySteamId[steamId.id] || []"
                     @click.prevent="toggleLineFiltered(idx)"
                 />
             </div>
@@ -55,6 +56,8 @@ const {
     groupedBySteamId, 
     steamIdStats, 
     steamNames,
+    youtubeVods,
+    youtubeVodsBySteamId,
     fetchData 
 } = useGameStore()
 

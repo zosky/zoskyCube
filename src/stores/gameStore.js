@@ -6,6 +6,7 @@ export const useGameStore = () => {
     const isLoading = ref(true)
     const error = ref(null)
     const steamNames = ref({}) // { steamId: gameName }
+    const youtubeVods = ref([]) // [{ id:(@YT), date(ofTTVvod), game:(name) }, ... ]
     
     const groupedBySteamId = computed(() => {
         const groups = {}
@@ -16,6 +17,22 @@ export const useGameStore = () => {
             groups[entry.steamId].push(entry)
         })
         return groups
+    })
+
+    const youtubeVodsBySteamId = computed(() => {
+        const rawD = youtubeVods.value
+        const steamNamesMap = Object.entries(steamNames.value).map(([id, name]) => ({id, name}))
+        const mapD = rawD.map(vod => vod={ 
+            ...vod, 
+            steamId: steamNamesMap.find(sn => sn.name === vod.game)?.id || null
+        })
+
+        const groupD = mapD.reduce((acc, vod) => {
+            if (!acc?.[vod.steamId]?.length) acc[vod.steamId] = []
+            acc[vod.steamId].push(vod)
+            return acc
+        },{})
+        return groupD
     })
     
     const steamIdStats = computed(() => {
@@ -33,6 +50,8 @@ export const useGameStore = () => {
             rawData.value = await response.json()
             const response2 = await fetch('./steamNames.json')
             steamNames.value = await response2.json()
+            const response3 = await fetch('./youtube.json')
+            youtubeVods.value = await response3.json()
         } catch (e) {
             error.value = e.message
         } finally {
@@ -43,6 +62,8 @@ export const useGameStore = () => {
     return {
         rawData,
         steamNames,
+        youtubeVods,
+        youtubeVodsBySteamId,
         isLoading,
         error,
         groupedBySteamId,
