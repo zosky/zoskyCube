@@ -15,7 +15,7 @@ node scripts/cacheSteamNames.js
 changes=false
 
 # Check if files changed
-files=("steamNames.json" "history.json "youtube.json")
+files=("steamNames.json" "history.json" "youtube.json")
 for file in "${files[@]}"; do
     file="public/$file"
     ! git diff --quiet "$file" \
@@ -25,5 +25,5 @@ done
 
 # Commit if any changes were made
 if [ "$changes" = true ]; then
-    git commit -m "Update data files (auto-update from pre-push hook)"
+    git commit -m "Update data files with pre-push hook"
 fi
