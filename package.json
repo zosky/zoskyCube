@@ -10,6 +10,7 @@
     "lint": "vue-tsc --noEmit && vite lint",
     "json": "./scripts/git-hook-pre-push.sh",
     "yt": "./scripts/youTubeList.sh",
+    "steamNames": "node ./scripts/cacheSteamNames.js",
     "goTime": "npm run yt && npm run json"
   },
   "devDependencies": {
