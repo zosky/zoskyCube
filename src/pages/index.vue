@@ -1,14 +1,5 @@
 <template>
-    <div class="container mx-auto p-4">
-        <h1 class="text-2xl font-bold mb-3 opacity-50 flex items-center gap-2">
-            <a 
-                class="min-w-max flex items-center" 
-                href="https://twitch.tv/zoskyCube">
-                <Twitch /> zoskyCube</a>
-            <Steam />
-            <SkullCrossbones />
-            <GamepadVariantOutline />
-        </h1>
+    <div class="mx-auto p-4">
         <div v-if="isLoading" class="text-center py-8">
             <p>Loading data...</p>
         </div>
@@ -44,7 +35,6 @@
 </template>
 
 <script setup>
-import { Twitch, Steam, GamepadVariantOutline, SkullCrossbones } from 'mdue'
 import { onMounted, computed, ref, watch } from 'vue'
 import { useGameStore } from '../stores/gameStore'
 import SteamIdEntry from '../components/SteamIdEntry.vue'
@@ -125,10 +115,19 @@ const filteredSteamIdStats = computed(() => {
 const gamesForChartFiltered = computed(() =>
     filteredSteamIdStats.value.map((s, idx) => ({
         name: steamNames.value[s.id] || 'UnknownId:' + s.id,
-        entries: (groupedBySteamId?.value[s.id] || []).map(e => ({
-            time: e.time * 1000,
-            lives: e.lives || e.deaths || 0
-        }))
+        entries: (groupedBySteamId?.value[s.id] || [])
+            // inject null if entry gap > 3 hours to break line
+            .reduce((acc, e) => {
+                const entry = { time: e.time * 1000, lives: e.lives || e.deaths || 0 }
+                if (acc.length > 0) {
+                    const lastEntry = acc[acc.length - 1]
+                    if (entry.time - lastEntry.time > 3 * 3600 * 1000) {
+                        acc.push({ time: lastEntry.time + 1, lives: null })
+                    }
+                }
+                acc.push(entry)
+                return acc
+            }, [])
     }))
 )
 

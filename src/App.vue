@@ -3,6 +3,7 @@
 
 <template>
   <div class="app-container">
-    <router-view></router-view>
+    <HeaderBar />
+    <router-view />
   </div>
 </template>

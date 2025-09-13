@@ -8,6 +8,7 @@ export {}
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     GameLivesLineChart: typeof import('./components/GameLivesLineChart.vue')['default']
+    HeaderBar: typeof import('./components/HeaderBar.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SteamIdEntry: typeof import('./components/SteamIdEntry.vue')['default']

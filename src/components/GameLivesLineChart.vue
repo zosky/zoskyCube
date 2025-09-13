@@ -1,5 +1,5 @@
 <template>
-  <div ref="chartRef" class="w-full h-64 xl:h-96"></div>
+  <div ref="chartRef" class="w-full h-64 xl:h-96 z-10"></div>
 </template>
 
 <script setup>
@@ -77,29 +77,30 @@ function getOption() {
     grid: { left: 40, right: 20, bottom: 40, top: 60 },
     xAxis: {
       type: 'time',
-      name: 'Time',
-      axisLabel: { formatter: value => new Date(value).toLocaleString(), color: dark ? '#ccc' : '#222' },
+      // name: 'Time',
+      axisLabel: { formatter: value => new Date(value).toLocaleString().replace(', ','\n'), color: dark ? '#ccc' : '#222' },
       axisLine: { lineStyle: { color: dark ? '#888' : '#222' } },
-      splitLine: { lineStyle: { color: dark ? '#444' : '#eee' } },
-      splitNumber: getSplitNumber() // Dynamically set based on width
+      splitLine: { lineStyle: { color: dark ? '#444' : '#eee', type: 'dashed' }, show: true },
+      splitNumber: 2 // getSplitNumber() // Dynamically set based on width
     },
     yAxis: {
       type: 'value',
-      name: 'Lives',
+      // name: 'Lives',
       minInterval: 1,
+      splitNumber: 3,
       axisLabel: { color: dark ? '#ccc' : '#222' },
       axisLine: { lineStyle: { color: dark ? '#888' : '#222' } },
-      splitLine: { lineStyle: { color: dark ? '#444' : '#eee' } }
+      splitLine: { lineStyle: { color: dark ? '#444' : '#eee', type: 'dashed' } }
     },
-    backgroundColor: dark ? '#000' : '#fff',
+    backgroundColor: dark ? '#0000' : '#fff',
     series: props.games.map((game, idx) => ({
       name: game.name,
       type: 'line',
       symbol: 'circle',
       symbolSize: 7,
       data: props.visible[idx] ? game.entries.map(e => [e.time, e.lives]) : [],
-      lineStyle: { width: 2, color: props.colorMap[game.id] },
-      itemStyle: { color: props.colorMap[game.id] },
+      lineStyle: { width: 2, color: props.colorMap[game.id] || getColor(idx) },
+      itemStyle: { color: props.colorMap[game.id] || getColor(idx) },
       emphasis: { focus: 'series' },
       showSymbol: props.visible[idx],
     }))
@@ -143,11 +144,7 @@ onBeforeUnmount(() => {
 })
 
 watch([() => props.games, () => props.visible, () => props.colorMap, isDark], () => {
-  if (chartInstance) {
-    chartInstance.dispose()
-    chartInstance = null
-  }
-  renderChart()
+  if (chartInstance) renderChart()
 }, { deep: true })
 </script>
 
