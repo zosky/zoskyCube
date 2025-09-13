@@ -1,5 +1,5 @@
 #!/bin/bash
-ID="PLLFu4tMRHcV2KCL2pkGt2oXacdV9clvxq"
+ID="PLwNNfAZnmzXXwdXmcTk6mR1GiNzDqnc-2"
 URL="https://www.youtube.com/watch?list=$ID"
 ## parse/miniFy YTs JSON into {id,date,game} objects
 PLAYLIST=$( ssh zoskypc "youtube-dl \
@@ -11,4 +11,4 @@ PLAYLIST=$( ssh zoskypc "youtube-dl \
         ]' 
 )    
 ## save
-echo $PLAYLIST > ./public/youtube.json
+echo "$PLAYLIST" > ./public/youtube.json
