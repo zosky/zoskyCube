@@ -4,6 +4,10 @@
 # like so: `ln -s scripts/git-hook-pre-push.sh .git/hooks/pre-push`
 set -e
 
+## updated data files
+cp ../deathFrames/history.json \
+    public/history.json
+
 ## scrape missing names w/ steam API
 node scripts/cacheSteamNames.js
 
