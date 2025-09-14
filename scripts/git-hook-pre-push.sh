@@ -4,18 +4,15 @@
 # like so: `ln -s scripts/git-hook-pre-push.sh .git/hooks/pre-push`
 set -e
 
-## updated data files
-cp ../deathFrames/history.json public/history.json
-
 ## scrape missing names w/ steam API
 node scripts/cacheSteamNames.js
 
-## assume no changes 
-# Check if steamNames.json changed
-changes=false
-
 # Check if files changed
-files=("steamNames.json" "history.json" "youtube.json")
+files=(
+    "history.json"
+    "youtube.json"
+    "steamNames.json"
+)
 for file in "${files[@]}"; do
     file="public/$file"
     ! git diff --quiet "$file" \
