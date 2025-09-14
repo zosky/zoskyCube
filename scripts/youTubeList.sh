@@ -7,7 +7,7 @@ PLAYLIST=$( ssh zoskypc "youtube-dl \
     | jq -s '.' " \
     | jq '[.[] |
             .title |= capture("VOD\\[(?<date>[0-9-]+)\\] (?<game>.+)") | 
-            { id, date: .title.date, game: .title.game }
+            { id, duration, date: .title.date, game: .title.game }
         ]' 
 )    
 ## save
