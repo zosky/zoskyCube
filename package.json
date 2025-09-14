@@ -11,7 +11,8 @@
     "json": "./scripts/git-hook-pre-push.sh",
     "yt": "./scripts/youTubeList.sh",
     "steamNames": "node ./scripts/cacheSteamNames.js",
-    "goTime": "npm run yt && npm run json"
+    "goTime": "npm run yt && npm run json",
+    "goHOT": "npm run goTime && git push origin main"
   },
   "devDependencies": {
     "@tailwindcss/aspect-ratio": "^0.4.0",
