@@ -1,6 +1,28 @@
 // Central data store for game history, as described in the FDD
 import { ref, computed } from 'vue'
 
+const parseCSV = (text) => {
+    // Parse CSV data
+    const lines = text.split('\n').filter(line => line.trim() !== '');
+
+    // Extract headers from first line
+    const headers = lines[0].split(',').map(h => h.replace(/"/g, ''));
+
+    // Process data rows
+    const jsonARR = lines.slice(1).map(line => {
+        const values = line.split(',').map(val => val.replace(/"/g, ''));
+        const obj = {};
+        headers.forEach((header, index) => {
+            // Convert to number if it's numeric
+            const value = values[index];
+            obj[header] = !isNaN(Number(value)) ? Number(value) : value;
+        });
+        return obj;
+    });
+
+    return jsonARR
+}
+
 export const useGameStore = () => {
     const rawData = ref([])
     const isLoading = ref(true)
@@ -46,8 +68,9 @@ export const useGameStore = () => {
     async function fetchData() {
         isLoading.value = true
         try {
-            const response = await fetch('./history.json')
-            rawData.value = await response.json()
+            const response = await fetch('./history.csv')
+            const text = await response.text();
+            rawData.value = parseCSV(text);
             const response2 = await fetch('./steamNames.json')
             steamNames.value = await response2.json()
             const response3 = await fetch('./youtube.json')

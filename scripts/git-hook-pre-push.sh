@@ -4,16 +4,14 @@
 # like so: `ln -s scripts/git-hook-pre-push.sh .git/hooks/pre-push`
 set -e
 
-## updated data files
-cp ../deathFrames/history.json \
-    public/history.json
+cp {../deathFrames,public}/history.csv      ## copy death counter history
+npm run yt                                  ## update youtubeCache
+npm run steamNames                           ## scrape missing names w/ steam API
 
-## scrape missing names w/ steam API
-node scripts/cacheSteamNames.js
 
 # Check if files changed
 files=(
-    "history.json"
+    "history.csv"
     "youtube.json"
     "steamNames.json"
 )
