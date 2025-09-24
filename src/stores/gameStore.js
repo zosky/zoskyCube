@@ -28,6 +28,7 @@ export const useGameStore = () => {
     const isLoading = ref(true)
     const error = ref(null)
     const steamNames = ref({}) // { steamId: gameName }
+    const steamColors = ref({}) // { steamId: #hex }
     const youtubeVods = ref([]) // [{ id:(@YT), date(ofTTVvod), game:(name) }, ... ]
     
     const groupedBySteamId = computed(() => {
@@ -71,6 +72,7 @@ export const useGameStore = () => {
             rawData.value = await fetchCsvToJson('./history.csv')
             youtubeVods.value = await fetchCsvToJson('./youtube.csv')
             steamNames.value = await fetch('./steamNames.json').then(r=>r.json())
+            steamColors.value = await fetch('./steamColors.json').then(r=>r.json())
         } catch (e) {
             error.value = e.message
         } finally {
@@ -81,6 +83,7 @@ export const useGameStore = () => {
     return {
         rawData,
         steamNames,
+        steamColors,
         youtubeVods,
         youtubeVodsBySteamId,
         isLoading,
