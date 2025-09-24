@@ -2,22 +2,35 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 
-// Path to the history.json file
-const historyFilePath = path.join(__dirname, '../public/history.json');
+// Path to the history.csv file
+const historyFilePath = path.join(__dirname, '../public/history.csv');
 
-// Read and parse the JSON file
-try {
-    const historyData = JSON.parse(fs.readFileSync(historyFilePath, 'utf8'));
+// Function to parse CSV data
+function parseCSV(csvText) {
+    const lines = csvText.trim().split('\n');
+    const headers = lines[0].split(',').map(header => header.replace(/"/g, ''));
+    const data = [];
     
-    if (!Array.isArray(historyData)) {
-        console.error('History data is not an array');
-        process.exit(1);
+    for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',');
+        const row = {};
+        headers.forEach((header, index) => {
+            row[header] = values[index];
+        });
+        data.push(row);
     }
     
-    console.log(`Loaded ${historyData.length} items from history.json`);
+    return data;
+}
+
+// Read and parse the CSV file
+try {
+    const csvData = fs.readFileSync(historyFilePath, 'utf8');
+    const historyData = parseCSV(csvData);
+    
+    console.log(`Loaded ${historyData.length} items from history.csv`);
     
     // Extract unique steamIds
-    // This assumes each entry has a steamId property - adjust based on actual structure
     const uniqueSteamIds = new Set();
     
     historyData.forEach(item => {
@@ -121,5 +134,5 @@ try {
     if (steamIdsToFetch.length) processSteamIds();
     
 } catch (error) {
-    console.error('Error processing history.json:', error);
+    console.error('Error processing history.csv:', error);
 }
