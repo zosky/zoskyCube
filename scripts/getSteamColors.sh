@@ -42,11 +42,33 @@ STEAM_IDS=$(jq -r 'keys[]' "$STEAM_NAMES_FILE")
 
 echo "Found Steam app IDs: $STEAM_IDS"
 
-# Initialize the output JSON object
-echo "{" > "$OUTPUT_FILE"
+# Load existing colors if the file exists
+existing_colors="{}"
+if [[ -f "$OUTPUT_FILE" ]]; then
+    echo "Loading existing colors from $OUTPUT_FILE..."
+    existing_colors=$(cat "$OUTPUT_FILE")
+    # Validate JSON format
+    if ! echo "$existing_colors" | jq . >/dev/null 2>&1; then
+        echo "Warning: Existing $OUTPUT_FILE is not valid JSON, starting fresh"
+        existing_colors="{}"
+    fi
+else
+    echo "No existing colors file found, starting fresh"
+fi
+
+# Initialize the output JSON object with existing colors
+echo "$existing_colors" > "$OUTPUT_FILE"
 
 first=true
 for id in $STEAM_IDS; do
+    # Check if this ID already has a color
+    existing_color=$(echo "$existing_colors" | jq -r --arg id "$id" '.[$id] // empty')
+    
+    if [[ -n "$existing_color" ]]; then
+        echo "Skipping Steam app ID $id (already has color: $existing_color)"
+        continue
+    fi
+    
     echo "Processing Steam app ID: $id"
     
     # Construct the Steam header image URL
@@ -64,31 +86,17 @@ for id in $STEAM_IDS; do
             
             echo "  Dominant color for $id: $dominant_color"
             
-            # Add comma if not the first entry
-            if [[ "$first" == false ]]; then
-                echo "," >> "$OUTPUT_FILE"
-            fi
-            first=false
-            
-            # Add the entry to the JSON file
-            echo -n "  \"$id\": \"$dominant_color\"" >> "$OUTPUT_FILE"
+            # Update the existing_colors with the new color using jq
+            existing_colors=$(echo "$existing_colors" | jq --arg id "$id" --arg color "$dominant_color" '.[$id] = $color')
         else
             echo "  Warning: Failed to download or empty file for Steam app ID $id"
             # Add default color for failed downloads
-            if [[ "$first" == false ]]; then
-                echo "," >> "$OUTPUT_FILE"
-            fi
-            first=false
-            echo -n "  \"$id\": \"#000000\"" >> "$OUTPUT_FILE"
+            existing_colors=$(echo "$existing_colors" | jq --arg id "$id" '.[$id] = "#000000"')
         fi
     else
         echo "  Warning: Failed to download header image for Steam app ID $id"
         # Add default color for failed downloads
-        if [[ "$first" == false ]]; then
-            echo "," >> "$OUTPUT_FILE"
-        fi
-        first=false
-        echo -n "  \"$id\": \"#000000\"" >> "$OUTPUT_FILE"
+        existing_colors=$(echo "$existing_colors" | jq --arg id "$id" '.[$id] = "#000000"')
     fi
     
     # Clean up the temporary image
@@ -98,9 +106,8 @@ for id in $STEAM_IDS; do
     sleep 0.5
 done
 
-# Close the JSON object
-echo "" >> "$OUTPUT_FILE"
-echo "}" >> "$OUTPUT_FILE"
+# Write the final JSON to the output file
+echo "$existing_colors" > "$OUTPUT_FILE"
 
 # Clean up temp directory
 rm -rf "$TEMP_DIR"
