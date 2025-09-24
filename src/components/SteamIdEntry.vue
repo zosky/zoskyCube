@@ -3,9 +3,9 @@
         <summary 
             class="cursor-pointer hover:scale-105 flex justify-between items-center rounded-xl shadow shadow-md min-w-full"
             :class="active?'shadow-pink-500/50':'shadow-yellow-500/50 opacity-50'"
-            :style="{ backgroundColor: color, borderColor: active ? color : '#444' }">
+            :style="{ backgroundColor: color, borderColor: active ? color : '#444', color: textColor }">
             <img :src="coverImg" :alt="steamId" class="h-24 w-auto mr-2 rounded" />
-            <span class="text-black flex flex-grow leading-none max-h-24 overflow-hidden">{{ name }}</span>
+            <span class="flex flex-grow leading-none max-h-24 overflow-hidden">{{ name }}</span>
             <span class="bubbleWrap">
                 <span v-if="youtube?.length" class="bubble">
                     {{ youtube?.length }} <Youtube class="scale-150 mr-0.5" />
@@ -34,38 +34,24 @@
 <script setup>
 import { Twitch, Steam, GamepadVariantOutline, SkullCrossbones, Youtube, ClockEnd } from 'mdue'
 const props = defineProps({
-    steamId: {
-        type: String,
-        required: true
-    },
-    entryCount: {
-        type: Number,
-        required: true
-    },
-    entries: {
-        type: Array,
-        required: true
-    },
-    color: {
-        type: String,
-        required: false
-    },
-    active: {
-        type: Boolean,
-        required: false
-    },
-    name: { 
-        type: String,
-        required: false
-    },
-    youtube: {
-        type: Array,
-        required: true
-    },
+    steamId: { type: String, required: true },
+    entryCount: { type: Number, required: true },
+    entries: { type: Array, required: true },
+    color: { type: String, required: true },
+    active: { type: Boolean, required: false },
+    name: {  type: String, required: false },
+    youtube: { type: Array, required: true },
 })
 const avgDeathsPerMin = computed(() => {
     let lastDeath = props.entries.at(-1).lives || 0
-    if (props.steamId == '1030300') lastDeath-=350 // adjust for hollowKnight recStart@~350
+
+    const startCountOffset = { 
+        311690: 277, // enter the gungeon
+        1030300: 350, // Hollow Knight
+        2305840: 69, // catQuest III
+    } 
+    if (startCountOffset[props.steamId]) lastDeath-=startCountOffset[props.steamId] 
+
     const ttlSec = props?.youtube?.reduce((acc, vid) => acc + (vid.duration || 0), 0) || 0 
     if (lastDeath && ttlSec) {
         const hrs = ttlSec / 3600
@@ -90,6 +76,22 @@ const totalDuration = computed(()=>{
     if (d||h||m||s) output.push(s)
     return output.join(":").replace(/:(\d)$/,":0$1").replace(/:(\d):/g,":0$1:")
 })
+
+// Calculate luminance to determine if text should be light or dark
+const textColor = computed(() => {
+    // Convert hex color to RGB
+    const hex = props.color.replace('#', '')
+    const r = parseInt(hex.substr(0, 2), 16) / 255
+    const g = parseInt(hex.substr(2, 2), 16) / 255
+    const b = parseInt(hex.substr(4, 2), 16) / 255
+    
+    // Calculate relative luminance using sRGB formula
+    const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
+    
+    // Return white text for dark backgrounds, black text for light backgrounds
+    return luminance > 0.5 ? '#000000' : '#ffffff'
+})
+
 const coverImg=`https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${props.steamId}/header.jpg`
 </script>
 
