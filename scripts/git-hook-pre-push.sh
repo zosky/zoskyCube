@@ -6,6 +6,7 @@ set -e
 
 npm run yt                                  ## update youtubeCache
 npm run steamNames                           ## scrape missing names w/ steam API
+npm run steamColors                          ## update steamColors.json
 
 # Check if files changed
 files=(
