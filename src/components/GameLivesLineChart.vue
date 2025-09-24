@@ -6,7 +6,7 @@
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import * as echarts from 'echarts/core'
 import { LineChart } from 'echarts/charts'
-import { TitleComponent, TooltipComponent, GridComponent } from 'echarts/components'
+import { TitleComponent, TooltipComponent, GridComponent, MarkPointComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 
 echarts.use([
@@ -14,6 +14,7 @@ echarts.use([
   TitleComponent,
   TooltipComponent,
   GridComponent,
+  MarkPointComponent,
   CanvasRenderer
 ])
 
@@ -37,8 +38,12 @@ const chartRef = ref(null)
 let chartInstance = null
 const isDark = ref(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
-function getColor(idx) {
-  // Use ECharts default color palette
+function getColor(gameId, idx) {
+  // Use colorMap if available, otherwise fallback to ECharts default palette
+  if (props.colorMap[gameId]) {
+    return props.colorMap[gameId]
+  }
+  
   const palette = [
     '#5470C6', '#91CC75', '#EE6666', '#FAC858', '#73C0DE',
     '#3BA272', '#FC8452', '#9A60B4', '#EA7CCC'
@@ -93,17 +98,61 @@ function getOption() {
       splitLine: { lineStyle: { color: dark ? '#444' : '#eee', type: 'dashed' } }
     },
     backgroundColor: dark ? '#0000' : '#fff',
-    series: props.games.map((game, idx) => ({
-      name: game.name,
-      type: 'line',
-      symbol: 'circle',
-      symbolSize: 7,
-      data: props.visible[idx] ? game.entries.map(e => [e.time, e.lives]) : [],
-      lineStyle: { width: 2, color: props.colorMap[game.id] || getColor(idx) },
-      itemStyle: { color: props.colorMap[game.id] || getColor(idx) },
-      emphasis: { focus: 'series' },
-      showSymbol: props.visible[idx],
-    }))
+    series: props.games.map((game, idx) => {
+      const seriesData = props.visible[idx] ? game.entries.map(e => [e.time, e.lives]) : []
+      
+      // Find points where images should be placed (first point and after null values)
+      const markPointData = []
+      if (seriesData.length > 0) {
+        // Add image at the first point
+        markPointData.push({
+          coord: seriesData[0],
+          symbol: `image://https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${game.id}/logo.jpg`,
+          symbolSize: [60, 28], // Approximate Steam header aspect ratio
+          symbolOffset: [0, -40], // Position above the point
+          label: {
+            show: false
+          }
+        })
+        
+        // Check for points that follow null values (game switches)
+        // In this case, we'll add images at significant gaps in time (more than 1 hour)
+        for (let i = 1; i < seriesData.length; i++) {
+          const currentTime = seriesData[i][0]
+          const prevTime = seriesData[i-1][0]
+          const timeDiff = currentTime - prevTime
+          
+          // If there's a gap of more than 1 hour (3600000 ms), add an image
+          if (timeDiff > 3600000) {
+            markPointData.push({
+              coord: seriesData[i],
+              symbol: `image://https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${game.id}/header.jpg`,
+              symbolSize: [60, 28],
+              symbolOffset: [0, -40],
+              label: {
+                show: false
+              }
+            })
+          }
+        }
+      }
+      
+      return {
+        name: game.name,
+        type: 'line',
+        symbol: 'circle',
+        symbolSize: 7,
+        data: seriesData,
+        lineStyle: { width: 2, color: getColor(game.id, idx) },
+        itemStyle: { color: getColor(game.id, idx) },
+        emphasis: { focus: 'series' },
+        showSymbol: props.visible[idx],
+        markPoint: {
+          data: markPointData,
+          silent: true // Make the images non-interactive
+        }
+      }
+    })
   }
 }
 

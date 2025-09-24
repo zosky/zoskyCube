@@ -7,7 +7,11 @@
             {{ error }}
         </div>
         <div v-else>
-            <GameLivesLineChart :games="gamesForChartFiltered" :visible="visibleFiltered" :colorMap="colorMap" class="mb-8" />
+            <GameLivesLineChart 
+                :games="gamesForChartFiltered" 
+                :visible="visibleFiltered" 
+                :colorMap="colorMap" 
+                class="mb-8" />
             <div class="mb-4">
                 <input
                     v-model="searchTerm"
@@ -46,6 +50,7 @@ const {
     groupedBySteamId, 
     steamIdStats, 
     steamNames,
+    steamColors,
     youtubeVods,
     youtubeVodsBySteamId,
     fetchData 
@@ -62,15 +67,27 @@ const gamesForChart = computed(() =>
     }))
 )
 
-// Color palette and colorMap for chart/entries
-const palette = [
+// Color palette for fallback when steamId not in steamColors
+const fallbackPalette = [
   '#5470C6', '#91CC75', '#EE6666', '#FAC858', '#73C0DE',
   '#3BA272', '#FC8452', '#9A60B4', '#EA7CCC'
 ]
+
+// Generate a consistent color for a steamId (fallback)
+function getFallbackColor(steamId) {
+    // Use steamId as seed for consistent color selection
+    const hash = steamId.split('').reduce((a, b) => {
+        a = ((a << 5) - a) + b.charCodeAt(0)
+        return a & a
+    }, 0)
+    return fallbackPalette[Math.abs(hash) % fallbackPalette.length]
+}
+
 const colorMap = computed(() => {
   const map = {}
-  steamIdStats.value?.forEach((s, idx) => {
-    map[s.id] = palette[idx % palette.length]
+  steamIdStats.value?.forEach((s) => {
+    // Use steamColors if available, otherwise fallback to generated color
+    map[s.id] = steamColors.value[s.id] || getFallbackColor(s.id)
   })
   return map
 })
@@ -114,6 +131,7 @@ const filteredSteamIdStats = computed(() => {
 
 const gamesForChartFiltered = computed(() =>
     filteredSteamIdStats.value.map((s, idx) => ({
+        id: s.id,
         name: steamNames.value[s.id] || 'UnknownId:' + s.id,
         entries: (groupedBySteamId?.value[s.id] || [])
             // inject null if entry gap > 3 hours to break line
