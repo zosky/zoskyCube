@@ -10,6 +10,7 @@
     "lint": "vue-tsc --noEmit && vite lint",
     "yt": "./scripts/youTubeList.sh",
     "steamNames": "node ./scripts/cacheSteamNames.js",
+    "steamColors": "./scripts/getSteamColors.sh",
     "goTime": "./scripts/git-hook-pre-push.sh",
     "goHOT": "npm run goTime && git push origin main"
   },
