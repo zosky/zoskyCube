@@ -20,6 +20,9 @@ jobs:
         git config --global user.name "${{ github.actor }}@users.noreply.github.com"
     - run: npm i
     - run: npm run build
+      env:
+        VITE_TWITCH_CLIENT_ID: ${{ secrets.VITE_TWITCH_CLIENT_ID }}
+        VITE_TWITCH_CLIENT_SECRET: ${{ secrets.VITE_TWITCH_CLIENT_SECRET }}
     - name: ghPages (w/404hack)
       run: |
         cd dist
