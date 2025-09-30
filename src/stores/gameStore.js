@@ -70,7 +70,7 @@ export const useGameStore = () => {
         isLoading.value = true
         try {
             // fetch data from Google Sheets CSV export
-            const gSheetCsvUrl = (sheet,id='1nOSih6IJEXlBFEtwExaMBQY9ONb1OZmrzzWapRq9M7s') => `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&sheet=${sheet}`
+            const gSheetCsvUrl = (sheet,id= import.meta.env.VITE_GOOGLE_SHEETS_ID ) => `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&sheet=${sheet}`
             const rawHistory = await fetchCsvToJson(gSheetCsvUrl('history'))
             const rawYoutube = await fetchCsvToJson(gSheetCsvUrl('ytVods'))
             const steamXref = await fetchCsvToJson(gSheetCsvUrl('steamXref'))
