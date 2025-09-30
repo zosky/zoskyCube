@@ -77,7 +77,9 @@ export const useGameStore = () => {
             const steamXref = await fetchCsvToJson(gSheetCsvUrl('steamXref'))
             // mash data to match old CSV/JSON files
             // inject timeStamp for backwards compatibility with old CSV data
-            rawData.value = rawHistory.map(e=>e={...e,time: new Date(e.timestamp).getTime()/1000}) // add "time" prop w/ epoch sec
+            rawData.value = rawHistory
+                .map(e=>e={...e,time: new Date(e.timestamp).getTime()/1000}) // add "time" prop w/ epoch sec
+                .sort((a,b)=>a.time - b.time) // sort by time asc
             // copy {name} to {game} for easier mapping
             youtubeVods.value = rawYoutube.map(vod => ({ ...vod, game: vod.name }))
             // sXreff reSeprated into steam{names,colors}.json objects for easy xRef
