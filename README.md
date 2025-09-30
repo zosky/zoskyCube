@@ -1,7 +1,7 @@
 # Vue Timeline App
 
 ## Description
-A feature-rich Vue 3 application for visualizing and tracking game-related events, deaths, and statistics. The app provides interactive timelines, live-updating death counters, Steam game integration, and data visualization using ECharts for charting and Tailwind CSS for styling with Vite for fast development.
+A feature-rich Vue 3 application for visualizing and tracking game-related events, deaths, and statistics. The app provides interactive timelines, live-updating death counters, Steam game integration, and data visualization using ECharts for charting and Tailwind CSS for styling with Vite for fast development. Data is stored and managed via Google Sheets integration.
 
 ## Features
 - Interactive timeline of game events and deaths
@@ -11,13 +11,14 @@ A feature-rich Vue 3 application for visualizing and tracking game-related event
 - Death frame visualization and tracking
 - Responsive design with Tailwind CSS
 - Fast development and build with Vite
-- Data persistence via JSON files
+- Data persistence via Google Sheets integration
 - YouTube integration for VOD tracking
 
 ## dev QOL
 - github workflow onPush - `build-and-publish` for gh-pages
 - index.html baseUrl hack for dev/prod
 - Custom npm scripts for data processing and deployment
+- Google Sheets API integration for real-time data management
 
 ## Project Structure
 ```
@@ -37,9 +38,6 @@ vue-timeline-app
 │   └── stores
 │       └── gameStore.js # central data store for game statistics (JS not Vue)
 ├── public
-│   ├── history.json     # Main JSON file for plotting history
-│   ├── steamNames.json  # Cached Steam game names
-│   ├── youtube.json     # YouTube VOD data
 │   └── deathFrames      # Directory containing death frame SVGs
 ├── scripts
 │   ├── cacheSteamNames.js      # Script to cache Steam game names
@@ -94,6 +92,7 @@ Open your browser and navigate to `http://localhost:5173` (or the port shown in 
 - Tailwind CSS for styling
 - Vite for build tooling
 - Unplugin ecosystem for auto-imports and routing
+- Google Sheets API for data storage and management
 
 ## License
 This project is licensed under the MIT License.
