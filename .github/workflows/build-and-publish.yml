@@ -21,6 +21,7 @@ jobs:
     - run: npm i
     - run: npm run build
       env:
+        VITE_GOOGLE_SHEETS_ID: ${{ secrets.VITE_GOOGLE_SHEETS_ID }}
         VITE_TWITCH_CLIENT_ID: ${{ secrets.VITE_TWITCH_CLIENT_ID }}
         VITE_TWITCH_CLIENT_SECRET: ${{ secrets.VITE_TWITCH_CLIENT_SECRET }}
     - name: ghPages (w/404hack)
