@@ -69,10 +69,21 @@ export const useGameStore = () => {
     async function fetchData() {
         isLoading.value = true
         try {
-            rawData.value = await fetchCsvToJson('./history.csv')
-            youtubeVods.value = await fetchCsvToJson('./youtube.csv')
-            steamNames.value = await fetch('./steamNames.json').then(r=>r.json())
-            steamColors.value = await fetch('./steamColors.json').then(r=>r.json())
+            // fetch data from Google Sheets CSV export
+            const gSheetCsvUrl = (sheet,id='1nOSih6IJEXlBFEtwExaMBQY9ONb1OZmrzzWapRq9M7s') => `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&sheet=${sheet}`
+            const rawHistory = await fetchCsvToJson(gSheetCsvUrl('history'))
+            const rawYoutube = await fetchCsvToJson(gSheetCsvUrl('ytVods'))
+            const steamXref = await fetchCsvToJson(gSheetCsvUrl('steamXref'))
+            // mash data to match old CSV/JSON files
+            // inject timeStamp for backwards compatibility with old CSV data
+            rawData.value = rawHistory.map(e=>e={...e,time: new Date(e.timestamp).getTime()/1000}) // add "time" prop w/ epoch sec
+            // copy {name} to {game} for easier mapping
+            youtubeVods.value = rawYoutube.map(vod => ({ ...vod, game: vod.name }))
+            // sXreff reSeprated into steam{names,colors}.json objects for easy xRef
+            const arrReducer = (prop) => steamXref.reduce((acc, entry) => { acc[entry.steamId] = entry[prop] ; return acc }, {})
+            steamNames.value = arrReducer('name')
+            steamColors.value = arrReducer('color')
+
         } catch (e) {
             error.value = e.message
         } finally {
