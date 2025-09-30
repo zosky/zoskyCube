@@ -1,5 +1,10 @@
 <script setup>
 import { Twitch, EyeOutline, ClockOutline } from 'mdue'
+
+import { useGameStore } from '@/stores/gameStore'
+const { steamNames, fetchData } = useGameStore()
+fetchData()
+
 const props = defineProps({
   streamer: {
     type: String,
@@ -130,6 +135,22 @@ function formatStreamStartTime(startTime) {
   }
 }
 
+const steamGamePix=computed(()=> {
+  // Find steamId by matching game name in steamNames
+  {{ streamData.value?.game_name }}
+  // return Object.entries(steamNames?.value).find(name => name[1] === (streamData.value?.game_name || '')) || null 
+  const gameName = streamData.value?.game_name || ''
+  if (!gameName) return null
+  const steamId = Object.entries(steamNames?.value).find(name => name[1] === gameName)?.[0]
+  if (!steamId) return null
+  return getSteamGameImageUrl(steamId)
+})
+
+function getSteamGameImageUrl(gameId) {
+  if (!gameId) return null
+  return `https://cdn.akamai.steamstatic.com/steam/apps/${gameId}/header.jpg`
+}
+
 checkStreamerStatus() // initial check on load
 
 // Auto-refresh timer
@@ -154,23 +175,27 @@ watch(isOnline, () => {
 })
 
 // Start initial timer after first check
-onMounted(() => {
-  setTimeout(() => {
-    startAutoRefresh()
-  }, 1000) // Start timer 1 second after initial check
-})
+// onMounted(async () => {
+//   if (!gameStore.steamNames || Object.keys(gameStore.steamNames).length === 0) {
+//     await gameStore.fetchData()
+//   }
+//   setTimeout(() => {
+//     startAutoRefresh()
+//   }, 1000) // Start timer 1 second after initial check
+// })
 
 // Clean up timer when component unmounts
-onUnmounted(() => {
-  if (refreshTimer) {
-    clearInterval(refreshTimer)
-  }
-})
+// onUnmounted(() => {
+//   if (refreshTimer) {
+//     clearInterval(refreshTimer)
+//   }
+// })
 
 </script>
 
 <template>
-  <div class="rounded-lg shadow-md" @click.middle="checkStreamerStatus">
+  <div class="flex flex-row gap-1 rounded-lg shadow-md" @click.middle="checkStreamerStatus">
+
     <div v-if="loading" class="flex items-center justify-center">
       <!-- <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div> -->
       <Twitch class="animate-pulse text-purple-600" />
@@ -182,31 +207,24 @@ onUnmounted(() => {
       <span class="text-xs" :title="error">GRR?!</span>
     </div>
 
+    <div id="playing"></div>
+
     <div 
       v-if="streamerData && !loading" 
       class="flex flex-row items-center gap-1"
       :class="isOnline ? 'text-green-500 animate-pulse' : 'text-red-500'">
 
-        <!-- <h3 class="text-lg font-semibold">
-          {{ streamerData.display_name || streamerName }}
-        </h3> -->
-        <!-- <span 
-          :class="[
-            'py-0.5 rounded-full text-xs font-medium',
-            isOnline ? 'bg-green-100 text-green-800 px-1' : 'Xbg-red-100 text-sky-200/50'
-          ]"
-        >
-          {{ isOnline ? 'LIVE' : 'OFFLINE' }}
-        </span> -->
-
-      <!-- <h4 class="font-medium text-purple-900 mb-2">Currently Streaming:</h4> -->
-
       <Twitch class="text-2xl" />
       <ul v-if="isOnline && streamData">
+        <teleport to="#playing">
+          <img v-if="steamGamePix"
+              :src="steamGamePix" 
+              :alt="streamData.game_name" 
+              class="w-auto h-10 -mb-4 rounded-md border-b border-blue-400"
+            />
+          </teleport>
+
         <!-- <li>
-          <strong>Game:</strong> {{ streamData.game_name || 'Not specified' }}
-        </li>
-        <li>
           <strong>Title:</strong> {{ streamData.title || 'No title' }}
         </li> -->
         <li>
