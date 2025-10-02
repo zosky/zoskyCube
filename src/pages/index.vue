@@ -22,16 +22,16 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                 <SteamIdEntry 
-                    v-for="(steamId, idx) in filteredSteamIdStats" 
-                    :key="steamId.id"
-                    :steam-id="steamId.id"
-                    :entry-count="steamId.count"
-                    :entries="groupedBySteamId[steamId.id]"
-                    :color="colorMap[steamId.id]"
-                    :name="steamNames[steamId.id] || 'UnknownId:' + steamId.id"
-                    :active="visibleFiltered[idx]"
-                    :youtube="youtubeVodsBySteamId[steamId.id] || []"
-                    @click.prevent="toggleLineFiltered(idx)"
+                    v-for="game in filteredGameStats" 
+                    :key="game.id"
+                    :steam-id="game.id"
+                    :players="game.players"
+                    :entry-count="game.totalCount"
+                    :color="getGameColor(game.id)"
+                    :name="game.name"
+                    :active="gameVisibility[game.id]"
+                    :youtube="youtubeVodsBySteamId[game.id] || []"
+                    @click.prevent="toggleGame(game.id)"
                 />
             </div>
         </div>
@@ -47,8 +47,8 @@ import GameLivesLineChart from '../components/GameLivesLineChart.vue'
 const { 
     isLoading, 
     error, 
-    groupedBySteamId, 
-    steamIdStats, 
+    groupedBySteamIdAndPlayer, 
+    gameStats, 
     steamNames,
     steamColors,
     youtubeVods,
@@ -56,16 +56,24 @@ const {
     fetchData 
 } = useGameStore()
 
-const gamesForChart = computed(() =>
-    steamIdStats?.value?.map((s, idx) => ({
-        id: s.id,
-        name: steamNames.value[s.id] || 'UnknownId:' + s.id,
-        entries: (groupedBySteamId?.value[s.id] || []).map(e => ({
-            time: e.time * 1000,
-            lives: e.lives || e.deaths || 0
-        }))
-    }))
-)
+// Generate chart data with separate series for each player
+const gamesForChart = computed(() => {
+    const chartSeries = []
+    gameStats.value?.forEach(game => {
+        game.players.forEach(player => {
+            chartSeries.push({
+                id: game.id,
+                player: player.player,
+                name: game.players.length > 1 ? `${game.name} (${player.playerName})` : game.name,
+                entries: player.entries.map(e => ({
+                    time: e.time * 1000,
+                    lives: e.lives || e.deaths || 0
+                }))
+            })
+        })
+    })
+    return chartSeries
+})
 
 // Color palette for fallback when steamId not in steamColors
 const fallbackPalette = [
@@ -75,7 +83,6 @@ const fallbackPalette = [
 
 // Generate a consistent color for a steamId (fallback)
 function getFallbackColor(steamId) {
-    // Use steamId as seed for consistent color selection
     const hash = steamId.split('').reduce((a, b) => {
         a = ((a << 5) - a) + b.charCodeAt(0)
         return a & a
@@ -83,24 +90,56 @@ function getFallbackColor(steamId) {
     return fallbackPalette[Math.abs(hash) % fallbackPalette.length]
 }
 
+// Get base game color
+function getGameColor(steamId) {
+    return steamColors.value[steamId] || getFallbackColor(steamId)
+}
+
+// Generate player-specific colors by adjusting brightness/saturation
+function getPlayerColor(steamId, player) {
+    const baseColor = getGameColor(steamId)
+    
+    if (player === 1) {
+        return baseColor // Player 1 gets the base color
+    }
+    
+    // Player 2+ gets a darker variant
+    const hex = baseColor.replace('#', '')
+    let r = parseInt(hex.substr(0, 2), 16)
+    let g = parseInt(hex.substr(2, 2), 16)
+    let b = parseInt(hex.substr(4, 2), 16)
+    
+    // Darken for player 2+
+    const darkenAmount = (player - 1) * 30
+    r = Math.max(0, r - darkenAmount)
+    g = Math.max(0, g - darkenAmount)
+    b = Math.max(0, b - darkenAmount)
+    
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
+}
+
 const colorMap = computed(() => {
   const map = {}
-  steamIdStats.value?.forEach((s) => {
-    // Use steamColors if available, otherwise fallback to generated color
-    map[s.id] = steamColors.value[s.id] || getFallbackColor(s.id)
+  gamesForChart.value?.forEach((series) => {
+    const key = `${series.id}-${series.player}`
+    map[key] = getPlayerColor(series.id, series.player)
   })
   return map
 })
 
-// Track which lines are visible
-const visible = ref([])
-watch(steamIdStats, (val) => {
-  visible.value = val ? val.map(() => true) : []
+// Track game visibility (true = show all players for this game)
+const gameVisibility = ref({})
+watch(gameStats, (val) => {
+  const newVisibility = {}
+  val?.forEach(game => {
+    newVisibility[game.id] = true
+  })
+  gameVisibility.value = newVisibility
 }, { immediate: true })
 
-function toggleLine(idx) {
-    visible.value = visible.value.map((v, i) => i === idx ? !v : v)
-    console.log(idx, 'now', visible.value[idx] ? 'visible' : 'hidden')
+function toggleGame(gameId) {
+    gameVisibility.value[gameId] = !gameVisibility.value[gameId]
+    console.log(`Game ${gameId} now`, gameVisibility.value[gameId] ? 'visible' : 'hidden')
 }
 
 onMounted(() => {
@@ -109,67 +148,40 @@ onMounted(() => {
 
 const searchTerm = ref("")
 
-watch(searchTerm, (val) => {
-    if (!val) {
-        // Reset all to visible when search is cleared
-        visible.value = (steamIdStats.value || []).map(() => true)
-    } else {
-        // Hide all rows, then show only filtered
-        const filteredIds = new Set(filteredSteamIdStats.value.map(s => s.id))
-        visible.value = (steamIdStats.value || []).map(s => filteredIds.has(s.id))
-    }
-})
-
-const filteredSteamIdStats = computed(() => {
-    if (!searchTerm.value) return steamIdStats.value || []
+const filteredGameStats = computed(() => {
+    if (!searchTerm.value) return gameStats.value || []
     const term = searchTerm.value.toLowerCase()
-    return (steamIdStats.value || []).filter(s => {
-        const name = steamNames.value[s.id] || ''
-        return name.toLowerCase().includes(term)
+    return (gameStats.value || []).filter(game => {
+        return game.name.toLowerCase().includes(term)
     })
 })
 
-const gamesForChartFiltered = computed(() =>
-    filteredSteamIdStats.value.map((s, idx) => ({
-        id: s.id,
-        name: steamNames.value[s.id] || 'UnknownId:' + s.id,
-        entries: (groupedBySteamId?.value[s.id] || [])
-            // inject null if entry gap > 3 hours to break line
-            .reduce((acc, e) => {
-                const entry = { time: e.time * 1000, lives: e.lives || e.deaths || 0 }
-                if (acc.length > 0) {
-                    const lastEntry = acc[acc.length - 1]
-                    if (entry.time - lastEntry.time > 3 * 3600 * 1000) {
-                        acc.push({ time: lastEntry.time + 1, lives: null })
+const gamesForChartFiltered = computed(() => {
+    const filteredGameIds = new Set(filteredGameStats.value.map(g => g.id))
+    return gamesForChart.value
+        .filter(series => filteredGameIds.has(series.id))
+        .map(series => ({
+            ...series,
+            entries: series.entries
+                // inject null if entry gap > 3 hours to break line
+                .reduce((acc, e) => {
+                    const entry = { time: e.time, lives: e.lives }
+                    if (acc.length > 0) {
+                        const lastEntry = acc[acc.length - 1]
+                        if (entry.time - lastEntry.time > 3 * 3600 * 1000) {
+                            acc.push({ time: lastEntry.time + 1, lives: null })
+                        }
                     }
-                }
-                acc.push(entry)
-                return acc
-            }, [])
-    }))
-)
-
-// Track which lines are visible for filtered list
-const visibleFiltered = computed({
-    get() {
-        // Map visible to filteredSteamIdStats
-        return filteredSteamIdStats.value.map(s => {
-            const idx = (steamIdStats.value || []).findIndex(x => x.id === s.id)
-            return visible.value[idx]
-        })
-    },
-    set(newVal) {
-        // Update visible for the filtered indices
-        filteredSteamIdStats.value.forEach((s, i) => {
-            const idx = (steamIdStats.value || []).findIndex(x => x.id === s.id)
-            visible.value[idx] = newVal[i]
-        })
-    }
+                    acc.push(entry)
+                    return acc
+                }, [])
+        }))
 })
 
-function toggleLineFiltered(idx) {
-    const newVal = visibleFiltered.value.map((v, i) => i === idx ? !v : v)
-    visibleFiltered.value = newVal
-    console.log(idx, 'now', newVal[idx] ? 'visible' : 'hidden')
-}
+// Track which chart series are visible (based on game visibility and filtering)
+const visibleFiltered = computed(() => {
+    return gamesForChartFiltered.value.map(series => {
+        return gameVisibility.value[series.id] || false
+    })
+})
 </script>

@@ -49,6 +49,16 @@ const getSteamId = (entry) => {
     return steamId;
 }
 
+// Helper function to safely get player from entry
+const getPlayer = (entry) => {
+    const player = entry?.player;
+    // Default to player 1 if no player column exists
+    if (!player || player === '' || player === 'undefined') {
+        return 1;
+    }
+    return Number(player) || 1;
+}
+
 // Helper function to map death column to lives for backward compatibility
 const getLives = (entry) => {
     // Handle both 'death' and 'lives' columns, prioritize 'death' if it exists
@@ -77,10 +87,31 @@ export const useGameStore = () => {
     const steamColors = ref({}) // { steamId: #hex }
     const youtubeVods = ref([]) // [{ id:(@YT), date(ofTTVvod), game:(name) }, ... ]
     
+    // Group by steamId and player
+    const groupedBySteamIdAndPlayer = computed(() => {
+        const groups = {}
+        rawData.value.forEach(entry => {
+            const steamId = entry.steamId;
+            const player = entry.player;
+            
+            if (steamId) {
+                if (!groups[steamId]) {
+                    groups[steamId] = {}
+                }
+                if (!groups[steamId][player]) {
+                    groups[steamId][player] = []
+                }
+                groups[steamId][player].push(entry)
+            }
+        })
+        return groups
+    })
+
+    // Legacy compatibility - group by steamId only (combines all players)
     const groupedBySteamId = computed(() => {
         const groups = {}
         rawData.value.forEach(entry => {
-            const steamId = entry.steamId; // This will be normalized by our parsing below
+            const steamId = entry.steamId;
             if (steamId && !groups[steamId]) {
                 groups[steamId] = []
             }
@@ -89,6 +120,47 @@ export const useGameStore = () => {
             }
         })
         return groups
+    })
+
+    // Game-centric stats with player data embedded
+    const gameStats = computed(() => {
+        const stats = []
+        Object.keys(groupedBySteamIdAndPlayer.value).forEach(steamId => {
+            const playerData = groupedBySteamIdAndPlayer.value[steamId]
+            const players = Object.keys(playerData).map(player => ({
+                player: Number(player),
+                playerName: `Player ${player}`,
+                count: playerData[player].length,
+                entries: playerData[player],
+                lastDeath: playerData[player].at(-1)?.lives || 0
+            })).sort((a, b) => a.player - b.player)
+            
+            stats.push({
+                id: steamId,
+                name: steamNames.value[steamId] || 'UnknownId:' + steamId,
+                players: players,
+                totalCount: players.reduce((sum, p) => sum + p.count, 0)
+            })
+        })
+        return stats.sort((a, b) => a.name.localeCompare(b.name))
+    })
+
+    // Stats per steamId and player
+    const steamIdPlayerStats = computed(() => {
+        const stats = []
+        Object.keys(groupedBySteamIdAndPlayer.value).forEach(steamId => {
+            const playerData = groupedBySteamIdAndPlayer.value[steamId]
+            Object.keys(playerData).forEach(player => {
+                stats.push({
+                    id: steamId,
+                    player: Number(player),
+                    name: steamNames.value[steamId] || 'UnknownId:' + steamId,
+                    count: playerData[player].length,
+                    playerName: `Player ${player}`
+                })
+            })
+        })
+        return stats.sort((a, b) => a.name.localeCompare(b.name) || a.player - b.player)
     })
 
     const youtubeVodsBySteamId = computed(() => {
@@ -107,6 +179,7 @@ export const useGameStore = () => {
         return groupD
     })
     
+    // Legacy compatibility
     const steamIdStats = computed(() => {
         return Object.keys(groupedBySteamId.value).map(id => ({
             id,
@@ -140,11 +213,14 @@ export const useGameStore = () => {
                     // Handle both 'steamID' and 'steamId' column names
                     const steamId = getSteamId(e);
                     
+                    // Get player information
+                    const player = getPlayer(e);
+                    
                     // Map death column to lives for backward compatibility
                     const lives = getLives(e);
                     
                     return (parsedTime !== null && steamId !== null) ? 
-                        { ...e, time: parsedTime, steamId: steamId, lives: lives } : null;
+                        { ...e, time: parsedTime, steamId: steamId, player: player, lives: lives } : null;
                 })
                 .filter(e => e !== null) // Remove entries with invalid timestamps or steamIds
                 .sort((a,b)=>a.time - b.time) // sort by time asc
@@ -171,7 +247,10 @@ export const useGameStore = () => {
         isLoading,
         error,
         groupedBySteamId,
+        groupedBySteamIdAndPlayer,
         steamIdStats,
+        steamIdPlayerStats,
+        gameStats,
         fetchData
     }
 }
