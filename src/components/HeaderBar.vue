@@ -4,7 +4,7 @@ import { Twitch, Youtube, Steam, GamepadVariantOutline, SkullCrossbones } from '
 
 <template>
     <nav class="custom-cyan-shadow">
-        <a href="/">
+        <a href="./">
             <img src="@/assets/logo.png" alt="zoskyCube Logo" />
         </a>
         <a href="https://twitch.tv/zoskyCube" :title="'ttv:zoskyCube'">
