@@ -1,5 +1,5 @@
 <script setup>
-import { Twitch, Youtube, Steam, GamepadVariantOutline, SkullCrossbones } from 'mdue'
+import { Twitch, Youtube, Steam, GamepadVariantOutline, SkullCrossbones, Store } from 'mdue'
 </script>
 
 <template>
@@ -10,12 +10,11 @@ import { Twitch, Youtube, Steam, GamepadVariantOutline, SkullCrossbones } from '
         <a href="https://twitch.tv/zoskyCube" :title="'ttv:zoskyCube'">
             <ttv-status />
         </a>
-        <header-bar-yt href="./videos" :class="{ 'active' : $route.path=='/videos' }" />
-        <!-- <a href="https://youtube.com/@zoskyCube" :title="'yt:zoskyCube'">
-            <Youtube />
-            <p>{{ uniqueGames.length }} games • {{ totalVideosCount }} total videos</p>
-        </a> -->
-        <Steam />
+        <Steam
+            :class="{ 'active' : $route.path=='/collection' }" 
+            class="cursor-pointer"
+            @click="$router.push('./collection')"
+            title="Game Collection" />
         <SkullCrossbones             
             :class="{ 'active' : $route.path=='/' }" 
             class="cursor-pointer"

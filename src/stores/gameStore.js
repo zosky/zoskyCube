@@ -3,18 +3,78 @@
 const fetchCsvToJson = async (url) => {
     const response = await fetch(url)
     const text = await response.text()
-    const lines = text.split('\n').filter(line => line.trim() !== '');    
+    const lines = text.split('\n').filter(line => line.trim() !== '');
+    
+    // Proper CSV parsing function that handles quoted fields
+    const parseCSVLine = (line) => {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
+        
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            const nextChar = line[i + 1];
+            
+            if (char === '"') {
+                if (inQuotes && nextChar === '"') {
+                    // Handle escaped quotes ("")
+                    current += '"';
+                    i++; // Skip next quote
+                } else {
+                    // Toggle quote state
+                    inQuotes = !inQuotes;
+                }
+            } else if (char === ',' && !inQuotes) {
+                // Field separator found outside quotes
+                result.push(current);
+                current = '';
+            } else {
+                current += char;
+            }
+        }
+        
+        // Add the last field
+        result.push(current);
+        return result;
+    };
+    
     // Extract headers from first line
-    const headers = lines[0].split(',').map(h => h.replace(/"/g, ''));
+    const headers = parseCSVLine(lines[0]);
+    console.log('Headers found:', headers);
+
+    // Find the private column index for debugging
+    const privateColumnIndex = headers.indexOf('private');
+    console.log('Private column index:', privateColumnIndex);
 
     // Process data rows
-    const jsonARR = lines.slice(1).map(line => {
-        const values = line.split(',').map(val => val.replace(/"/g, ''));
+    const jsonARR = lines.slice(1).map((line, index) => {
+        const values = parseCSVLine(line);
         const obj = {};
-        headers.forEach((header, index) => {
-            // Convert to number if it's numeric
-            const value = values[index];
-            obj[header] = !isNaN(Number(value)) ? Number(value) : value;
+        
+        // Log first few rows to see raw private values
+        if (index < 5 && privateColumnIndex >= 0) {
+            console.log(`Row ${index + 1} raw private value:`, JSON.stringify(values[privateColumnIndex]));
+        }
+        
+        headers.forEach((header, headerIndex) => {
+            const value = values[headerIndex] || ''; // Handle undefined values
+            
+            // Special handling for the private column
+            if (header === 'private') {
+                // Log the conversion process
+                const isEmpty = !value || value.trim() === '';
+                const isFalse = value && value.toLowerCase() === 'false';
+                const result = value && value.toLowerCase() !== 'false' && value.trim() !== '';
+                
+                if (index < 5) {
+                    console.log(`Private field processing - Raw: "${value}", isEmpty: ${isEmpty}, isFalse: ${isFalse}, result: ${result}`);
+                }
+                
+                obj[header] = result;
+            } else {
+                // Convert to number if it's numeric, otherwise keep as string
+                obj[header] = !isNaN(Number(value)) && value.trim() !== '' ? Number(value) : value;
+            }
         });
         return obj;
     });
@@ -84,6 +144,7 @@ export const useGameStore = () => {
     const error = ref(null)
     const steamNames = ref({}) // { steamId: gameName }
     const steamColors = ref({}) // { steamId: #hex }
+    const steamLibrary = ref({}) // [ { Timestamp, appID, ITADid, store, name, note, date, discount, price, hisoricLow, currentLow, private }]
     const youtubeVods = ref([]) // [{ id:(@YT), date(ofTTVvod), game:(name) }, ... ]
     
     // Group by steamId and player
@@ -201,6 +262,7 @@ export const useGameStore = () => {
             const rawHistory = await fetchCsvToJson(gSheetCsvUrl('history'))
             const rawYoutube = await fetchCsvToJson(gSheetCsvUrl('ytVods'))
             const steamXref = await fetchCsvToJson(gSheetCsvUrl('steamXref'))
+            const collection = await fetchCsvToJson(gSheetCsvUrl('invested'))
             // mash data to match old CSV/JSON files
             // inject timeStamp for backwards compatibility with old CSV data
             rawData.value = rawHistory
@@ -229,6 +291,7 @@ export const useGameStore = () => {
             const arrReducer = (prop) => steamXref.reduce((acc, entry) => { acc[entry.steamId] = entry[prop] ; return acc }, {})
             steamNames.value = arrReducer('name')
             steamColors.value = arrReducer('color')
+            steamLibrary.value = collection
 
         } catch (e) {
             error.value = e.message
@@ -241,6 +304,7 @@ export const useGameStore = () => {
         rawData,
         steamNames,
         steamColors,
+        steamLibrary,
         youtubeVods,
         youtubeVodsBySteamId,
         isLoading,
