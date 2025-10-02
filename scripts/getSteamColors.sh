@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script to get dominant color from Steam game header image
-# Usage: echo "steamId" | ./getSteamColors.sh
+# Usage: ./getSteamColors.sh "steamId"
 # Returns: hex color code (e.g., #FF5733)
 
 set -e
@@ -20,7 +20,7 @@ if ! command -v curl &> /dev/null; then
 fi
 
 # Read steamId from stdin
-read -r steam_id
+steam_id=$1
 
 # Validate input
 if [[ -z "$steam_id" ]]; then

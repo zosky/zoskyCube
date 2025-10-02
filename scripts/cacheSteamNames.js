@@ -69,8 +69,8 @@ function fetchFromUrl(url) {
 function postToGoogleForms(steamId, name, color = '') {
     return new Promise((resolve, reject) => {
         const postData = [
-            `entry.1223958443=${encodeURIComponent(steamId)}`
-            `entry.414552523=${encodeURIComponent(name)}`
+            `entry.1223958443=${encodeURIComponent(steamId)}`,
+            `entry.414552523=${encodeURIComponent(name)}`,
             `entry.735029961=${encodeURIComponent(color)}`
         ].join('&')
         
@@ -143,7 +143,7 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 function getColorFromBash(steamId) {
     return new Promise((resolve, reject) => {
         const bashScript = path.join(__dirname, 'getSteamColors.sh');
-        const child = spawn('bash', [bashScript]);
+        const child = spawn('bash', [bashScript, steamId]);
         
         let output = '';
         let error = '';
@@ -163,10 +163,6 @@ function getColorFromBash(steamId) {
                 reject(new Error(`Color script failed: ${error}`));
             }
         });
-        
-        // Send steamId to stdin
-        child.stdin.write(steamId);
-        child.stdin.end();
     });
 }
 
@@ -184,8 +180,8 @@ async function main() {
         const uniqueSteamIds = new Set();
         
         historyData.forEach(item => {
-            if (item.steamId) {
-                uniqueSteamIds.add(item.steamId);
+            if (item.steamID) {
+                uniqueSteamIds.add(item.steamID);
             }
         });
         
@@ -205,7 +201,7 @@ async function main() {
                 }
             });
             
-            console.log(`Loaded ${Object.keys(existingSteamNames).length} game gSheey:steamXref`);
+            console.log(`Loaded ${Object.keys(existingSteamNames).length} game gSheet:steamXref`);
         } catch (error) {
             console.error('Error fetching steamXref sheet:', error);
             console.log('Continuing with empty steam names cache...');
