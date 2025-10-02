@@ -10,14 +10,14 @@ import { Twitch, Youtube, Steam, GamepadVariantOutline, SkullCrossbones } from '
         <a href="https://twitch.tv/zoskyCube" :title="'ttv:zoskyCube'">
             <ttv-status />
         </a>
-        <header-bar-yt href="/videos" />
+        <header-bar-yt href="./videos" />
         <!-- <a href="https://youtube.com/@zoskyCube" :title="'yt:zoskyCube'">
             <Youtube />
             <p>{{ uniqueGames.length }} games • {{ totalVideosCount }} total videos</p>
         </a> -->
         <Steam />
         <SkullCrossbones             
-            :class="$route.path=='/'?'text-yellow-400':''" 
+            :class="$route.path=='./'?'text-yellow-400':''" 
             class="cursor-pointer"
             @click="$router.push('/')" />
         <GamepadVariantOutline />
