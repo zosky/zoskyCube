@@ -23,6 +23,52 @@ const fetchCsvToJson = async (url) => {
     return jsonARR
 }
 
+// Helper function to safely parse timestamps
+const parseTimestamp = (timestamp) => {
+    if (!timestamp || timestamp === '' || timestamp === 'undefined') {
+        console.warn('Invalid timestamp detected:', timestamp);
+        return null;
+    }
+    
+    const date = new Date(timestamp);
+    if (isNaN(date.getTime())) {
+        console.warn('Failed to parse timestamp:', timestamp);
+        return null;
+    }
+    
+    return date.getTime() / 1000; // Convert to epoch seconds
+}
+
+// Helper function to safely get steamId from either steamID or steamId columns
+const getSteamId = (entry) => {
+    const steamId = entry?.steamID ?? entry?.steamId;
+    if (!steamId || steamId === '' || steamId === 'undefined') {
+        console.warn('Invalid steamId detected:', steamId);
+        return null;
+    }
+    return steamId;
+}
+
+// Helper function to map death column to lives for backward compatibility
+const getLives = (entry) => {
+    // Handle both 'death' and 'lives' columns, prioritize 'death' if it exists
+    const deathValue = entry?.death ?? entry?.deaths;
+    const livesValue = entry?.lives;
+    
+    // If we have a death value, use it as lives for backward compatibility
+    if (deathValue !== undefined && deathValue !== null && deathValue !== '') {
+        return Number(deathValue) || 0;
+    }
+    
+    // Fall back to lives column if death column doesn't exist
+    if (livesValue !== undefined && livesValue !== null && livesValue !== '') {
+        return Number(livesValue) || 0;
+    }
+    
+    console.warn('No valid death or lives value found:', entry);
+    return 0;
+}
+
 export const useGameStore = () => {
     const rawData = ref([])
     const isLoading = ref(true)
@@ -34,10 +80,13 @@ export const useGameStore = () => {
     const groupedBySteamId = computed(() => {
         const groups = {}
         rawData.value.forEach(entry => {
-            if (!groups[entry.steamId]) {
-                groups[entry.steamId] = []
+            const steamId = entry.steamId; // This will be normalized by our parsing below
+            if (steamId && !groups[steamId]) {
+                groups[steamId] = []
             }
-            groups[entry.steamId].push(entry)
+            if (steamId) {
+                groups[steamId].push(entry)
+            }
         })
         return groups
     })
@@ -66,7 +115,12 @@ export const useGameStore = () => {
         }))
     })
     
-    async function fetchData() {
+    async function fetchData(reload = false) {
+        // Only fetch if reload is true, or if data is not loaded/loading already
+        if (!reload && (isLoading.value || rawData.value.length > 0)) {
+            return;
+        }
+        
         isLoading.value = true
         try {
             // fetch data from Google Sheets CSV export
@@ -78,7 +132,21 @@ export const useGameStore = () => {
             // mash data to match old CSV/JSON files
             // inject timeStamp for backwards compatibility with old CSV data
             rawData.value = rawHistory
-                .map(e=>e={...e,time: new Date(e.timestamp).getTime()/1000}) // add "time" prop w/ epoch sec
+                .map(e => {
+                    // Handle both 'timestamp' and 'Timestamp' column names
+                    const timestampValue = e?.timestamp ?? e?.Timestamp;
+                    const parsedTime = parseTimestamp(timestampValue);
+                    
+                    // Handle both 'steamID' and 'steamId' column names
+                    const steamId = getSteamId(e);
+                    
+                    // Map death column to lives for backward compatibility
+                    const lives = getLives(e);
+                    
+                    return (parsedTime !== null && steamId !== null) ? 
+                        { ...e, time: parsedTime, steamId: steamId, lives: lives } : null;
+                })
+                .filter(e => e !== null) // Remove entries with invalid timestamps or steamIds
                 .sort((a,b)=>a.time - b.time) // sort by time asc
             // copy {name} to {game} for easier mapping
             youtubeVods.value = rawYoutube.map(vod => ({ ...vod, game: vod.name }))

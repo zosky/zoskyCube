@@ -166,6 +166,7 @@ function startAutoRefresh() {
   
   refreshTimer = setInterval(() => {
     checkStreamerStatus()
+    fetchData(true) // reload data
   }, interval)
 }
 
@@ -173,23 +174,6 @@ function startAutoRefresh() {
 watch(isOnline, () => {
   startAutoRefresh()
 })
-
-// Start initial timer after first check
-// onMounted(async () => {
-//   if (!gameStore.steamNames || Object.keys(gameStore.steamNames).length === 0) {
-//     await gameStore.fetchData()
-//   }
-//   setTimeout(() => {
-//     startAutoRefresh()
-//   }, 1000) // Start timer 1 second after initial check
-// })
-
-// Clean up timer when component unmounts
-// onUnmounted(() => {
-//   if (refreshTimer) {
-//     clearInterval(refreshTimer)
-//   }
-// })
 
 </script>
 

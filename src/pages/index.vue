@@ -104,7 +104,7 @@ function toggleLine(idx) {
 }
 
 onMounted(() => {
-    fetchData()
+    fetchData(true)
 })
 
 const searchTerm = ref("")
