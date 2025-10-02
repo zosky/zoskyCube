@@ -15,7 +15,7 @@
         
         <div v-else>
             <!-- Search and filter bar -->
-            <div class="mb-6 flex gap-4 items-center">
+            <div class="mb-6 flex flex-row-reverse gap-4 items-center">
                 <input
                     v-model="searchTerm"
                     type="search"
@@ -24,7 +24,7 @@
                 />
                 <select 
                     v-model="storeFilter"
-                    class="border-blue-900 bg-transparent p-2 border rounded shadow focus:outline-none focus:ring"
+                    class="border-blue-900 bg-transparent p-2.5 border rounded shadow focus:outline-none focus:ring"
                 >
                     <option value="">All Stores</option>
                     <option v-for="store in uniqueStores" :key="store" :value="store">
@@ -62,7 +62,11 @@
                                 <h3 class="font-semibold text-sm line-clamp-1 text-white flex-1 mr-2" :title="game.name">
                                     {{ game.name }}
                                 </h3>
-                                <span v-if="game.discount" class="font-medium text-xs" :class="{ 'text-red-400': game.discount.includes('-')}">
+                                <span 
+                                    v-if="game.discount" 
+                                    class="font-medium text-xs" 
+                                    :class="{ 'text-red-400': game.discount.includes('-')}" 
+                                    title="esotaric & estimated % saved" >
                                     {{ game.discount }}
                                 </span>
                             </div>
@@ -71,10 +75,10 @@
                             <div class="flex justify-between items-center text-xs -mt-1">
                                 <div class="flex items-center gap-1 text-gray-300">
                                     <span>{{ formatDate(game.Timestamp) }}</span>
-                                    <span class="text-gray-400">•</span>
-                                    <span class="text-blue-400">{{ game.store || 'N/A' }}</span>
+                                    <!-- <span class="text-gray-400">•</span> -->
                                 </div>
-                                <div class="flex items-center gap-0">
+                                <div class="text-blue-400">{{ game.store || 'N/A' }}</div>
+                                <!-- <div class="flex items-center gap-0">
                                     <span class="text-green-400" :class="{ 'font-bold': game.price < game.hisoricLow }">
                                         ${{ formatPrice(game.price) }}
                                     </span>
@@ -82,7 +86,7 @@
                                     <span class="text-yellow-400" :class="{ 'font-bold': game.price > game.hisoricLow }">
                                         ${{ formatPrice(game.hisoricLow) }}
                                     </span>
-                                </div>
+                                </div> -->
                             </div>
                             
                             <!-- Note (if exists) - only show on hover or as tooltip
