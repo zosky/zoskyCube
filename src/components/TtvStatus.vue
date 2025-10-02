@@ -1,9 +1,10 @@
 <script setup>
 import { Twitch, EyeOutline, ClockOutline } from 'mdue'
+import { ref, computed, onMounted, watch, inject } from 'vue'
 
-import { useGameStore } from '@/stores/gameStore'
-const { steamNames, fetchData } = useGameStore()
-fetchData()
+// Inject the global game store
+const gameStore = inject('gameStore')
+const { steamNames } = gameStore
 
 const props = defineProps({
   streamer: {

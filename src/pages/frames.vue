@@ -1,7 +1,9 @@
 <script setup>
-import { useGameStore } from '../stores/gameStore'
-const { steamNames, fetchData } = useGameStore()
-fetchData()
+import { inject } from 'vue'
+
+// Inject the global game store
+const gameStore = inject('gameStore')
+const { steamNames } = gameStore
 
 // Dynamically import all SVG files from deathFrames folder
 const svgModules = import.meta.glob('/public/deathFrames/*.svg', { as: 'url' })

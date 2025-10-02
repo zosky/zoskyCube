@@ -39,11 +39,12 @@
 </template>
 
 <script setup>
-import { onMounted, computed, ref, watch } from 'vue'
-import { useGameStore } from '../stores/gameStore'
+import { onMounted, computed, ref, watch, inject } from 'vue'
 import SteamIdEntry from '../components/SteamIdEntry.vue'
 import GameLivesLineChart from '../components/GameLivesLineChart.vue'
 
+// Inject the global game store
+const gameStore = inject('gameStore')
 const { 
     isLoading, 
     error, 
@@ -54,7 +55,7 @@ const {
     youtubeVods,
     youtubeVodsBySteamId,
     fetchData 
-} = useGameStore()
+} = gameStore
 
 // Generate chart data with separate series for each player
 const gamesForChart = computed(() => {
