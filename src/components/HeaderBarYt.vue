@@ -1,5 +1,4 @@
 <script setup>
-import { computed, inject } from 'vue'
 import { Youtube } from 'mdue'
 const router = useRouter()
 // Inject the global game store
@@ -55,7 +54,7 @@ const totalDuration = computed(() => {
     <!-- href="https://youtube.com/@zoskyCube" -->
     <a :title="'yt:zoskyCube'" 
         class="-my-2"
-        :class="$route.path == '/videos'?'text-yellow-300':'text-red-600'">
+        :class="{ 'text-red-600' : $route.path != '/videos' }">
         <Youtube class="text-3xl" />
         <div class="flex flex-col items-center scale-75 origin-left -mr-2">
             <p class="text-sm"

@@ -196,8 +196,6 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, inject } from 'vue'
-
 // Inject the global game store
 const gameStore = inject('gameStore')
 const { youtubeVods, steamNames, isLoading, error } = gameStore
@@ -270,11 +268,6 @@ watch(youtubeVods, (newVideos) => {
     selectedVideo.value = allVideosSorted[0]
   }
 }, { immediate: true })
-
-// Fetch data on mount
-onMounted(() => {
-  fetchData(true)
-})
 
 // Get filtered games based on selection
 const filteredGames = computed(() => {

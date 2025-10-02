@@ -1,6 +1,5 @@
 <script setup>
 import { Twitch, EyeOutline, ClockOutline } from 'mdue'
-import { ref, computed, onMounted, watch, inject } from 'vue'
 
 // Inject the global game store
 const gameStore = inject('gameStore')

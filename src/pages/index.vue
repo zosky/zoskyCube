@@ -39,22 +39,14 @@
 </template>
 
 <script setup>
-import { onMounted, computed, ref, watch, inject } from 'vue'
-import SteamIdEntry from '../components/SteamIdEntry.vue'
-import GameLivesLineChart from '../components/GameLivesLineChart.vue'
-
 // Inject the global game store
 const gameStore = inject('gameStore')
 const { 
     isLoading, 
     error, 
-    groupedBySteamIdAndPlayer, 
     gameStats, 
-    steamNames,
     steamColors,
-    youtubeVods,
     youtubeVodsBySteamId,
-    fetchData 
 } = gameStore
 
 // Generate chart data with separate series for each player
@@ -142,10 +134,6 @@ function toggleGame(gameId) {
     gameVisibility.value[gameId] = !gameVisibility.value[gameId]
     console.log(`Game ${gameId} now`, gameVisibility.value[gameId] ? 'visible' : 'hidden')
 }
-
-onMounted(() => {
-    fetchData(true)
-})
 
 const searchTerm = ref("")
 
