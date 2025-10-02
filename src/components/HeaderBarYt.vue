@@ -1,5 +1,5 @@
 <script setup>
-import { Youtube } from 'mdue'
+import { Youtube, Loading } from 'mdue'
 const router = useRouter()
 // Inject the global game store
 const gameStore = inject('gameStore')
@@ -56,7 +56,8 @@ const totalDuration = computed(() => {
         class="-my-2"
         :class="{ 'text-red-600' : $route.path != '/videos' }">
         <Youtube class="text-3xl" />
-        <div class="flex flex-col items-center scale-75 origin-left -mr-2">
+        <Loading v-if="!uniqueGames.length" class="animate-spin" />
+        <div v-else class="flex flex-col items-center scale-75 origin-left -mr-2">
             <p class="text-sm"
                 :title="`- games: ${ uniqueGames.length }\n - videos: ${ totalVideosCount }`">
                 {{ uniqueGames.length }}•{{ totalVideosCount }}
