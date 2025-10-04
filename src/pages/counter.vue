@@ -8,6 +8,7 @@ const { steamLibrary, gameStats, fetchData } = gameStore
 const player = ref(1)
 const selectedGame = ref(localStorage.getItem('lastSelectedGame') || '')
 const gameFilter = ref('')
+const loading = ref(false)
 
 const deathMap = computed(() => {
   if (!gameStats.value) return {}
@@ -61,6 +62,7 @@ onMounted(() => {
 })
 
 async function onSubmit() {
+  loading.value = true
   const steamID = selectedGame.value
   const next = count.value
   const PLAYER = player.value
@@ -79,9 +81,11 @@ async function onSubmit() {
     })
     console.log('Form submitted successfully')
     // refresh data after submit
-    gameStore.fetchData(true)
+    await gameStore.fetchData(true)
   } catch (error) {
     console.error('Error submitting form:', error)
+  } finally {
+    loading.value = false
   }
 }
 </script>
@@ -113,8 +117,8 @@ async function onSubmit() {
           <input type="number" id="player" v-model="player" placeholder="Player" class="pl-10 block w-full p-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
         </div>
       </div>
-      <button type="submit" class="inline-flex w-full justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-        Submit
+      <button type="submit" :disabled="loading" class="inline-flex w-full justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
+        {{ loading ? 'Submitting...' : 'Submit' }}
       </button>
     </form>
   </div>
