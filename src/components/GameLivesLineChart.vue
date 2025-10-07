@@ -149,7 +149,7 @@ function getOption() {
             })
           })
           
-          const seventyTwoHours = 72 * 60 * 60 * 1000
+          const seventyTwoHours = 4 * 7 * 24 * 60 * 60 * 1000 // last 3 weeks
           const zoomStartTime = maxTime - seventyTwoHours
           const totalTimeRange = maxTime - minTime
           
