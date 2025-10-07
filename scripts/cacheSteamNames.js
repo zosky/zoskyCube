@@ -172,20 +172,23 @@ async function main() {
         // Fetch history data from Google Sheets
         // console.log('Fetching history data from Google Sheets...');
         const csvData = await fetchFromUrl(getGoogleSheetsUrl('history'));
+        const ytRaw = await fetchFromUrl(getGoogleSheetsUrl('ytVods'))
+
         const historyData = parseCSV(csvData);
+        const ytData = parseCSV(ytRaw)
         
-        console.log(`Loaded ${historyData.length} items gSheet:history`);
+        console.log(`  gSheet:history = ${historyData.length}`);
+        console.log(`  gSheet:ytVods  = ${ytData.length}`);
         
         // Extract unique steamIds
         const uniqueSteamIds = new Set();
         
-        historyData.forEach(item => {
-            if (item.steamID) {
-                uniqueSteamIds.add(item.steamID);
-            }
+        [ ...historyData, ...ytData ].forEach(item => {
+            if (item.steamID) uniqueSteamIds.add(item.steamID);
+            if (item.steamId) uniqueSteamIds.add(item.steamId);
         });
         
-        console.log(`uniqueIDs: ${uniqueSteamIds.size}`) // , [...uniqueSteamIds]);
+        console.log(`  uniqueIDs: ${uniqueSteamIds.size}`) // , [...uniqueSteamIds]);
 
         // Fetch existing steam names from Google Sheets steamXref
         // console.log('Fetching existing steam names from Google Sheets steamXref...');
@@ -201,7 +204,7 @@ async function main() {
                 }
             });
             
-            console.log(`Loaded ${Object.keys(existingSteamNames).length} game gSheet:steamXref`);
+            console.log(`  gSheet:steamXref = ${Object.keys(existingSteamNames).length} `);
         } catch (error) {
             console.error('Error fetching steamXref sheet:', error);
             console.log('Continuing with empty steam names cache...');
@@ -209,7 +212,7 @@ async function main() {
         
         // Filter out Steam IDs that already have names
         const steamIdsToFetch = [...uniqueSteamIds].filter(id => !existingSteamNames[id]);
-        console.log(`${steamIdsToFetch.length} NEW steamIDs (${uniqueSteamIds.size - steamIdsToFetch.length} cached)`);
+        console.log(`  ${steamIdsToFetch.length} NEW steamIDs (${uniqueSteamIds.size - steamIdsToFetch.length} cached)`);
 
         // Process all Steam IDs and create mapping
         async function processSteamIds() {
@@ -244,7 +247,7 @@ async function main() {
                         try {
                             // console.log(`Adding ${appId}: ${gameDetails.name} (${color}) to Google Forms...`);
                             const response = await postToGoogleForms(appId, gameDetails.name, color);
-                            console.log(`Successfully posted to Google Forms (Status: ${response.statusCode})`);
+                            process.stdout.write(' ✅'); // Indicate progress
                         } catch (formError) {
                             console.error(`Error posting to Google Forms for ${appId}:`, formError.message);
                         }
