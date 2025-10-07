@@ -1,5 +1,5 @@
 <script setup>
-import { Twitch, Youtube, Steam, GamepadVariantOutline, SkullCrossbones, Store, PlusBox } from 'mdue'
+import { Twitch, Youtube, Steam, GamepadVariantOutline, SkullCrossbones, Store, PlusBox, TrophyOutline } from 'mdue'
 </script>
 
 <template>
@@ -25,6 +25,11 @@ import { Twitch, Youtube, Steam, GamepadVariantOutline, SkullCrossbones, Store, 
             class="cursor-pointer"
             @click="$router.push('/counter')"
             title="Add Death" />
+        <TrophyOutline
+            :class="{ 'active' : $route.path=='/winning' }" 
+            class="cursor-pointer"
+            @click="$router.push('/winning')"
+            title="Completed Games" />
         <GamepadVariantOutline />
     </nav>
 </template>

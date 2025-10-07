@@ -146,6 +146,7 @@ export const useGameStore = () => {
     const steamColors = ref({}) // { steamId: #hex }
     const steamLibrary = ref({}) // [ { Timestamp, appID, ITADid, store, name, note, date, discount, price, hisoricLow, currentLow, private }]
     const youtubeVods = ref([]) // [{ id:(@YT), date(ofTTVvod), game:(name) }, ... ]
+    const winningGames = ref([])
     
     // Group by steamId and player
     const groupedBySteamIdAndPlayer = computed(() => {
@@ -257,6 +258,7 @@ export const useGameStore = () => {
             const gSheetCsvUrl = (sheet) => `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:csv&sheet=${sheet}`
             const rawHistory = await fetchCsvToJson(gSheetCsvUrl('history'))
             const rawYoutube = await fetchCsvToJson(gSheetCsvUrl('ytVods'))
+            const rawWinning = await fetchCsvToJson(gSheetCsvUrl('winning'))
             const steamXref = await fetchCsvToJson(gSheetCsvUrl('steamXref'))
             const collection = await fetchCsvToJson(gSheetCsvUrl('invested'))
             // mash data to match old CSV/JSON files
@@ -283,6 +285,7 @@ export const useGameStore = () => {
                 .sort((a,b)=>a.time - b.time) // sort by time asc
             // copy {name} to {game} for easier mapping
             youtubeVods.value = rawYoutube.map(vod => ({ ...vod, game: vod.name }))
+            winningGames.value = rawWinning
             // sXreff reSeprated into steam{names,colors}.json objects for easy xRef
             const arrReducer = (prop) => steamXref.reduce((acc, entry) => { acc[entry.steamId] = entry[prop] ; return acc }, {})
             steamNames.value = arrReducer('name')
@@ -302,6 +305,7 @@ export const useGameStore = () => {
         steamColors,
         steamLibrary,
         youtubeVods,
+        winningGames,
         youtubeVodsBySteamId,
         isLoading,
         error,

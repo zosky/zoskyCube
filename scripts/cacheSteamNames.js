@@ -173,17 +173,20 @@ async function main() {
         // console.log('Fetching history data from Google Sheets...');
         const csvData = await fetchFromUrl(getGoogleSheetsUrl('history'));
         const ytRaw = await fetchFromUrl(getGoogleSheetsUrl('ytVods'))
+        const winRaw = await fetchFromUrl(getGoogleSheetsUrl('winning'))
 
         const historyData = parseCSV(csvData);
         const ytData = parseCSV(ytRaw)
+        const winData = parseCSV(winRaw)
         
         console.log(`  gSheet:history = ${historyData.length}`);
         console.log(`  gSheet:ytVods  = ${ytData.length}`);
+        console.log(`  gSheet:winning = ${winData.length}`);
         
         // Extract unique steamIds
         const uniqueSteamIds = new Set();
         
-        [ ...historyData, ...ytData ].forEach(item => {
+        [ ...historyData, ...ytData, ...winData ].forEach(item => {
             if (item.steamID) uniqueSteamIds.add(item.steamID);
             if (item.steamId) uniqueSteamIds.add(item.steamId);
         });

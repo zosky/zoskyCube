@@ -41,6 +41,7 @@ declare module 'vue-router/auto/routes' {
     '/counter': RouteRecordInfo<'/counter', '/counter', Record<never, never>, Record<never, never>>,
     '/frames': RouteRecordInfo<'/frames', '/frames', Record<never, never>, Record<never, never>>,
     '/videos': RouteRecordInfo<'/videos', '/videos', Record<never, never>, Record<never, never>>,
+    '/winning': RouteRecordInfo<'/winning', '/winning', Record<never, never>, Record<never, never>>,
   }
 }
 
