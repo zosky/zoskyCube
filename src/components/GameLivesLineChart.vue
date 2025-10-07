@@ -108,58 +108,18 @@ function getOption() {
       
       const gameHasMultiplePlayers = props.games.some(g => g.id === game.id && g.player !== game.player)
       
-      const markPointData = []
-      if (seriesData.length > 0) {
-        const playersForThisGame = props.games.filter(g => g.id === game.id)
-        const lowestPlayerNumber = Math.min(...playersForThisGame.map(g => g.player))
-        
-        if (game.player === lowestPlayerNumber) {
-          markPointData.push({
-            coord: seriesData[0],
-            symbol: `image://https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${game.id}/header.jpg`,
-            symbolSize: [60, 28],
-            symbolOffset: [0, -40],
-            label: {
-              show: false
-            }
-          })
-          
-          for (let i = 1; i < seriesData.length; i++) {
-            const currentTime = seriesData[i][0]
-            const prevTime = seriesData[i-1][0]
-            const timeDiff = currentTime - prevTime
-            
-            if (timeDiff > 3600000) {
-              markPointData.push({
-                coord: seriesData[i],
-                symbol: `image://https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${game.id}/header.jpg`,
-                symbolSize: [60, 28],
-                symbolOffset: [0, -40],
-                label: {
-                  show: false
-                }
-              })
-            }
-          }
-        }
-      }
-      
       const color = getColor(game.id, game.player, idx)
       
       return {
         name: game.name,
         type: 'line',
-        symbol: 'circle',
-        symbolSize: 5,
+        symbol: `image://https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${game.id}/header.jpg`,
+        symbolSize: [60, 28],
         data: seriesData,
         lineStyle: { width: 2, color: color },
         itemStyle: { color: color },
         emphasis: gameHasMultiplePlayers ? {} : { focus: 'series' },
-        showSymbol: props.visible[idx],
-        markPoint: {
-          data: markPointData,
-          silent: true
-        }
+        showSymbol: props.visible[idx]
       }
     }),
     dataZoom: [
