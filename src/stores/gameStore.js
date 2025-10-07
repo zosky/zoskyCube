@@ -224,19 +224,15 @@ export const useGameStore = () => {
     })
 
     const youtubeVodsBySteamId = computed(() => {
-        const rawD = youtubeVods.value
-        const steamNamesMap = Object.entries(steamNames.value).map(([id, name]) => ({id, name}))
-        const mapD = rawD.map(vod => vod={ 
-            ...vod, 
-            steamId: steamNamesMap.find(sn => sn.name === vod.game)?.id || null
-        })
-
-        const groupD = mapD.reduce((acc, vod) => {
-            if (!acc?.[vod.steamId]?.length) acc[vod.steamId] = []
-            acc[vod.steamId].push(vod)
+        return youtubeVods.value.reduce((acc, vod) => {
+            if (vod.steamId) {
+                if (!acc[vod.steamId]) {
+                    acc[vod.steamId] = []
+                }
+                acc[vod.steamId].push(vod)
+            }
             return acc
-        },{})
-        return groupD
+        }, {})
     })
     
     // Legacy compatibility
