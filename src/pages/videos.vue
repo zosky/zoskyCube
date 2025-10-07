@@ -9,9 +9,9 @@
     <div v-else-if="error" class="text-red-400 text-center p-4">
       Error: {{ error }}
     </div>
-
     <!-- Main Content -->
     <div v-else class="max-w-full">
+      <VodsCalendar class="my-4" />
       <!-- Selected Video Player with XL Layout -->
       <div v-if="selectedVideo" class="mb-8 mx-auto">
         <div class="xl:flex xl:gap-6">
@@ -135,7 +135,10 @@
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M19,3H18V1H16V3H8V1H6V3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M19,19H5V8H19V19Z"/>
                     </svg>
-                    {{ formatShortDate(getMostRecentVideo(game).date) }}
+                    <div class="flex justify-between items-center">
+                      <p class="text-xs text-gray-400" >{{ formatShortDate(getMostRecentVideo(game).date) }}</p>
+                      <p class="text-xs text-gray-400 ">{{ formatDuration(getMostRecentVideo(game).duration) }}</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -173,7 +176,10 @@
                       
                       <div class="flex-1 min-w-0">
                         <p class="text-sm text-gray-300 truncate font-medium">{{ video.game }}</p>
-                        <p class="text-xs text-gray-400">{{ formatDate(video.date) }}</p>
+                        <div class="flex justify-between items-center">
+                          <p class="text-xs text-gray-400">{{ formatDate(video.date) }}</p>
+                        </div>
+                        <p class="text-xs text-gray-400">{{ formatDuration(video.duration) }}</p>
                       </div>
                     </div>
                   </div>
@@ -186,7 +192,6 @@
           </div>
         </div>
       </div>
-
       <!-- Summary Info -->
       <div class="mt-8 text-center text-gray-400">
         <p>{{ uniqueGames.length }} games • {{ totalVideosCount }} total videos</p>
@@ -196,6 +201,7 @@
 </template>
 
 <script setup>
+import VodsCalendar from '@/components/VodsCalendar.vue';
 // Inject the global game store
 const gameStore = inject('gameStore')
 const { youtubeVods, steamNames, isLoading, error } = gameStore
@@ -324,6 +330,19 @@ function formatShortDate(dateString) {
   } catch (error) {
     return dateString
   }
+}
+
+function formatDuration(seconds) {
+  if (seconds === null || seconds === undefined) return ''
+  const h = Math.floor(seconds / 3600)
+  const m = Math.floor((seconds % 3600) / 60)
+  const s = Math.floor(seconds % 60)
+  
+  const hStr = h > 0 ? `${h}:` : ''
+  const mStr = m.toString().padStart(2, '0')
+  const sStr = s.toString().padStart(2, '0')
+  
+  return `${hStr}${mStr}:${sStr}`
 }
 </script>
 

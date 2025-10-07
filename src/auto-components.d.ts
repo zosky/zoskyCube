@@ -15,5 +15,6 @@ declare module '@vue/runtime-core' {
     SteamIdEntry: typeof import('./components/SteamIdEntry.vue')['default']
     Timeline: typeof import('./components/Timeline.vue')['default']
     TtvStatus: typeof import('./components/TtvStatus.vue')['default']
+    VodsCalendar: typeof import('./components/VodsCalendar.vue')['default']
   }
 }
