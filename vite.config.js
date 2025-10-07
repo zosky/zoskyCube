@@ -9,6 +9,7 @@ import { fileURLToPath, URL } from 'node:url'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  base: process.env.NODE_ENV === 'production' ? '/zoskyCube/' : '/',
   server: { 
     open: true, 
     // proxy: { '^/api/.*': {
