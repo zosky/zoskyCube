@@ -10,6 +10,7 @@ import { Twitch, Youtube, Steam, GamepadVariantOutline, SkullCrossbones, Store, 
         <a href="https://twitch.tv/zoskyCube" :title="'ttv:zoskyCube'">
             <ttv-status />
         </a>
+        <header-bar-yt />
         <Steam
             :class="{ 'active' : $route.path=='/collection' }" 
             class="cursor-pointer"

@@ -52,9 +52,10 @@ const totalDuration = computed(() => {
 
 <template>
     <!-- href="https://youtube.com/@zoskyCube" -->
-    <a :title="'yt:zoskyCube'" 
+    <button :title="'yt:zoskyCube'" 
         class="-my-2"
-        :class="{ 'text-red-600' : $route.path != '/videos' }">
+        :class="$route.path == '/videos' ? 'active': 'text-red-600' "
+        @click="router.push('/videos')">
         <Youtube class="text-3xl" />
         <Loading v-if="!uniqueGames.length" class="animate-spin" />
         <div v-else class="flex flex-col items-center scale-75 origin-left -mr-2">
@@ -67,5 +68,10 @@ const totalDuration = computed(() => {
                 {{ totalDuration }}
             </p>
         </div>
-    </a>
+    </button>
 </template>
+
+<style scoped>
+button { @apply flex flex-row items-center gap-1 hover:scale-105 transition-transform duration-200 }
+.active { @apply text-yellow-400 scale-110 }
+</style>
