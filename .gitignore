@@ -10,6 +10,9 @@
 /dist
 /build
 
+# Auto-generated files
+src/auto-*.d.ts
+
 # misc
 .DS_Store
 .env.local
