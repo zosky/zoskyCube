@@ -30,6 +30,10 @@ import { Twitch, Youtube, Steam, GamepadVariantOutline, SkullCrossbones, Store, 
             class="cursor-pointer"
             @click="$router.push('/winning')"
             title="Completed Games" />
+        <ArkLogo 
+            class="cursor-pointer w-10 h-auto -mx-2"
+            title="arkTribe timeline"
+            @click="$router.push('/ark')" />
         <GamepadVariantOutline />
     </nav>
 </template>

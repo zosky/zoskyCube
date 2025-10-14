@@ -7,6 +7,13 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    ArkBattleCard: typeof import('./components/ark/ArkBattleCard.vue')['default']
+    ArkDayCard: typeof import('./components/ark/ArkDayCard.vue')['default']
+    ArkEventItem: typeof import('./components/ark/ArkEventItem.vue')['default']
+    ArkLevelBadge: typeof import('./components/ark/ArkLevelBadge.vue')['default']
+    ArkLogo: typeof import('./components/ark/ArkLogo.vue')['default']
+    ArkPlayerAvatar: typeof import('./components/ark/ArkPlayerAvatar.vue')['default']
+    ArkTameCard: typeof import('./components/ark/ArkTameCard.vue')['default']
     GameLivesLineChart: typeof import('./components/GameLivesLineChart.vue')['default']
     HeaderBar: typeof import('./components/HeaderBar.vue')['default']
     HeaderBarYt: typeof import('./components/HeaderBarYt.vue')['default']

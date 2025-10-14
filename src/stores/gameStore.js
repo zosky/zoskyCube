@@ -147,6 +147,7 @@ export const useGameStore = () => {
     const steamLibrary = ref({}) // [ { Timestamp, appID, ITADid, store, name, note, date, discount, price, hisoricLow, currentLow, private }]
     const youtubeVods = ref([]) // [{ id:(@YT), date(ofTTVvod), game:(name) }, ... ]
     const winningGames = ref([])
+    const arkTribe = ref([]) // [{ steamId, player, arkTribe, arkRole }, ... ]
     
     // Group by steamId and player
     const groupedBySteamIdAndPlayer = computed(() => {
@@ -261,6 +262,7 @@ export const useGameStore = () => {
             const rawWinning = await fetchCsvToJson(gSheetCsvUrl('winning'))
             const steamXref = await fetchCsvToJson(gSheetCsvUrl('steamXref'))
             const collection = await fetchCsvToJson(gSheetCsvUrl('invested'))
+            const arkTribeRAW = await fetchCsvToJson(gSheetCsvUrl('arkTribe'))
             // mash data to match old CSV/JSON files
             // inject timeStamp for backwards compatibility with old CSV data
             rawData.value = rawHistory
@@ -291,6 +293,7 @@ export const useGameStore = () => {
             steamNames.value = arrReducer('name')
             steamColors.value = arrReducer('color')
             steamLibrary.value = collection
+            arkTribe.value = arkTribeRAW
 
         } catch (e) {
             error.value = e.message
@@ -314,6 +317,7 @@ export const useGameStore = () => {
         steamIdStats,
         steamIdPlayerStats,
         gameStats,
+        arkTribe,
         fetchData
     }
 }
