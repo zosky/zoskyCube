@@ -74,7 +74,7 @@ const getGameStats = computed(() => {
     
     <div v-else class="space-y-3">
       <!-- Header -->
-      <div class="bg-gradient-to-br from-blue-800 to-blue-600 text-white pt-4 rounded-xl mt-5">
+      <div class="bg-gradient-to-br pt-4 rounded-xl mt-5">
         <div class="flex flex-row align-top gap-1">
             <div class="text-4xl font-bold -mt-3">
                 <HaloLogo class="h-20" />
@@ -129,8 +129,8 @@ const getGameStats = computed(() => {
       <div id="games">
         <h3>🎯 Game Progress</h3>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
-          <div v-for="game in getGameStats" :key="game.name" class="border-2 border-gray-300 rounded-xl p-5 bg-gradient-to-br from-gray-50 to-gray-100 shadow-md shadow-blue-900 bg-white">
-            <h4 class="text-xl font-semibold text-blue-800 text-left -mt-5 -mx-5 px-5 py-1 bg-black bg-opacity-50 mb-4 rounded-t-xl border-b border-gray-400">{{ game.name.replace('Halo', 'Halo ') }}</h4>
+          <div v-for="game in getGameStats" :key="game.name" class="rounded-xl p-5 bg-gradient-to-tl from-transparent to-blue-800 shadow-md shadow-blue-900 bg-black">
+            <h4 class="text-xl font-semibold text-blue-100 text-left -mt-5 -mx-5 px-5 py-1 bg-black bg-opacity-50 mb-4 rounded-t-xl">{{ game.name.replace('Halo', 'Halo ') }}</h4>
             
             <div class="stats grid grid-cols-4 gap-2 mb-3">
               <div>
@@ -152,12 +152,12 @@ const getGameStats = computed(() => {
             </div>
 
             <!-- Mission Progress (if any completed) -->
-            <div v-if="Object.values(game.missions).some(m => m > 0)" class="mt-4 pt-4 border-t border-gray-300">
-              <h5 class="text-base font-semibold text-gray-700 mb-3">Completed Missions:</h5>
+            <div v-if="Object.values(game.missions).some(m => m > 0)" class="mt-4 pt-4 border-t border-gray-500">
+              <h5 class="text-base font-semibold text-gray-400 mb-3">Completed Missions:</h5>
               <div class="flex flex-wrap gap-2">
                 <span v-for="(count, missionKey) in game.missions" :key="missionKey" 
                       v-if="count != 0" class="bg-green-600 text-white px-3 py-1 rounded-full text-xs capitalize"
-                      :class="count == 0?'bg-yellow-300':'bg-blue-800 order-first'">
+                      :class="count == 0?'bg-yellow-300 text-black':'bg-blue-800 order-first'">
                   {{ missionKey.replace(/^H\d+?_/, '').replace(/_/g, ' ') }}
                   <!-- {{  missionKey }} -->
                 </span>
@@ -165,11 +165,11 @@ const getGameStats = computed(() => {
             </div>
 
             <!-- Top Weapons (if weapon data exists) -->
-            <div v-if="game.weapons && Object.values(game.weapons).some(w => w > 0)" class="mt-4 pt-4 border-t border-gray-300">
-              <h5 class="text-base font-semibold text-gray-700 mb-3">Top Weapons:</h5>
+            <div v-if="game.weapons && Object.values(game.weapons).some(w => w > 0)" class="mt-4 pt-4 border-t border-gray-500">
+              <h5 class="text-base font-semibold text-gray-400 mb-3">Top Weapons:</h5>
               <div class="flex flex-col gap-1">
                 <div v-for="[weapon, kills] in Object.entries(game.weapons).filter(([w, k]) => k > 0).sort((a, b) => b[1] - a[1]).slice(0, 3)" 
-                     :key="weapon" class="flex justify-between items-center px-3 py-1 bg-white rounded text-sm">
+                     :key="weapon" class="flex justify-between items-center px-3 py-1 bg-white bg-opacity-10 rounded text-sm">
                   <span class="capitalize">{{ weapon.replace(/_/g, ' ') }}</span>
                   <span class="font-bold text-red-600">{{ kills }}</span>
                 </div>
@@ -201,11 +201,11 @@ const getGameStats = computed(() => {
 </template>
 
 <style scoped>
-h3 { @apply opacity-75 text-xl font-semibold text-gray-800 mb-1 border-gray-200 }
+h3 { @apply opacity-75 text-xl font-semibold text-gray-100 mb-1 border-gray-500 }
 #stats label { @apply text-gray-600 opacity-75 text-xs min-w-max font-medium }
-#stats article { @apply shadow-md shadow-blue-900 text-center bg-gray-50 p-5 rounded-lg border-2 border-gray-200 hover:-translate-y-1 transition-transform duration-200 hover:shadow-xl }
-#stats article div { @apply text-3xl min-w-max font-bold text-blue-800 mb-1 }
-#games .stats > div { @apply text-center p-1 bg-white rounded-lg }
-#games .stats > div > div { @apply block text-xl font-bold text-blue-800 }
-#games .stats > div > span { @apply text-sm text-gray-600 }
+#stats article { @apply shadow-md border-b border-r border-blue-800 shadow-blue-900 text-center p-5 rounded-lg hover:-translate-y-1 transition-transform duration-200 hover:shadow-xl bg-white bg-opacity-10 }
+#stats article div { @apply text-3xl min-w-max font-bold text-blue-500 -mb-1 }
+#games .stats > div { @apply text-center p-1 bg-white bg-opacity-10 rounded-lg }
+#games .stats > div > div { @apply block text-xl font-bold text-blue-500 -mb-2 }
+#games .stats > div > span { @apply text-sm text-gray-400 text-xs }
 </style>
