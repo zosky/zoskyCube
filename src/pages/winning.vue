@@ -10,8 +10,9 @@
         <p>Error loading data: {{ error }}</p>
       </div>
   
-      <div v-if="!isLoading && !error" class="flex flex-row flex-wrap gap-4">
-        <div v-for="(monthData, month) in groupedWinnings" :key="month" class="bg-gray-800 p-2 rounded-lg shadow-lg border-2 border-blue-500/50 inline-block w-40 mb-4">
+      <div v-if="!isLoading && !error" 
+        class="grid grid-cols-1 md:flex md:flex-row flex-wrap gap-4">
+        <div v-for="(monthData, month) in groupedWinnings" :key="month" class="bg-gray-800 p-2 rounded-lg shadow-lg border-2 border-blue-500/50 inline-block w-full md:w-40 mb-4">
             <h2 class="text-sm font-semibold mb-2">{{ monthData.monthName }}</h2>
             <ul class="space-y-2">
               <li v-for="game in monthData.games" :key="game.steamId" class="relative">
@@ -30,7 +31,6 @@
   </template>
   
   <script setup>
-  import { computed, onMounted, inject } from 'vue'
   
   const gameStore = inject('gameStore')
   const { winningGames, steamNames, isLoading, error } = gameStore
