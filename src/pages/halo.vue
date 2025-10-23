@@ -204,8 +204,8 @@ const getGameStats = computed(() => {
 h3 { @apply opacity-75 text-xl font-semibold text-gray-100 mb-1 border-gray-500 }
 #stats label { @apply text-gray-600 opacity-75 text-xs min-w-max font-medium }
 #stats article { @apply shadow-md border-b border-r border-blue-800 shadow-blue-900 text-center p-5 rounded-lg hover:-translate-y-1 transition-transform duration-200 hover:shadow-xl bg-white bg-opacity-10 }
-#stats article div { @apply text-3xl min-w-max font-bold text-blue-500 -mb-1 }
+#stats article div { @apply text-3xl min-w-max font-bold text-blue-300 -mb-1 }
 #games .stats > div { @apply text-center p-1 bg-white bg-opacity-10 rounded-lg }
-#games .stats > div > div { @apply block text-xl font-bold text-blue-500 -mb-2 }
+#games .stats > div > div { @apply block text-xl font-bold text-blue-300 -mb-2 }
 #games .stats > div > span { @apply text-sm text-gray-400 text-xs }
 </style>
