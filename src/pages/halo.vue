@@ -156,8 +156,8 @@ const getGameStats = computed(() => {
               <h5 class="text-base font-semibold text-gray-400 mb-3">Completed Missions:</h5>
               <div class="flex flex-wrap gap-2">
                 <span v-for="(count, missionKey) in game.missions" :key="missionKey" 
-                      v-if="count != 0" class="bg-green-600 text-white px-3 py-1 rounded-full text-xs capitalize"
-                      :class="count == 0?'bg-yellow-300 text-black':'bg-blue-800 order-first'">
+                      class="px-3 py-1 rounded-full text-xs capitalize"
+                      :class="count == 0?'bg-yellow-300 text-black opacity-20 hover:opacity-100':'bg-blue-800 text-white order-first'">
                   {{ missionKey.replace(/^H\d+?_/, '').replace(/_/g, ' ') }}
                   <!-- {{  missionKey }} -->
                 </span>
