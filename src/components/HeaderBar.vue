@@ -30,7 +30,13 @@ import { Twitch, Youtube, Steam, GamepadVariantOutline, SkullCrossbones, Store, 
             class="cursor-pointer"
             @click="$router.push('/winning')"
             title="Completed Games" />
+        <HaloLogo
+            :class="{ 'animate-pulse' : $route.path=='/halo' }" 
+            class="cursor-pointer h-10 w-auto -mx-1"
+            title="Halo campaign Stats"
+            @click="$router.push('/halo')" />
         <ArkLogo 
+            :class="{ 'animate-pulse' : $route.path=='/halo' }" 
             class="cursor-pointer w-10 h-auto -mx-2"
             title="arkTribe timeline"
             @click="$router.push('/ark')" />
