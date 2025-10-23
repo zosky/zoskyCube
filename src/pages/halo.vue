@@ -205,7 +205,7 @@ h3 { @apply opacity-75 text-xl font-semibold text-gray-800 mb-1 border-gray-200 
 #stats label { @apply text-gray-600 opacity-75 text-xs min-w-max font-medium }
 #stats article { @apply shadow-md shadow-blue-900 text-center bg-gray-50 p-5 rounded-lg border-2 border-gray-200 hover:-translate-y-1 transition-transform duration-200 hover:shadow-xl }
 #stats article div { @apply text-3xl min-w-max font-bold text-blue-800 mb-1 }
-#game .stats > div { @apply text-center p-1 bg-white rounded-lg }
-#game .stats > div > div { @apply block text-xl font-bold text-blue-800 }
-#game .stats > div > span { @apply text-sm text-gray-600 }
+#games .stats > div { @apply text-center p-1 bg-white rounded-lg }
+#games .stats > div > div { @apply block text-xl font-bold text-blue-800 }
+#games .stats > div > span { @apply text-sm text-gray-600 }
 </style>
