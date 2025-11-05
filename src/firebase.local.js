@@ -1,8 +1,4 @@
-/**
- * Firebase Configuration for Timeline App
- * Client-side Firebase setup (NO SECRETS)
- */
-
+// Firebase configuration for LOCAL EMULATOR
 import { initializeApp } from 'firebase/app'
 import { getAuth, connectAuthEmulator } from 'firebase/auth'
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore'
@@ -21,10 +17,8 @@ const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const db = getFirestore(app)
 
-// Connect to emulators in development
-if (import.meta.env.DEV) {
-  connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true })
-  connectFirestoreEmulator(db, 'localhost', 8080)
-}
+// Connect to emulators
+connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true })
+connectFirestoreEmulator(db, 'localhost', 8080)
 
 export { auth, db, app }

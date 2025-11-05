@@ -169,14 +169,20 @@ import { useRouter, useRoute } from 'vue-router'
 const router = useRouter()
 const route = useRoute()
 
-// Cloud Functions URLs - your deployed Firebase Functions
-const CLOUD_FUNCTIONS_BASE_URL = 'https://us-central1-zoskycube-bossbattle.cloudfunctions.net'
+// Cloud Functions URLs - use emulator in development
+const CLOUD_FUNCTIONS_BASE_URL = import.meta.env.DEV 
+  ? 'http://localhost:5001/zoskycube-bossbattle/us-central1'
+  : 'https://us-central1-zoskycube-bossbattle.cloudfunctions.net'
+
+console.log('DEV mode:', import.meta.env.DEV)
+console.log('Cloud Functions Base URL:', CLOUD_FUNCTIONS_BASE_URL)
 
 const OAUTH_ENDPOINTS = {
-  twitch: `${CLOUD_FUNCTIONS_BASE_URL}/twitchAuthorize`,
-  discord: `${CLOUD_FUNCTIONS_BASE_URL}/discordAuthorize`,
-  steam: `${CLOUD_FUNCTIONS_BASE_URL}/steamAuthorize`
+  twitch: `${CLOUD_FUNCTIONS_BASE_URL}/twitchAuthorizeV2`,
+  discord: `${CLOUD_FUNCTIONS_BASE_URL}/discordAuthorizeV2`,
+  steam: `${CLOUD_FUNCTIONS_BASE_URL}/steamAuthorizeV2`
 }
+console.log('OAuth Endpoints:', OAUTH_ENDPOINTS)
 
 // Reactive state
 const loading = ref({
