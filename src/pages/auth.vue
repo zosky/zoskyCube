@@ -523,8 +523,10 @@ const disconnectSteam = async () => {
       updatedAt: new Date()
     })
     
-    userProfile.value.steam = null
     console.log('Steam disconnected')
+    
+    // Reload user profile to reflect changes
+    await loadUserProfile()
     
     // Clear localStorage if all services disconnected
     if (!userProfile.value.steam && !userProfile.value.discord && !userProfile.value.twitch) {
@@ -533,7 +535,7 @@ const disconnectSteam = async () => {
     }
   } catch (err) {
     console.error('Error disconnecting Steam:', err)
-    error.value = 'Failed to disconnect Steam'
+    errorMessage.value = 'Failed to disconnect Steam'
   }
 }
 
@@ -555,8 +557,10 @@ const disconnectDiscord = async () => {
       updatedAt: new Date()
     })
     
-    userProfile.value.discord = null
     console.log('Discord disconnected')
+    
+    // Reload user profile to reflect changes
+    await loadUserProfile()
     
     // Clear localStorage if all services disconnected
     if (!userProfile.value.steam && !userProfile.value.discord && !userProfile.value.twitch) {
@@ -565,7 +569,7 @@ const disconnectDiscord = async () => {
     }
   } catch (err) {
     console.error('Error disconnecting Discord:', err)
-    error.value = 'Failed to disconnect Discord'
+    errorMessage.value = 'Failed to disconnect Discord'
   }
 }
 
@@ -587,8 +591,10 @@ const disconnectTwitch = async () => {
       updatedAt: new Date()
     })
     
-    userProfile.value.twitch = null
     console.log('Twitch disconnected')
+    
+    // Reload user profile to reflect changes
+    await loadUserProfile()
     
     // Clear localStorage if all services disconnected
     if (!userProfile.value.steam && !userProfile.value.discord && !userProfile.value.twitch) {
@@ -597,7 +603,7 @@ const disconnectTwitch = async () => {
     }
   } catch (err) {
     console.error('Error disconnecting Twitch:', err)
-    error.value = 'Failed to disconnect Twitch'
+    errorMessage.value = 'Failed to disconnect Twitch'
   }
 }
 
