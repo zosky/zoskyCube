@@ -207,7 +207,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { onAuthStateChanged, signInWithCustomToken, signOut as firebaseSignOut } from 'firebase/auth'
-import { doc, getDoc, updateDoc, deleteField } from 'firebase/firestore'
+import { doc, getDoc, updateDoc, deleteField, setDoc, deleteDoc } from 'firebase/firestore'
 import { auth, db } from '../firebase'
 import { useRouter, useRoute } from 'vue-router'
 
@@ -373,13 +373,80 @@ const formatRelativeTime = (timestamp) => {
   return date.toLocaleDateString()
 }
 
+// Helper to migrate document to new ID if disconnecting the "parent" service
+const migrateToNewParent = async (disconnectingService) => {
+  const currentUid = user.value.uid
+  const profile = userProfile.value
+  
+  // Find which service is the current document ID
+  let currentParent = null
+  if (profile.steam?.id === currentUid) currentParent = 'steam'
+  else if (profile.twitch?.id === currentUid) currentParent = 'twitch'
+  else if (profile.discord?.id === currentUid) currentParent = 'discord'
+  
+  // If disconnecting the parent service, we need to migrate
+  if (currentParent === disconnectingService) {
+    // Find a new parent from remaining services
+    let newParentId = null
+    const newData = {}
+    
+    if (disconnectingService !== 'steam' && profile.steam) {
+      newParentId = profile.steam.id
+      newData.steam = profile.steam
+    } else if (disconnectingService !== 'twitch' && profile.twitch) {
+      newParentId = profile.twitch.id
+      newData.twitch = profile.twitch
+    } else if (disconnectingService !== 'discord' && profile.discord) {
+      newParentId = profile.discord.id
+      newData.discord = profile.discord
+    }
+    
+    if (newParentId) {
+      // Copy remaining services to new document
+      if (disconnectingService !== 'steam' && profile.steam && newParentId !== profile.steam.id) {
+        newData.steam = profile.steam
+      }
+      if (disconnectingService !== 'twitch' && profile.twitch && newParentId !== profile.twitch.id) {
+        newData.twitch = profile.twitch
+      }
+      if (disconnectingService !== 'discord' && profile.discord && newParentId !== profile.discord.id) {
+        newData.discord = profile.discord
+      }
+      
+      // Create new document
+      const newDocRef = doc(db, 'users', newParentId)
+      await setDoc(newDocRef, newData)
+      
+      // Delete old document
+      const oldDocRef = doc(db, 'users', currentUid)
+      await deleteDoc(oldDocRef)
+      
+      // Re-authenticate with new user ID
+      const customToken = await auth.currentUser.getIdToken()
+      await signInWithCustomToken(auth, customToken)
+      
+      console.log(`Migrated from ${disconnectingService} (${currentUid}) to new parent (${newParentId})`)
+      return true
+    }
+  }
+  
+  return false
+}
+
 // Disconnect individual services
 const disconnectSteam = async () => {
   if (!confirm('Are you sure you want to disconnect Steam?')) return
   
   try {
-    const userDocRef = doc(db, 'users', user.value.uid)
-    await updateDoc(userDocRef, { steam: deleteField() })
+    // Check if we need to migrate to a new parent
+    const migrated = await migrateToNewParent('steam')
+    
+    if (!migrated) {
+      // Simple disconnect
+      const userDocRef = doc(db, 'users', user.value.uid)
+      await updateDoc(userDocRef, { steam: deleteField() })
+    }
+    
     userProfile.value.steam = null
     console.log('Steam disconnected')
   } catch (err) {
@@ -392,8 +459,15 @@ const disconnectDiscord = async () => {
   if (!confirm('Are you sure you want to disconnect Discord?')) return
   
   try {
-    const userDocRef = doc(db, 'users', user.value.uid)
-    await updateDoc(userDocRef, { discord: deleteField() })
+    // Check if we need to migrate to a new parent
+    const migrated = await migrateToNewParent('discord')
+    
+    if (!migrated) {
+      // Simple disconnect
+      const userDocRef = doc(db, 'users', user.value.uid)
+      await updateDoc(userDocRef, { discord: deleteField() })
+    }
+    
     userProfile.value.discord = null
     console.log('Discord disconnected')
   } catch (err) {
@@ -406,8 +480,15 @@ const disconnectTwitch = async () => {
   if (!confirm('Are you sure you want to disconnect Twitch?')) return
   
   try {
-    const userDocRef = doc(db, 'users', user.value.uid)
-    await updateDoc(userDocRef, { twitch: deleteField() })
+    // Check if we need to migrate to a new parent
+    const migrated = await migrateToNewParent('twitch')
+    
+    if (!migrated) {
+      // Simple disconnect
+      const userDocRef = doc(db, 'users', user.value.uid)
+      await updateDoc(userDocRef, { twitch: deleteField() })
+    }
+    
     userProfile.value.twitch = null
     console.log('Twitch disconnected')
   } catch (err) {
