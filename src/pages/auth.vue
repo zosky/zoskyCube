@@ -434,7 +434,7 @@ const loadUserProfile = async (uid) => {
       console.log('🔥 Stored link UUID:', uid)
     }
     
-    // Fetch account_links document by UUID
+    // Fetch account_links document by UUID - FORCE SERVER FETCH to bypass cache
     const linkDocRef = doc(db, 'account_links', uid)
     const linkDocSnap = await getDoc(linkDocRef)
     
@@ -446,38 +446,48 @@ const loadUserProfile = async (uid) => {
     
     const linkData = linkDocSnap.data()
     console.log('🔥 Account link loaded:', linkData)
+    console.log('🔥 steamId:', linkData.steamId, 'discordId:', linkData.discordId, 'twitchId:', linkData.twitchId)
     
     // Build userProfile by fetching individual service profiles
     const profile = {}
     
     // Fetch Steam profile if linked
     if (linkData.steamId && linkData.steamId !== 'not-yet') {
+      console.log('🔥 Fetching Steam profile for ID:', linkData.steamId)
       const steamDocRef = doc(db, 'steam_profiles', linkData.steamId)
       const steamDocSnap = await getDoc(steamDocRef)
       if (steamDocSnap.exists()) {
         profile.steam = steamDocSnap.data()
         console.log('🔥 Steam profile loaded')
       }
+    } else {
+      console.log('🔥 Steam NOT linked (steamId:', linkData.steamId, ')')
     }
     
     // Fetch Discord profile if linked
     if (linkData.discordId && linkData.discordId !== 'not-yet') {
+      console.log('🔥 Fetching Discord profile for ID:', linkData.discordId)
       const discordDocRef = doc(db, 'discord_profiles', linkData.discordId)
       const discordDocSnap = await getDoc(discordDocRef)
       if (discordDocSnap.exists()) {
         profile.discord = discordDocSnap.data()
         console.log('🔥 Discord profile loaded')
       }
+    } else {
+      console.log('🔥 Discord NOT linked (discordId:', linkData.discordId, ')')
     }
     
     // Fetch Twitch profile if linked
     if (linkData.twitchId && linkData.twitchId !== 'not-yet') {
+      console.log('🔥 Fetching Twitch profile for ID:', linkData.twitchId)
       const twitchDocRef = doc(db, 'twitch_profiles', linkData.twitchId)
       const twitchDocSnap = await getDoc(twitchDocRef)
       if (twitchDocSnap.exists()) {
         profile.twitch = twitchDocSnap.data()
         console.log('🔥 Twitch profile loaded')
       }
+    } else {
+      console.log('🔥 Twitch NOT linked (twitchId:', linkData.twitchId, ')')
     }
     
     userProfile.value = profile
