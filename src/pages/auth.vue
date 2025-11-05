@@ -272,7 +272,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { onAuthStateChanged, signInWithCustomToken, signOut as firebaseSignOut } from 'firebase/auth'
-import { doc, getDoc, updateDoc, setDoc, serverTimestamp } from 'firebase/firestore'
+import { doc, getDoc } from 'firebase/firestore'
+import { getFunctions, httpsCallable } from 'firebase/functions'
 import { auth, db } from '../firebase'
 import { useRouter, useRoute } from 'vue-router'
 import { Twitch, Discord, Steam, Loading, CheckCircle, AlertCircle, Account, Identifier, Email, Tag, ClockOutline, AccountCircle } from 'mdue'
@@ -520,40 +521,10 @@ const disconnectSteam = async () => {
       return
     }
     
-    const linkDocRef = doc(db, 'account_links', linkUuid)
-    const linkDoc = await getDoc(linkDocRef)
-    const linkData = linkDoc.data()
-    
-    // Create history entry for disconnect
-    const timestamp = Date.now()
-    const historyId = `${linkUuid}_${timestamp}_steam`
-    await setDoc(doc(db, 'profile_history', historyId), {
-      service: 'steam',
-      serviceChanged: 'steam',
-      action: 'account_disconnect',
-      reason: 'user_disconnect',
-      oldData: {
-        steamId: linkData.steamId,
-        steamUsername: linkData.steamUsername
-      },
-      newData: {
-        steamId: 'not-yet',
-        steamUsername: 'not-yet'
-      },
-      linkUuid: linkUuid,
-      timestamp: serverTimestamp(),
-      timestampMs: timestamp
-    })
-    
-    // Rebuild linkId with steamId set to 'not-yet'
-    const newLinkId = `s:not-yet-d:${linkData.discordId || 'not-yet'}-t:${linkData.twitchId || 'not-yet'}`
-    
-    await updateDoc(linkDocRef, {
-      steamId: 'not-yet',
-      steamUsername: 'not-yet',
-      linkId: newLinkId,
-      updatedAt: new Date()
-    })
+    // Call Cloud Function to disconnect with history tracking
+    const functions = getFunctions()
+    const disconnectService = httpsCallable(functions, 'disconnectService')
+    await disconnectService({ service: 'steam' })
     
     // Reload user profile to reflect changes
     await loadUserProfile(linkUuid)
@@ -585,40 +556,10 @@ const disconnectDiscord = async () => {
       return
     }
     
-    const linkDocRef = doc(db, 'account_links', linkUuid)
-    const linkDoc = await getDoc(linkDocRef)
-    const linkData = linkDoc.data()
-    
-    // Create history entry for disconnect
-    const timestamp = Date.now()
-    const historyId = `${linkUuid}_${timestamp}_discord`
-    await setDoc(doc(db, 'profile_history', historyId), {
-      service: 'discord',
-      serviceChanged: 'discord',
-      action: 'account_disconnect',
-      reason: 'user_disconnect',
-      oldData: {
-        discordId: linkData.discordId,
-        discordUsername: linkData.discordUsername
-      },
-      newData: {
-        discordId: 'not-yet',
-        discordUsername: 'not-yet'
-      },
-      linkUuid: linkUuid,
-      timestamp: serverTimestamp(),
-      timestampMs: timestamp
-    })
-    
-    // Rebuild linkId with discordId set to 'not-yet'
-    const newLinkId = `s:${linkData.steamId || 'not-yet'}-d:not-yet-t:${linkData.twitchId || 'not-yet'}`
-    
-    await updateDoc(linkDocRef, {
-      discordId: 'not-yet',
-      discordUsername: 'not-yet',
-      linkId: newLinkId,
-      updatedAt: new Date()
-    })
+    // Call Cloud Function to disconnect with history tracking
+    const functions = getFunctions()
+    const disconnectService = httpsCallable(functions, 'disconnectService')
+    await disconnectService({ service: 'discord' })
     
     // Reload user profile to reflect changes
     await loadUserProfile(linkUuid)
@@ -650,40 +591,10 @@ const disconnectTwitch = async () => {
       return
     }
     
-    const linkDocRef = doc(db, 'account_links', linkUuid)
-    const linkDoc = await getDoc(linkDocRef)
-    const linkData = linkDoc.data()
-    
-    // Create history entry for disconnect
-    const timestamp = Date.now()
-    const historyId = `${linkUuid}_${timestamp}_twitch`
-    await setDoc(doc(db, 'profile_history', historyId), {
-      service: 'twitch',
-      serviceChanged: 'twitch',
-      action: 'account_disconnect',
-      reason: 'user_disconnect',
-      oldData: {
-        twitchId: linkData.twitchId,
-        twitchUsername: linkData.twitchUsername
-      },
-      newData: {
-        twitchId: 'not-yet',
-        twitchUsername: 'not-yet'
-      },
-      linkUuid: linkUuid,
-      timestamp: serverTimestamp(),
-      timestampMs: timestamp
-    })
-    
-    // Rebuild linkId with twitchId set to 'not-yet'
-    const newLinkId = `s:${linkData.steamId || 'not-yet'}-d:${linkData.discordId || 'not-yet'}-t:not-yet`
-    
-    await updateDoc(linkDocRef, {
-      twitchId: 'not-yet',
-      twitchUsername: 'not-yet',
-      linkId: newLinkId,
-      updatedAt: new Date()
-    })
+    // Call Cloud Function to disconnect with history tracking
+    const functions = getFunctions()
+    const disconnectService = httpsCallable(functions, 'disconnectService')
+    await disconnectService({ service: 'twitch' })
     
     // Reload user profile to reflect changes
     await loadUserProfile(linkUuid)
