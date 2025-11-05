@@ -524,8 +524,8 @@ const disconnectSteam = async () => {
     const newLinkId = `s:not-yet-d:${linkData.discordId || 'not-yet'}-t:${linkData.twitchId || 'not-yet'}`
     
     await updateDoc(linkDocRef, {
-      steamId: 'not-yet',
-      steamUsername: 'not-yet',
+      steamId: null,
+      steamUsername: null,
       linkId: newLinkId,
       updatedAt: new Date()
     })
@@ -565,8 +565,8 @@ const disconnectDiscord = async () => {
     const newLinkId = `s:${linkData.steamId || 'not-yet'}-d:not-yet-t:${linkData.twitchId || 'not-yet'}`
     
     await updateDoc(linkDocRef, {
-      discordId: 'not-yet',
-      discordUsername: 'not-yet',
+      discordId: null,
+      discordUsername: null,
       linkId: newLinkId,
       updatedAt: new Date()
     })
@@ -606,8 +606,8 @@ const disconnectTwitch = async () => {
     const newLinkId = `s:${linkData.steamId || 'not-yet'}-d:${linkData.discordId || 'not-yet'}-t:not-yet`
     
     await updateDoc(linkDocRef, {
-      twitchId: 'not-yet',
-      twitchUsername: 'not-yet',
+      twitchId: null,
+      twitchUsername: null,
       linkId: newLinkId,
       updatedAt: new Date()
     })
