@@ -1,0 +1,320 @@
+<template>
+  <div class="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 p-4">
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-4xl font-bold text-white text-center mb-8">
+        Connect Your Gaming Accounts
+      </h1>
+      
+      <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 mb-8">
+        <p class="text-white/80 text-center mb-4">
+          Connect all three gaming platforms to unlock full features and sync your profile data.
+        </p>
+        <div class="flex justify-center space-x-4">
+          <div class="flex items-center">
+            <div :class="['w-3 h-3 rounded-full mr-2', steamConnected ? 'bg-green-500' : 'bg-red-500']"></div>
+            <span class="text-white/80">Steam</span>
+          </div>
+          <div class="flex items-center">
+            <div :class="['w-3 h-3 rounded-full mr-2', discordConnected ? 'bg-green-500' : 'bg-red-500']"></div>
+            <span class="text-white/80">Discord</span>
+          </div>
+          <div class="flex items-center">
+            <div :class="['w-3 h-3 rounded-full mr-2', twitchConnected ? 'bg-green-500' : 'bg-red-500']"></div>
+            <span class="text-white/80">Twitch</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Profile Display -->
+      <div v-if="user" class="bg-white/10 backdrop-blur-md rounded-xl p-6 mb-8">
+        <h3 class="text-xl font-semibold text-white mb-4">
+          <i class="mdi mdi-account-circle text-green-400 mr-2"></i>
+          Signed in as {{ user.uid }}
+        </h3>
+        <div class="grid md:grid-cols-3 gap-4 text-white/80 text-sm">
+          <div v-if="userProfile?.twitch">
+            <strong>Twitch:</strong> {{ userProfile.twitch.displayName || userProfile.twitch.login }}
+          </div>
+          <div v-if="userProfile?.discord">
+            <strong>Discord:</strong> {{ userProfile.discord.username }}
+          </div>
+          <div v-if="userProfile?.steam">
+            <strong>Steam:</strong> {{ userProfile.steam.personaname || userProfile.steam.steamid }}
+          </div>
+        </div>
+        <button 
+          @click="signOut"
+          class="mt-4 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg font-semibold transition-all duration-200"
+        >
+          Sign Out
+        </button>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6 mb-8">
+        <!-- Steam Connection -->
+        <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 text-center">
+          <div class="mb-4">
+            <i class="mdi mdi-steam text-6xl text-blue-400"></i>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-2">Steam</h3>
+          <p class="text-white/70 text-sm mb-4">
+            {{ steamConnected ? `Connected as ${userProfile?.steam?.personaname || 'Steam User'}` : 'Connect your Steam account' }}
+          </p>
+          <button 
+            @click="connectSteam"
+            :class="[
+              'w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200',
+              steamConnected 
+                ? 'bg-gray-600 cursor-not-allowed text-white' 
+                : 'bg-blue-600 hover:bg-blue-700 text-white'
+            ]"
+            :disabled="loading.steam || steamConnected"
+          >
+            <i v-if="loading.steam" class="mdi mdi-loading mdi-spin mr-2"></i>
+            {{ steamConnected ? 'Connected ✓' : 'Connect Steam' }}
+          </button>
+        </div>
+
+        <!-- Discord Connection -->
+        <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 text-center">
+          <div class="mb-4">
+            <i class="mdi mdi-discord text-6xl text-indigo-400"></i>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-2">Discord</h3>
+          <p class="text-white/70 text-sm mb-4">
+            {{ discordConnected ? `Connected as ${userProfile?.discord?.username || 'Discord User'}` : 'Connect your Discord account' }}
+          </p>
+          <button 
+            @click="connectDiscord"
+            :class="[
+              'w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200',
+              discordConnected 
+                ? 'bg-gray-600 cursor-not-allowed text-white' 
+                : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+            ]"
+            :disabled="loading.discord || discordConnected"
+          >
+            <i v-if="loading.discord" class="mdi mdi-loading mdi-spin mr-2"></i>
+            {{ discordConnected ? 'Connected ✓' : 'Connect Discord' }}
+          </button>
+        </div>
+
+        <!-- Twitch Connection -->
+        <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 text-center">
+          <div class="mb-4">
+            <i class="mdi mdi-twitch text-6xl text-purple-400"></i>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-2">Twitch</h3>
+          <p class="text-white/70 text-sm mb-4">
+            {{ twitchConnected ? `Connected as ${userProfile?.twitch?.displayName || 'Twitch User'}` : 'Connect your Twitch account' }}
+          </p>
+          <button 
+            @click="connectTwitch"
+            :class="[
+              'w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200',
+              twitchConnected 
+                ? 'bg-gray-600 cursor-not-allowed text-white' 
+                : 'bg-purple-600 hover:bg-purple-700 text-white'
+            ]"
+            :disabled="loading.twitch || twitchConnected"
+          >
+            <i v-if="loading.twitch" class="mdi mdi-loading mdi-spin mr-2"></i>
+            {{ twitchConnected ? 'Connected ✓' : 'Connect Twitch' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- All Connected Success Message -->
+      <div v-if="allConnected" class="bg-white/10 backdrop-blur-md rounded-xl p-6 text-center">
+        <h3 class="text-2xl font-semibold text-white mb-4">
+          <i class="mdi mdi-check-circle text-green-400 mr-2"></i>
+          All Accounts Connected!
+        </h3>
+        <p class="text-white/80 mb-2">
+          Your gaming profiles are now linked and synced.
+        </p>
+        <p class="text-white/60 text-sm">
+          Check your Discord server for your assigned roles!
+        </p>
+      </div>
+
+      <!-- OAuth Callback Handler -->
+      <div v-if="isProcessingCallback" class="bg-white/10 backdrop-blur-md rounded-xl p-6 text-center">
+        <i class="mdi mdi-loading mdi-spin text-4xl text-white mb-4"></i>
+        <p class="text-white">Processing authentication...</p>
+      </div>
+
+      <!-- Error Display -->
+      <div v-if="error" class="bg-red-500/20 backdrop-blur-md rounded-xl p-6 text-center">
+        <i class="mdi mdi-alert-circle text-4xl text-red-400 mb-4"></i>
+        <p class="text-white">{{ error }}</p>
+        <button 
+          @click="error = ''"
+          class="mt-4 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg"
+        >
+          Dismiss
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { onAuthStateChanged, signInWithCustomToken, signOut as firebaseSignOut } from 'firebase/auth'
+import { doc, getDoc } from 'firebase/firestore'
+import { auth, db } from '../firebase'
+import { useRouter, useRoute } from 'vue-router'
+
+const router = useRouter()
+const route = useRoute()
+
+// Cloud Functions URLs - your deployed Firebase Functions
+const CLOUD_FUNCTIONS_BASE_URL = 'https://us-central1-zoskycube-bossbattle.cloudfunctions.net'
+
+const OAUTH_ENDPOINTS = {
+  twitch: `${CLOUD_FUNCTIONS_BASE_URL}/twitchAuthorize`,
+  discord: `${CLOUD_FUNCTIONS_BASE_URL}/discordAuthorize`,
+  steam: `${CLOUD_FUNCTIONS_BASE_URL}/steamAuthorize`
+}
+
+// Reactive state
+const loading = ref({
+  steam: false,
+  discord: false,
+  twitch: false
+})
+
+const user = ref(null)
+const userProfile = ref(null)
+const error = ref('')
+const isProcessingCallback = ref(false)
+
+// Computed properties
+const steamConnected = computed(() => !!userProfile.value?.steam)
+const discordConnected = computed(() => !!userProfile.value?.discord)
+const twitchConnected = computed(() => !!userProfile.value?.twitch)
+const allConnected = computed(() => steamConnected.value && discordConnected.value && twitchConnected.value)
+
+// OAuth Functions - Now just redirect to Cloud Functions!
+const connectSteam = () => {
+  loading.value.steam = true
+  const returnOrigin = encodeURIComponent(window.location.origin)
+  window.location.href = `${OAUTH_ENDPOINTS.steam}?return_origin=${returnOrigin}`
+}
+
+const connectDiscord = () => {
+  loading.value.discord = true
+  const returnOrigin = encodeURIComponent(window.location.origin)
+  window.location.href = `${OAUTH_ENDPOINTS.discord}?return_origin=${returnOrigin}`
+}
+
+const connectTwitch = () => {
+  loading.value.twitch = true
+  const returnOrigin = encodeURIComponent(window.location.origin)
+  window.location.href = `${OAUTH_ENDPOINTS.twitch}?return_origin=${returnOrigin}`
+}
+
+// Sign out function
+const signOut = async () => {
+  try {
+    await firebaseSignOut(auth)
+    userProfile.value = null
+    router.push('/')
+  } catch (err) {
+    console.error('Sign out error:', err)
+    error.value = 'Failed to sign out'
+  }
+}
+
+// Handle OAuth callback with custom token
+const handleOAuthCallback = async () => {
+  const urlParams = new URLSearchParams(window.location.search)
+  const token = urlParams.get('token')
+  const success = urlParams.get('success')
+  const errorParam = urlParams.get('error')
+
+  if (errorParam) {
+    error.value = `Authentication failed: ${decodeURIComponent(errorParam)}`
+    // Clean URL
+    window.history.replaceState({}, document.title, '/auth')
+    return
+  }
+
+  if (token && success) {
+    isProcessingCallback.value = true
+    try {
+      console.log('🔥 Received custom token from Cloud Function')
+      console.log('🔥 Provider:', success)
+      
+      // Sign in with the custom token from Cloud Functions
+      const userCredential = await signInWithCustomToken(auth, token)
+      user.value = userCredential.user
+      
+      console.log('🔥 Successfully signed in with custom token')
+      console.log('🔥 User ID:', user.value.uid)
+      
+      // Fetch user profile from Firestore
+      await loadUserProfile(user.value.uid)
+      
+      // Clean URL
+      window.history.replaceState({}, document.title, '/auth')
+      
+    } catch (err) {
+      console.error('🔥 Error signing in with custom token:', err)
+      error.value = 'Failed to complete authentication: ' + err.message
+    } finally {
+      isProcessingCallback.value = false
+    }
+  }
+}
+
+// Load user profile from Firestore
+const loadUserProfile = async (uid) => {
+  try {
+    console.log('🔥 Loading user profile for UID:', uid)
+    
+    // Fetch user document from Firestore
+    const userDocRef = doc(db, 'users', uid)
+    const userDocSnap = await getDoc(userDocRef)
+    
+    if (userDocSnap.exists()) {
+      const userData = userDocSnap.data()
+      console.log('🔥 User profile loaded from Firestore:', userData)
+      
+      userProfile.value = {
+        twitch: userData.twitch,
+        discord: userData.discord,
+        steam: userData.steam
+      }
+    } else {
+      console.log('🔥 No user profile found in Firestore')
+      userProfile.value = null
+    }
+    
+  } catch (err) {
+    console.error('Error loading user profile:', err)
+    error.value = 'Failed to load profile data'
+  }
+}
+
+// Listen for auth state changes
+onMounted(() => {
+  // Check for OAuth callback first
+  handleOAuthCallback()
+  
+  // Listen for Firebase auth state
+  onAuthStateChanged(auth, async (firebaseUser) => {
+    user.value = firebaseUser
+    
+    if (firebaseUser) {
+      console.log('🔥 User authenticated:', firebaseUser.uid)
+      // Load user profile data from Firestore
+      await loadUserProfile(firebaseUser.uid)
+    } else {
+      console.log('🔥 No user authenticated')
+      userProfile.value = null
+    }
+  })
+})
+</script>

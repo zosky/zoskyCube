@@ -1,5 +1,5 @@
 <script setup>
-import { Twitch, Youtube, Steam, GamepadVariantOutline, SkullCrossbones, Store, PlusBox, TrophyOutline } from 'mdue'
+import { Twitch, Youtube, Steam, GamepadVariantOutline, SkullCrossbones, Store, PlusBox, TrophyOutline, Account } from 'mdue'
 </script>
 
 <template>
@@ -30,6 +30,12 @@ import { Twitch, Youtube, Steam, GamepadVariantOutline, SkullCrossbones, Store, 
             class="cursor-pointer"
             @click="$router.push('/winning')"
             title="Completed Games" />
+        <Account
+            v-if="$route.path=='/auth'"
+            :class="{ 'active' : $route.path=='/auth' }" 
+            class="cursor-pointer"
+            @click="$router.push('/auth')"
+            title="Connect Gaming Accounts" />
         <HaloLogo
             :class="{ 'animate-pulse' : $route.path=='/halo' }" 
             class="cursor-pointer h-10 w-auto -mx-1"

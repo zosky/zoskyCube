@@ -29,5 +29,8 @@
     "vite-plugin-pwa": "^1.0.3"
   },
   "author": "zosky",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "firebase": "^12.5.0"
+  }
 }
