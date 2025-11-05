@@ -1,45 +1,53 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 p-4">
     <div class="max-w-4xl mx-auto">
-      <h1 class="text-4xl font-bold text-white text-center mb-8">
-        Connect Your Gaming Accounts
+      <h1 class="text-xl sm:text-4xl font-bold text-white/15 text-left mt-8 italic">
+        whiteList@zoskyCube
       </h1>
       
-      <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 mb-8">
-        <p class="text-white/80 text-center mb-4">
-          Connect all three gaming platforms to unlock full features and sync your profile data.
-        </p>
-              <!-- Status Indicators -->
-      <div class="flex justify-center gap-8 mb-4">
-        <div class="flex items-center gap-2">
-          <Steam :class="['w-6 h-6', steamConnected ? 'text-green-400' : 'text-red-400']" />
-        </div>
-        <div class="flex items-center gap-2">
-          <Discord :class="['w-6 h-6', discordConnected ? 'text-green-400' : 'text-red-400']" />
-        </div>
-        <div class="flex items-center gap-2">
-          <Twitch :class="['w-6 h-6', twitchConnected ? 'text-green-400' : 'text-red-400']" />
-        </div>
-      </div>
+            <div class="from-gray-900/30 to-gray-950/30 ring-1 ring-gray-500 shadow-gray-500 shadow-sm bg-gradient-to-br backdrop-blur-md rounded-xl p-6 mb-8">
+        <div class="flex flex-col justify-center gap-2 items-center">
+            <p class="text-center flex flex-row items-center gap-1 min-w-max">
+              to win 
+              <Points class="-my-4 w-10 h-10" currency="zc" title="zCubes (zC) [@streamElements]" /> 
+              from <Twitch class="-my-4 w-8 h-8" /><span class="hidden sm:inline">liveStream miniGames </span>&
+            </p>
+            <div class="flex flex-col sm:flex-row gap-1 items-center text-center">
+              <p class="flex flex-row gap-1 items-center">
+                to use
+                <Points class="-my-4 w-10 h-10" currency="zb" title="zBlocks (zB) [@TTV]" /> 
+                vouchers for more 
+                <Points class="-my-4 w-10 h-10" currency="zc" title="zCubes (zC) [@streamElements]" /> 
+              </p>
+              please connect
+              <p class="flex flex-row gap-1 items-center">
+                <Steam :class="['sm:-my-4 w-12 h-12', steamConnected ? 'text-green-400' : 'text-red-400']" />
+                <Discord :class="['sm:-my-4 w-12 h-12', discordConnected ? 'text-green-400' : 'text-red-400']" />
+                <Twitch :class="['sm:-my-4 w-12 h-12', twitchConnected ? 'text-green-400' : 'text-red-400']" />
+              </p>
+            </div>
+          </div>
       </div>
 
       <div class="grid md:grid-cols-3 gap-6 mb-8">
         <!-- Steam Connection -->
-        <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 relative">
+        <div class="from-blue-800 to-blue-950 ring-1 ring-blue-600 shadow-blue-500 shadow-md bg-gradient-to-br backdrop-blur-md rounded-xl p-6 relative min-w-0">
           <!-- Platform icon - top left -->
-          <Steam class="absolute top-4 left-4 w-8 h-8 text-blue-400" />
+           <div class="flex flex-row justify-center -space-x-8 items-center scale-[2]">
+             <Steam class="w-auto h-[5.5em] text-blue-400" />
+             <img v-if="steamConnected && userProfile?.steam?.avatar" 
+                  :src="userProfile.steam.avatar" 
+                  alt="Steam Avatar" 
+                  class="w-auto h-[5em] rounded-full border-2 border-blue-400 aspect-square">
+           </div>
           
           <!-- Avatar - top right -->
-          <img v-if="steamConnected && userProfile?.steam?.avatar" 
-               :src="userProfile.steam.avatar" 
-               alt="Steam Avatar" 
-               class="absolute top-4 right-4 w-12 h-12 rounded-full border-2 border-blue-400">
           
           <!-- Content with top margin to clear absolute elements -->
           <div class="mt-16 text-center">
-            <p class="text-white/70 text-sm mb-4">
+            <!-- <p class="text-white/70 text-sm mb-4">
               {{ steamConnected ? `Logged in as ${userProfile?.steam?.personaname || 'Steam User'}` : 'Connect your Steam account' }}
-            </p>
+            </p> -->
             
             <!-- Single button with v-if/v-else -->
             <button v-if="!steamConnected"
@@ -47,7 +55,7 @@
               class="w-full py-3 px-4 rounded-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200"
               :disabled="loading.steam"
             >
-              <i v-if="loading.steam" class="mdi mdi-loading mdi-spin mr-2"></i>
+              <Loading v-if="loading.steam" class="inline w-5 h-5 mr-2 animate-spin" />
               Connect
             </button>
             <button v-else
@@ -59,17 +67,25 @@
             
             <!-- Profile Data -->
             <div v-if="steamConnected && userProfile?.steam" class="mt-4 pt-4 border-t border-white/10 text-left">
-              <div class="text-white/80 text-xs space-y-2">
-                <div><strong>Username:</strong> {{ userProfile.steam.username || userProfile.steam.personaname }}</div>
-                <div>
-                  <strong>Steam ID:</strong> 
-                  <a v-if="userProfile.steam.profileUrl" :href="userProfile.steam.profileUrl" target="_blank" class="text-blue-400 hover:underline">
-                    {{ userProfile.steam.id }}
-                  </a>
-                  <span v-else>{{ userProfile.steam.id }}</span>
+              <div class="text-white/80 text-xs space-y-1">
+                <!-- Row 1: Username and ID -->
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+                  <div class="flex items-center gap-2 min-w-0 flex-1">
+                    <Account class="inline w-4 h-4 flex-shrink-0" />
+                    <span class="truncate text-[10px] sm:text-xs">{{ userProfile.steam.username || userProfile.steam.personaname }}</span>
+                  </div>
+                  <div class="flex items-center gap-2 flex-row-reverse min-w-0 flex-1">
+                    <Identifier class="inline w-4 h-4 flex-shrink-0" />
+                    <a v-if="userProfile.steam.profileUrl" :href="userProfile.steam.profileUrl" target="_blank" class="text-blue-400 hover:underline truncate text-[10px] sm:text-xs">
+                      {{ userProfile.steam.id }}
+                    </a>
+                    <span v-else class="truncate text-[10px] sm:text-xs">{{ userProfile.steam.id }}</span>
+                  </div>
                 </div>
-                <div v-if="userProfile.steam.lastSync" class="text-white/60">
-                  <strong>Last Sync:</strong> {{ formatRelativeTime(userProfile.steam.lastSync) }}
+                <!-- Row 2: Last Sync -->
+                <div v-if="userProfile.steam.lastSync" class="flex items-center gap-2 text-white/60">
+                  <ClockOutline class="inline w-4 h-4 flex-shrink-0" />
+                  <span class="text-[10px] sm:text-xs">{{ formatRelativeTime(userProfile.steam.lastSync) }}</span>
                 </div>
               </div>
             </div>
@@ -77,21 +93,23 @@
         </div>
 
         <!-- Discord Connection -->
-        <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 relative">
+        <div class="from-purple-800 to-purple-950 ring-1 ring-purple-600 shadow-purple-500 shadow-md bg-gradient-to-br backdrop-blur-md rounded-xl p-6 relative min-w-0">
           <!-- Platform icon - top left -->
-          <Discord class="absolute top-4 left-4 w-8 h-8 text-indigo-400" />
+          <div class="flex flex-row justify-center -space-x-8 items-center scale-[2]">
+            <Discord class="w-auto h-[5.5em] text-indigo-400" />
           
           <!-- Avatar - top right -->
-          <img v-if="discordConnected && userProfile?.discord?.avatar" 
-               :src="`https://cdn.discordapp.com/avatars/${userProfile.discord.id}/${userProfile.discord.avatar}.png`" 
-               alt="Discord Avatar" 
-               class="absolute top-4 right-4 w-12 h-12 rounded-full border-2 border-indigo-400">
-          
+            <img v-if="discordConnected && userProfile?.discord?.avatar" 
+                :src="`https://cdn.discordapp.com/avatars/${userProfile.discord.id}/${userProfile.discord.avatar}.png`" 
+                alt="Discord Avatar" 
+                class="w-auto h-[5.5em] rounded-full border-2 border-indigo-400 aspect-square" />
+          </div>
+            
           <!-- Content with top margin to clear absolute elements -->
           <div class="mt-16 text-center">
-            <p class="text-white/70 text-sm mb-4">
+            <!-- <p class="text-white/70 text-sm mb-4">
               {{ discordConnected ? `Logged in as ${userProfile?.discord?.username || 'Discord User'}` : 'Connect your Discord account' }}
-            </p>
+            </p> -->
             
             <!-- Single button with v-if/v-else -->
             <button v-if="!discordConnected"
@@ -99,7 +117,7 @@
               class="w-full py-3 px-4 rounded-lg font-semibold bg-indigo-600 hover:bg-indigo-700 text-white transition-all duration-200"
               :disabled="loading.discord"
             >
-              <i v-if="loading.discord" class="mdi mdi-loading mdi-spin mr-2"></i>
+              <Loading v-if="loading.discord" class="inline w-5 h-5 mr-2 animate-spin" />
               Connect
             </button>
             <button v-else
@@ -111,13 +129,33 @@
             
             <!-- Profile Data -->
             <div v-if="discordConnected && userProfile?.discord" class="mt-4 pt-4 border-t border-white/10 text-left">
-              <div class="text-white/80 text-xs space-y-2">
-                <div><strong>Username:</strong> {{ userProfile.discord.username }}</div>
-                <div><strong>Discord ID:</strong> {{ userProfile.discord.id }}</div>
-                <div v-if="userProfile.discord.email"><strong>Email:</strong> {{ userProfile.discord.email }}</div>
-                <div v-if="userProfile.discord.discriminator"><strong>Tag:</strong> #{{ userProfile.discord.discriminator }}</div>
-                <div v-if="userProfile.discord.lastSync" class="text-white/60">
-                  <strong>Last Sync:</strong> {{ formatRelativeTime(userProfile.discord.lastSync) }}
+              <div class="text-white/80 text-xs space-y-1">
+                <!-- Row 1: Username and ID -->
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+                  <div class="flex items-center gap-2 min-w-0 flex-1">
+                    <Account class="inline w-4 h-4 flex-shrink-0" />
+                    <span class="truncate text-[10px] sm:text-xs">{{ userProfile.discord.username }}</span>
+                  </div>
+                  <div class="flex items-center gap-2 flex-row-reverse min-w-0 flex-1">
+                    <Identifier class="inline w-4 h-4 flex-shrink-0" />
+                    <span class="truncate text-[10px] sm:text-xs">{{ userProfile.discord.id }}</span>
+                  </div>
+                </div>
+                <!-- Row 2: Email and Tag -->
+                <div v-if="userProfile.discord.email || userProfile.discord.discriminator" class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+                  <div v-if="userProfile.discord.email" class="flex items-center gap-2 min-w-0 flex-1">
+                    <Email class="inline w-4 h-4 flex-shrink-0" />
+                    <span class="truncate text-[10px] sm:text-xs">{{ userProfile.discord.email }}</span>
+                  </div>
+                  <div v-if="userProfile.discord.discriminator" class="flex items-center gap-2 flex-row-reverse min-w-0">
+                    <Tag class="inline w-4 h-4 flex-shrink-0" />
+                    <span class="truncate text-[10px] sm:text-xs">#{{ userProfile.discord.discriminator }}</span>
+                  </div>
+                </div>
+                <!-- Row 3: Last Sync -->
+                <div v-if="userProfile.discord.lastSync" class="flex items-center gap-2 text-white/60">
+                  <ClockOutline class="inline w-4 h-4 flex-shrink-0" />
+                  <span class="text-[10px] sm:text-xs">{{ formatRelativeTime(userProfile.discord.lastSync) }}</span>
                 </div>
               </div>
             </div>
@@ -125,21 +163,22 @@
         </div>
 
         <!-- Twitch Connection -->
-        <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 relative">
+        <div class="from-pink-800 to-pink-950 ring-1 ring-pink-600 shadow-pink-500 shadow-md bg-gradient-to-br backdrop-blur-md rounded-xl p-6 relative min-w-0">
           <!-- Platform icon - top left -->
-          <Twitch class="absolute top-4 left-4 w-8 h-8 text-purple-400" />
+          <div class="flex flex-row justify-center -space-x-8 items-center scale-[2]">
+            <Twitch class="w-auto h-[5.5em]  text-purple-400" />
           
           <!-- Avatar - top right -->
-          <img v-if="twitchConnected && userProfile?.twitch?.profileImage" 
-               :src="userProfile.twitch.profileImage" 
-               alt="Twitch Avatar" 
-               class="absolute top-4 right-4 w-12 h-12 rounded-full border-2 border-purple-400">
-          
+            <img v-if="twitchConnected && userProfile?.twitch?.profileImage" 
+                :src="userProfile.twitch.profileImage" 
+                alt="Twitch Avatar" 
+                class="w-auto h-[5.5em] rounded-full border-2 border-purple-400 aspect-square">
+          </div>
           <!-- Content with top margin to clear absolute elements -->
           <div class="mt-16 text-center">
-            <p class="text-white/70 text-sm mb-4">
+            <!-- <p class="text-white/70 text-sm mb-4">
               {{ twitchConnected ? `Logged in as ${userProfile?.twitch?.displayName || 'Twitch User'}` : 'Connect your Twitch account' }}
-            </p>
+            </p> -->
             
             <!-- Single button with v-if/v-else -->
             <button v-if="!twitchConnected"
@@ -147,7 +186,7 @@
               class="w-full py-3 px-4 rounded-lg font-semibold bg-purple-600 hover:bg-purple-700 text-white transition-all duration-200"
               :disabled="loading.twitch"
             >
-              <i v-if="loading.twitch" class="mdi mdi-loading mdi-spin mr-2"></i>
+              <Loading v-if="loading.twitch" class="inline w-5 h-5 mr-2 animate-spin" />
               Connect
             </button>
             <button v-else
@@ -159,15 +198,33 @@
             
             <!-- Profile Data -->
             <div v-if="twitchConnected && userProfile?.twitch" class="mt-4 pt-4 border-t border-white/10 text-left">
-              <div class="text-white/80 text-xs space-y-2">
-                <div><strong>Username:</strong> {{ userProfile.twitch.username || userProfile.twitch.displayName }}</div>
-                <div><strong>Twitch ID:</strong> {{ userProfile.twitch.id }}</div>
-                <div v-if="userProfile.twitch.email"><strong>Email:</strong> {{ userProfile.twitch.email }}</div>
-                <div v-if="userProfile.twitch.displayName && userProfile.twitch.username !== userProfile.twitch.displayName">
-                  <strong>Display Name:</strong> {{ userProfile.twitch.displayName }}
+              <div class="text-white/80 text-xs space-y-1">
+                <!-- Row 1: Username and ID -->
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+                  <div class="flex items-center gap-2 min-w-0 flex-1">
+                    <Account class="inline w-4 h-4 flex-shrink-0" />
+                    <span class="truncate text-[10px] sm:text-xs">{{ userProfile.twitch.username || userProfile.twitch.displayName }}</span>
+                  </div>
+                  <div class="flex items-center gap-2 flex-row-reverse min-w-0 flex-1">
+                    <Identifier class="inline w-4 h-4 flex-shrink-0" />
+                    <span class="truncate text-[10px] sm:text-xs">{{ userProfile.twitch.id }}</span>
+                  </div>
                 </div>
-                <div v-if="userProfile.twitch.lastSync" class="text-white/60">
-                  <strong>Last Sync:</strong> {{ formatRelativeTime(userProfile.twitch.lastSync) }}
+                <!-- Row 2: Display Name and Email -->
+                <div v-if="(userProfile.twitch.displayName && userProfile.twitch.username !== userProfile.twitch.displayName) || userProfile.twitch.email" class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+                  <div v-if="userProfile.twitch.displayName && userProfile.twitch.username !== userProfile.twitch.displayName" class="flex items-center gap-2 min-w-0 flex-1">
+                    <AccountCircle class="inline w-4 h-4 flex-shrink-0" />
+                    <span class="truncate text-[10px] sm:text-xs">{{ userProfile.twitch.displayName }}</span>
+                  </div>
+                  <div v-if="userProfile.twitch.email" class="flex items-center gap-2 flex-row-reverse min-w-0 flex-1">
+                    <Email class="inline w-4 h-4 flex-shrink-0" />
+                    <span class="truncate text-[10px] sm:text-xs">{{ userProfile.twitch.email }}</span>
+                  </div>
+                </div>
+                <!-- Row 3: Last Sync -->
+                <div v-if="userProfile.twitch.lastSync" class="flex items-center gap-2 text-white/60">
+                  <ClockOutline class="inline w-4 h-4 flex-shrink-0" />
+                  <span class="text-[10px] sm:text-xs">{{ formatRelativeTime(userProfile.twitch.lastSync) }}</span>
                 </div>
               </div>
             </div>
@@ -176,33 +233,32 @@
       </div>
 
       <!-- All Connected Success Message -->
-      <div v-if="allConnected" class="bg-white/10 backdrop-blur-md rounded-xl p-6 text-center">
-        <h3 class="text-2xl font-semibold text-white mb-4">
-          <i class="mdi mdi-check-circle text-green-400 mr-2"></i>
+      <div v-if="allConnected" class="from-green-400/50 to-green-950/80 bg-gradient-to-br shadow-lg shadow-green-950 backdrop-blur-md rounded-xl p-6 text-center">
+        <h3 class="text-2xl font-semibold text-white">
+          <CheckCircle class="inline w-6 h-6 text-green-400 -mt-1 mr-1" />
           All Accounts Connected!
         </h3>
         <p class="text-white/80 mb-2">
-          Your gaming profiles are now linked and synced.
+          Your gaming profiles are now linked & synced.
         </p>
         <p class="text-white/60 text-sm">
-          Check your Discord server for your assigned roles!
+          Check <Discord class="inline text-xl -mt-1" title="discord" /> 
+          for more info or if you have any questions
         </p>
       </div>
 
       <!-- OAuth Callback Handler -->
       <div v-if="isProcessingCallback" class="bg-white/10 backdrop-blur-md rounded-xl p-6 text-center">
-        <i class="mdi mdi-loading mdi-spin text-4xl text-white mb-4"></i>
+        <Loading class="inline w-10 h-10 text-white mb-4 animate-spin" />
         <p class="text-white">Processing authentication...</p>
       </div>
 
       <!-- Error Display -->
-      <div v-if="error" class="bg-red-500/20 backdrop-blur-md rounded-xl p-6 text-center">
-        <i class="mdi mdi-alert-circle text-4xl text-red-400 mb-4"></i>
-        <p class="text-white">{{ error }}</p>
-        <button 
-          @click="error = ''"
-          class="mt-4 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg"
-        >
+            <!-- Error Display -->
+      <div v-if="errorMessage" class="flex flex-col items-center justify-center py-8">
+        <AlertCircle class="w-10 h-10 text-red-400 mb-4" />
+        <p class="text-red-400 text-lg mb-4">{{ errorMessage }}</p>
+        <button @click="errorMessage = ''" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded">
           Dismiss
         </button>
       </div>
@@ -216,7 +272,8 @@ import { onAuthStateChanged, signInWithCustomToken, signOut as firebaseSignOut }
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import { auth, db } from '../firebase'
 import { useRouter, useRoute } from 'vue-router'
-import { Twitch, Discord, Steam } from 'mdue'
+import { Twitch, Discord, Steam, Loading, CheckCircle, AlertCircle, Account, Identifier, Email, Tag, ClockOutline, AccountCircle } from 'mdue'
+import Points from '../components/Points.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -235,6 +292,34 @@ const OAUTH_ENDPOINTS = {
   steam: `${CLOUD_FUNCTIONS_BASE_URL}/steamAuthorizeV2`
 }
 console.log('OAuth Endpoints:', OAUTH_ENDPOINTS)
+
+// Mock data for development
+const MOCK_USER_PROFILE = {
+  steam: {
+    id: '76561199444558028',
+    username: 'SuperExtremelyLongUsernameWithManyCharacters_MaxLength',
+    personaname: 'SuperExtremelyLongUsernameWithManyCharacters_MaxLength',
+    profileUrl: 'https://steamcommunity.com/id/zosky/',
+    avatar: 'https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg',
+    lastSync: { toDate: () => new Date(Date.now() - 3600000) } // 1 hour ago
+  },
+  discord: {
+    id: '123456789012345678',
+    username: 'ThisIsAnAbsurdlyLongDiscordUsernameToTestOverflow',
+    discriminator: '1234',
+    email: 'this.is.a.very.very.very.long.email.address.for.testing@example-domain-name.com',
+    avatar: 'a_1234567890abcdef1234567890abcdef',
+    lastSync: { toDate: () => new Date(Date.now() - 7200000) } // 2 hours ago
+  },
+  twitch: {
+    id: '987654321',
+    username: 'extremely_long_twitch_username_maximum_length_test',
+    displayName: 'Super Mega Ultra Long Display Name With Many Words',
+    email: 'another.extremely.long.email.address.for.layout.testing@twitch-partner-example.tv',
+    profileImage: 'https://static-cdn.jtvnw.net/jtv_user_pictures/zosky-profile_image-70x70.png',
+    lastSync: { toDate: () => new Date(Date.now() - 1800000) } // 30 minutes ago
+  }
+}
 
 // Reactive state
 const loading = ref({
@@ -424,6 +509,13 @@ const disconnectSteam = async () => {
   if (!confirm('Are you sure you want to disconnect Steam?')) return
   
   try {
+    // In dev mode, just update local state
+    if (import.meta.env.DEV) {
+      userProfile.value.steam = null
+      console.log('🔥 DEV MODE: Steam disconnected (local only)')
+      return
+    }
+    
     const linkDocRef = doc(db, 'account_links', user.value.uid)
     await updateDoc(linkDocRef, {
       steamId: 'not-yet',
@@ -449,6 +541,13 @@ const disconnectDiscord = async () => {
   if (!confirm('Are you sure you want to disconnect Discord?')) return
   
   try {
+    // In dev mode, just update local state
+    if (import.meta.env.DEV) {
+      userProfile.value.discord = null
+      console.log('🔥 DEV MODE: Discord disconnected (local only)')
+      return
+    }
+    
     const linkDocRef = doc(db, 'account_links', user.value.uid)
     await updateDoc(linkDocRef, {
       discordId: 'not-yet',
@@ -474,6 +573,13 @@ const disconnectTwitch = async () => {
   if (!confirm('Are you sure you want to disconnect Twitch?')) return
   
   try {
+    // In dev mode, just update local state
+    if (import.meta.env.DEV) {
+      userProfile.value.twitch = null
+      console.log('🔥 DEV MODE: Twitch disconnected (local only)')
+      return
+    }
+    
     const linkDocRef = doc(db, 'account_links', user.value.uid)
     await updateDoc(linkDocRef, {
       twitchId: 'not-yet',
@@ -495,9 +601,23 @@ const disconnectTwitch = async () => {
   }
 }
 
+// Load mock data for development
+const loadMockData = () => {
+  console.log('🔥 DEV MODE: Loading mock user data')
+  user.value = { uid: 'mock-uuid-12345' }
+  userProfile.value = { ...MOCK_USER_PROFILE }
+  localStorage.setItem('linkUuid', 'mock-uuid-12345')
+}
+
 // Listen for auth state changes
 onMounted(() => {
-  // Check for OAuth callback first
+  // In development, load mock data
+  if (import.meta.env.DEV) {
+    loadMockData()
+    return
+  }
+  
+  // Production: Check for OAuth callback first
   handleOAuthCallback()
   
   // Listen for Firebase auth state
