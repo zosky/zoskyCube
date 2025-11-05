@@ -213,7 +213,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { onAuthStateChanged, signInWithCustomToken, signOut as firebaseSignOut } from 'firebase/auth'
-import { doc, getDoc, updateDoc, deleteField, setDoc, deleteDoc } from 'firebase/firestore'
+import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import { auth, db } from '../firebase'
 import { useRouter, useRoute } from 'vue-router'
 import { Twitch, Discord, Steam } from 'mdue'
@@ -258,25 +258,25 @@ const allConnected = computed(() => steamConnected.value && discordConnected.val
 const connectSteam = () => {
   loading.value.steam = true
   const returnOrigin = encodeURIComponent(window.location.origin)
-  // Check for existing primary user ID in localStorage for account linking
-  const primaryUserId = localStorage.getItem('primaryUserId') || auth.currentUser?.uid || ''
-  window.location.href = `${OAUTH_ENDPOINTS.steam}?return_origin=${returnOrigin}&link_user=${primaryUserId}`
+  // Pass link_uuid for account linking (UUID from localStorage or current auth user)
+  const linkUuid = localStorage.getItem('linkUuid') || auth.currentUser?.uid || ''
+  window.location.href = `${OAUTH_ENDPOINTS.steam}?return_origin=${returnOrigin}&link_uuid=${linkUuid}`
 }
 
 const connectDiscord = () => {
   loading.value.discord = true
   const returnOrigin = encodeURIComponent(window.location.origin)
-  // Check for existing primary user ID in localStorage for account linking
-  const primaryUserId = localStorage.getItem('primaryUserId') || auth.currentUser?.uid || ''
-  window.location.href = `${OAUTH_ENDPOINTS.discord}?return_origin=${returnOrigin}&link_user=${primaryUserId}`
+  // Pass link_uuid for account linking (UUID from localStorage or current auth user)
+  const linkUuid = localStorage.getItem('linkUuid') || auth.currentUser?.uid || ''
+  window.location.href = `${OAUTH_ENDPOINTS.discord}?return_origin=${returnOrigin}&link_uuid=${linkUuid}`
 }
 
 const connectTwitch = () => {
   loading.value.twitch = true
   const returnOrigin = encodeURIComponent(window.location.origin)
-  // Check for existing primary user ID in localStorage for account linking
-  const primaryUserId = localStorage.getItem('primaryUserId') || auth.currentUser?.uid || ''
-  window.location.href = `${OAUTH_ENDPOINTS.twitch}?return_origin=${returnOrigin}&link_user=${primaryUserId}`
+  // Pass link_uuid for account linking (UUID from localStorage or current auth user)
+  const linkUuid = localStorage.getItem('linkUuid') || auth.currentUser?.uid || ''
+  window.location.href = `${OAUTH_ENDPOINTS.twitch}?return_origin=${returnOrigin}&link_uuid=${linkUuid}`
 }
 
 // Sign out function
@@ -333,34 +333,65 @@ const handleOAuthCallback = async () => {
   }
 }
 
-// Load user profile from Firestore
+// Load user profile from Firestore (NEW: UUID-based architecture)
 const loadUserProfile = async (uid) => {
   try {
-    console.log('🔥 Loading user profile for UID:', uid)
+    console.log('🔥 Loading user profile for UUID:', uid)
     
-    // Store as primary user ID for future account linking
-    if (!localStorage.getItem('primaryUserId')) {
-      localStorage.setItem('primaryUserId', uid)
-      console.log('🔥 Stored primary user ID:', uid)
+    // Store as link UUID for future account linking
+    if (!localStorage.getItem('linkUuid')) {
+      localStorage.setItem('linkUuid', uid)
+      console.log('🔥 Stored link UUID:', uid)
     }
     
-    // Fetch user document from Firestore
-    const userDocRef = doc(db, 'users', uid)
-    const userDocSnap = await getDoc(userDocRef)
+    // Fetch account_links document by UUID
+    const linkDocRef = doc(db, 'account_links', uid)
+    const linkDocSnap = await getDoc(linkDocRef)
     
-    if (userDocSnap.exists()) {
-      const userData = userDocSnap.data()
-      console.log('🔥 User profile loaded from Firestore:', userData)
-      
-      userProfile.value = {
-        twitch: userData.twitch,
-        discord: userData.discord,
-        steam: userData.steam
-      }
-    } else {
-      console.log('🔥 No user profile found in Firestore')
+    if (!linkDocSnap.exists()) {
+      console.log('🔥 No account_links found for UUID')
       userProfile.value = null
+      return
     }
+    
+    const linkData = linkDocSnap.data()
+    console.log('🔥 Account link loaded:', linkData)
+    
+    // Build userProfile by fetching individual service profiles
+    const profile = {}
+    
+    // Fetch Steam profile if linked
+    if (linkData.steamId && linkData.steamId !== 'not-yet') {
+      const steamDocRef = doc(db, 'steam_profiles', linkData.steamId)
+      const steamDocSnap = await getDoc(steamDocRef)
+      if (steamDocSnap.exists()) {
+        profile.steam = steamDocSnap.data()
+        console.log('🔥 Steam profile loaded')
+      }
+    }
+    
+    // Fetch Discord profile if linked
+    if (linkData.discordId && linkData.discordId !== 'not-yet') {
+      const discordDocRef = doc(db, 'discord_profiles', linkData.discordId)
+      const discordDocSnap = await getDoc(discordDocRef)
+      if (discordDocSnap.exists()) {
+        profile.discord = discordDocSnap.data()
+        console.log('🔥 Discord profile loaded')
+      }
+    }
+    
+    // Fetch Twitch profile if linked
+    if (linkData.twitchId && linkData.twitchId !== 'not-yet') {
+      const twitchDocRef = doc(db, 'twitch_profiles', linkData.twitchId)
+      const twitchDocSnap = await getDoc(twitchDocRef)
+      if (twitchDocSnap.exists()) {
+        profile.twitch = twitchDocSnap.data()
+        console.log('🔥 Twitch profile loaded')
+      }
+    }
+    
+    userProfile.value = profile
+    console.log('🔥 Full user profile assembled:', profile)
     
   } catch (err) {
     console.error('Error loading user profile:', err)
@@ -388,87 +419,25 @@ const formatRelativeTime = (timestamp) => {
   return date.toLocaleDateString()
 }
 
-// Helper to migrate document to new ID if disconnecting the "parent" service
-const migrateToNewParent = async (disconnectingService) => {
-  const currentUid = user.value.uid
-  const profile = userProfile.value
-  
-  // Find which service is the current document ID
-  let currentParent = null
-  if (profile.steam?.id === currentUid) currentParent = 'steam'
-  else if (profile.twitch?.id === currentUid) currentParent = 'twitch'
-  else if (profile.discord?.id === currentUid) currentParent = 'discord'
-  
-  // If disconnecting the parent service, we need to migrate
-  if (currentParent === disconnectingService) {
-    // Find a new parent from remaining services
-    let newParentId = null
-    const newData = {}
-    
-    if (disconnectingService !== 'steam' && profile.steam) {
-      newParentId = profile.steam.id
-      newData.steam = profile.steam
-    } else if (disconnectingService !== 'twitch' && profile.twitch) {
-      newParentId = profile.twitch.id
-      newData.twitch = profile.twitch
-    } else if (disconnectingService !== 'discord' && profile.discord) {
-      newParentId = profile.discord.id
-      newData.discord = profile.discord
-    }
-    
-    if (newParentId) {
-      // Copy remaining services to new document
-      if (disconnectingService !== 'steam' && profile.steam && newParentId !== profile.steam.id) {
-        newData.steam = profile.steam
-      }
-      if (disconnectingService !== 'twitch' && profile.twitch && newParentId !== profile.twitch.id) {
-        newData.twitch = profile.twitch
-      }
-      if (disconnectingService !== 'discord' && profile.discord && newParentId !== profile.discord.id) {
-        newData.discord = profile.discord
-      }
-      
-      // Create new document
-      const newDocRef = doc(db, 'users', newParentId)
-      await setDoc(newDocRef, newData)
-      
-      // Delete old document
-      const oldDocRef = doc(db, 'users', currentUid)
-      await deleteDoc(oldDocRef)
-      
-      // Re-authenticate with new user ID
-      const customToken = await auth.currentUser.getIdToken()
-      await signInWithCustomToken(auth, customToken)
-      
-      console.log(`Migrated from ${disconnectingService} (${currentUid}) to new parent (${newParentId})`)
-      return true
-    }
-  }
-  
-  return false
-}
-
-// Disconnect individual services
+// Disconnect individual services (NEW: Just update account_links to 'not-yet')
 const disconnectSteam = async () => {
   if (!confirm('Are you sure you want to disconnect Steam?')) return
   
   try {
-    // Check if we need to migrate to a new parent
-    const migrated = await migrateToNewParent('steam')
-    
-    if (!migrated) {
-      // Simple disconnect
-      const userDocRef = doc(db, 'users', user.value.uid)
-      await updateDoc(userDocRef, { steam: deleteField() })
-    }
+    const linkDocRef = doc(db, 'account_links', user.value.uid)
+    await updateDoc(linkDocRef, {
+      steamId: 'not-yet',
+      steamUsername: 'not-yet',
+      updatedAt: new Date()
+    })
     
     userProfile.value.steam = null
     console.log('Steam disconnected')
     
     // Clear localStorage if all services disconnected
     if (!userProfile.value.steam && !userProfile.value.discord && !userProfile.value.twitch) {
-      localStorage.removeItem('primaryUserId')
-      console.log('🔥 Cleared primary user ID - all services disconnected')
+      localStorage.removeItem('linkUuid')
+      console.log('🔥 Cleared link UUID - all services disconnected')
     }
   } catch (err) {
     console.error('Error disconnecting Steam:', err)
@@ -480,22 +449,20 @@ const disconnectDiscord = async () => {
   if (!confirm('Are you sure you want to disconnect Discord?')) return
   
   try {
-    // Check if we need to migrate to a new parent
-    const migrated = await migrateToNewParent('discord')
-    
-    if (!migrated) {
-      // Simple disconnect
-      const userDocRef = doc(db, 'users', user.value.uid)
-      await updateDoc(userDocRef, { discord: deleteField() })
-    }
+    const linkDocRef = doc(db, 'account_links', user.value.uid)
+    await updateDoc(linkDocRef, {
+      discordId: 'not-yet',
+      discordUsername: 'not-yet',
+      updatedAt: new Date()
+    })
     
     userProfile.value.discord = null
     console.log('Discord disconnected')
     
     // Clear localStorage if all services disconnected
     if (!userProfile.value.steam && !userProfile.value.discord && !userProfile.value.twitch) {
-      localStorage.removeItem('primaryUserId')
-      console.log('🔥 Cleared primary user ID - all services disconnected')
+      localStorage.removeItem('linkUuid')
+      console.log('🔥 Cleared link UUID - all services disconnected')
     }
   } catch (err) {
     console.error('Error disconnecting Discord:', err)
@@ -507,22 +474,20 @@ const disconnectTwitch = async () => {
   if (!confirm('Are you sure you want to disconnect Twitch?')) return
   
   try {
-    // Check if we need to migrate to a new parent
-    const migrated = await migrateToNewParent('twitch')
-    
-    if (!migrated) {
-      // Simple disconnect
-      const userDocRef = doc(db, 'users', user.value.uid)
-      await updateDoc(userDocRef, { twitch: deleteField() })
-    }
+    const linkDocRef = doc(db, 'account_links', user.value.uid)
+    await updateDoc(linkDocRef, {
+      twitchId: 'not-yet',
+      twitchUsername: 'not-yet',
+      updatedAt: new Date()
+    })
     
     userProfile.value.twitch = null
     console.log('Twitch disconnected')
     
     // Clear localStorage if all services disconnected
     if (!userProfile.value.steam && !userProfile.value.discord && !userProfile.value.twitch) {
-      localStorage.removeItem('primaryUserId')
-      console.log('🔥 Cleared primary user ID - all services disconnected')
+      localStorage.removeItem('linkUuid')
+      console.log('🔥 Cleared link UUID - all services disconnected')
     }
   } catch (err) {
     console.error('Error disconnecting Twitch:', err)
