@@ -273,8 +273,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { onAuthStateChanged, signInWithCustomToken, signOut as firebaseSignOut } from 'firebase/auth'
 import { doc, getDoc } from 'firebase/firestore'
-import { getFunctions, httpsCallable } from 'firebase/functions'
-import { auth, db } from '../firebase'
+import { httpsCallable } from 'firebase/functions'
+import { auth, db, functions } from '../firebase'
 import { useRouter, useRoute } from 'vue-router'
 import { Twitch, Discord, Steam, Loading, CheckCircle, AlertCircle, Account, Identifier, Email, Tag, ClockOutline, AccountCircle } from 'mdue'
 import Points from '../components/Points.vue'
@@ -522,7 +522,6 @@ const disconnectSteam = async () => {
     }
     
     // Call Cloud Function to disconnect with history tracking
-    const functions = getFunctions()
     const disconnectService = httpsCallable(functions, 'disconnectService')
     await disconnectService({ service: 'steam' })
     
@@ -557,7 +556,6 @@ const disconnectDiscord = async () => {
     }
     
     // Call Cloud Function to disconnect with history tracking
-    const functions = getFunctions()
     const disconnectService = httpsCallable(functions, 'disconnectService')
     await disconnectService({ service: 'discord' })
     
@@ -592,7 +590,6 @@ const disconnectTwitch = async () => {
     }
     
     // Call Cloud Function to disconnect with history tracking
-    const functions = getFunctions()
     const disconnectService = httpsCallable(functions, 'disconnectService')
     await disconnectService({ service: 'twitch' })
     
