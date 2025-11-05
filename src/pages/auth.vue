@@ -53,14 +53,15 @@
             <button v-if="!steamConnected"
               @click="connectSteam"
               class="w-full py-3 px-4 rounded-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200"
-              :disabled="loading.steam"
+              :disabled="loading.steam || loadingProfile"
             >
-              <Loading v-if="loading.steam" class="inline w-5 h-5 mr-2 animate-spin" />
+              <Loading v-if="loading.steam || loadingProfile" class="inline w-5 h-5 mr-2 animate-spin" />
               Connect
             </button>
             <button v-else
               @click="disconnectSteam"
               class="w-full py-3 px-4 rounded-lg font-semibold bg-red-600/20 hover:bg-red-600/40 text-red-300 transition-all duration-200"
+              :disabled="loadingProfile"
             >
               Disconnect
             </button>
@@ -115,14 +116,15 @@
             <button v-if="!discordConnected"
               @click="connectDiscord"
               class="w-full py-3 px-4 rounded-lg font-semibold bg-indigo-600 hover:bg-indigo-700 text-white transition-all duration-200"
-              :disabled="loading.discord"
+              :disabled="loading.discord || loadingProfile"
             >
-              <Loading v-if="loading.discord" class="inline w-5 h-5 mr-2 animate-spin" />
+              <Loading v-if="loading.discord || loadingProfile" class="inline w-5 h-5 mr-2 animate-spin" />
               Connect
             </button>
             <button v-else
               @click="disconnectDiscord"
               class="w-full py-3 px-4 rounded-lg font-semibold bg-red-600/20 hover:bg-red-600/40 text-red-300 transition-all duration-200"
+              :disabled="loadingProfile"
             >
               Disconnect
             </button>
@@ -184,14 +186,15 @@
             <button v-if="!twitchConnected"
               @click="connectTwitch"
               class="w-full py-3 px-4 rounded-lg font-semibold bg-purple-600 hover:bg-purple-700 text-white transition-all duration-200"
-              :disabled="loading.twitch"
+              :disabled="loading.twitch || loadingProfile"
             >
-              <Loading v-if="loading.twitch" class="inline w-5 h-5 mr-2 animate-spin" />
+              <Loading v-if="loading.twitch || loadingProfile" class="inline w-5 h-5 mr-2 animate-spin" />
               Connect
             </button>
             <button v-else
               @click="disconnectTwitch"
               class="w-full py-3 px-4 rounded-lg font-semibold bg-red-600/20 hover:bg-red-600/40 text-red-300 transition-all duration-200"
+              :disabled="loadingProfile"
             >
               Disconnect
             </button>
@@ -327,6 +330,7 @@ const loading = ref({
   discord: false,
   twitch: false
 })
+const loadingProfile = ref(false)
 
 const user = ref(null)
 const userProfile = ref(null)
@@ -420,6 +424,7 @@ const handleOAuthCallback = async () => {
 
 // Load user profile from Firestore (NEW: UUID-based architecture)
 const loadUserProfile = async (uid) => {
+  loadingProfile.value = true
   try {
     console.log('🔥 Loading user profile for UUID:', uid)
     
@@ -481,6 +486,8 @@ const loadUserProfile = async (uid) => {
   } catch (err) {
     console.error('Error loading user profile:', err)
     error.value = 'Failed to load profile data'
+  } finally {
+    loadingProfile.value = false
   }
 }
 
