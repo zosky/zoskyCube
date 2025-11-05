@@ -523,7 +523,7 @@ const disconnectSteam = async () => {
     
     // Call Cloud Function to disconnect with history tracking
     const disconnectService = httpsCallable(functions, 'disconnectService')
-    await disconnectService({ service: 'steam' })
+    await disconnectService({ service: 'steam', linkUuid })
     
     // Reload user profile to reflect changes
     await loadUserProfile(linkUuid)
@@ -557,7 +557,7 @@ const disconnectDiscord = async () => {
     
     // Call Cloud Function to disconnect with history tracking
     const disconnectService = httpsCallable(functions, 'disconnectService')
-    await disconnectService({ service: 'discord' })
+    await disconnectService({ service: 'discord', linkUuid })
     
     // Reload user profile to reflect changes
     await loadUserProfile(linkUuid)
@@ -591,7 +591,7 @@ const disconnectTwitch = async () => {
     
     // Call Cloud Function to disconnect with history tracking
     const disconnectService = httpsCallable(functions, 'disconnectService')
-    await disconnectService({ service: 'twitch' })
+    await disconnectService({ service: 'twitch', linkUuid })
     
     // Reload user profile to reflect changes
     await loadUserProfile(linkUuid)
