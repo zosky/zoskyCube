@@ -523,12 +523,22 @@ const disconnectSteam = async () => {
       return
     }
     
-    const linkDocRef = doc(db, 'account_links', user.value.uid)
+    const linkUuid = localStorage.getItem('linkUuid')
+    if (!linkUuid) {
+      console.error('No link UUID found in localStorage')
+      errorMessage.value = 'Cannot disconnect: No link UUID found'
+      return
+    }
+    
+    const linkDocRef = doc(db, 'account_links', linkUuid)
     const linkDoc = await getDoc(linkDocRef)
     const linkData = linkDoc.data()
     
     // Rebuild linkId with steamId set to 'not-yet'
     const newLinkId = `s:not-yet-d:${linkData.discordId || 'not-yet'}-t:${linkData.twitchId || 'not-yet'}`
+    
+    console.log('🔥 Disconnecting Steam from UUID:', linkUuid)
+    console.log('🔥 New linkId:', newLinkId)
     
     await updateDoc(linkDocRef, {
       steamId: 'not-yet',
@@ -537,10 +547,10 @@ const disconnectSteam = async () => {
       updatedAt: new Date()
     })
     
-    console.log('Steam disconnected, linkId updated:', newLinkId)
+    console.log('✅ Steam disconnected, Firestore updated')
     
     // Reload user profile to reflect changes
-    await loadUserProfile(user.value.uid)
+    await loadUserProfile(linkUuid)
     
     // Clear localStorage if all services disconnected
     if (!userProfile.value.steam && !userProfile.value.discord && !userProfile.value.twitch) {
@@ -564,12 +574,22 @@ const disconnectDiscord = async () => {
       return
     }
     
-    const linkDocRef = doc(db, 'account_links', user.value.uid)
+    const linkUuid = localStorage.getItem('linkUuid')
+    if (!linkUuid) {
+      console.error('No link UUID found in localStorage')
+      errorMessage.value = 'Cannot disconnect: No link UUID found'
+      return
+    }
+    
+    const linkDocRef = doc(db, 'account_links', linkUuid)
     const linkDoc = await getDoc(linkDocRef)
     const linkData = linkDoc.data()
     
     // Rebuild linkId with discordId set to 'not-yet'
     const newLinkId = `s:${linkData.steamId || 'not-yet'}-d:not-yet-t:${linkData.twitchId || 'not-yet'}`
+    
+    console.log('🔥 Disconnecting Discord from UUID:', linkUuid)
+    console.log('🔥 New linkId:', newLinkId)
     
     await updateDoc(linkDocRef, {
       discordId: 'not-yet',
@@ -578,10 +598,10 @@ const disconnectDiscord = async () => {
       updatedAt: new Date()
     })
     
-    console.log('Discord disconnected, linkId updated:', newLinkId)
+    console.log('✅ Discord disconnected, Firestore updated')
     
     // Reload user profile to reflect changes
-    await loadUserProfile(user.value.uid)
+    await loadUserProfile(linkUuid)
     
     // Clear localStorage if all services disconnected
     if (!userProfile.value.steam && !userProfile.value.discord && !userProfile.value.twitch) {
@@ -605,12 +625,22 @@ const disconnectTwitch = async () => {
       return
     }
     
-    const linkDocRef = doc(db, 'account_links', user.value.uid)
+    const linkUuid = localStorage.getItem('linkUuid')
+    if (!linkUuid) {
+      console.error('No link UUID found in localStorage')
+      errorMessage.value = 'Cannot disconnect: No link UUID found'
+      return
+    }
+    
+    const linkDocRef = doc(db, 'account_links', linkUuid)
     const linkDoc = await getDoc(linkDocRef)
     const linkData = linkDoc.data()
     
     // Rebuild linkId with twitchId set to 'not-yet'
     const newLinkId = `s:${linkData.steamId || 'not-yet'}-d:${linkData.discordId || 'not-yet'}-t:not-yet`
+    
+    console.log('🔥 Disconnecting Twitch from UUID:', linkUuid)
+    console.log('🔥 New linkId:', newLinkId)
     
     await updateDoc(linkDocRef, {
       twitchId: 'not-yet',
@@ -619,10 +649,10 @@ const disconnectTwitch = async () => {
       updatedAt: new Date()
     })
     
-    console.log('Twitch disconnected, linkId updated:', newLinkId)
+    console.log('✅ Twitch disconnected, Firestore updated')
     
     // Reload user profile to reflect changes
-    await loadUserProfile(user.value.uid)
+    await loadUserProfile(linkUuid)
     
     // Clear localStorage if all services disconnected
     if (!userProfile.value.steam && !userProfile.value.discord && !userProfile.value.twitch) {
