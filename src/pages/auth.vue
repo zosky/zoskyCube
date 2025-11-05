@@ -389,8 +389,8 @@ const handleOAuthCallback = async () => {
 
   if (errorParam) {
     error.value = `Authentication failed: ${decodeURIComponent(errorParam)}`
-    // Clean URL
-    window.history.replaceState({}, document.title, '/auth')
+    // Clean URL - use router to respect base path
+    router.replace('/auth')
     return
   }
 
@@ -410,8 +410,8 @@ const handleOAuthCallback = async () => {
       // Fetch user profile from Firestore
       await loadUserProfile(user.value.uid)
       
-      // Clean URL
-      window.history.replaceState({}, document.title, '/auth')
+      // Clean URL - use router to respect base path
+      router.replace('/auth')
       
     } catch (err) {
       console.error('🔥 Error signing in with custom token:', err)
@@ -426,72 +426,53 @@ const handleOAuthCallback = async () => {
 const loadUserProfile = async (uid) => {
   loadingProfile.value = true
   try {
-    console.log('🔥 Loading user profile for UUID:', uid)
-    
     // Store as link UUID for future account linking
     if (!localStorage.getItem('linkUuid')) {
       localStorage.setItem('linkUuid', uid)
-      console.log('🔥 Stored link UUID:', uid)
     }
     
-    // Fetch account_links document by UUID - FORCE SERVER FETCH to bypass cache
+    // Fetch account_links document by UUID
     const linkDocRef = doc(db, 'account_links', uid)
     const linkDocSnap = await getDoc(linkDocRef)
     
     if (!linkDocSnap.exists()) {
-      console.log('🔥 No account_links found for UUID')
       userProfile.value = null
       return
     }
     
     const linkData = linkDocSnap.data()
-    console.log('🔥 Account link loaded:', linkData)
-    console.log('🔥 steamId:', linkData.steamId, 'discordId:', linkData.discordId, 'twitchId:', linkData.twitchId)
     
     // Build userProfile by fetching individual service profiles
     const profile = {}
     
     // Fetch Steam profile if linked
     if (linkData.steamId && linkData.steamId !== 'not-yet') {
-      console.log('🔥 Fetching Steam profile for ID:', linkData.steamId)
       const steamDocRef = doc(db, 'steam_profiles', linkData.steamId)
       const steamDocSnap = await getDoc(steamDocRef)
       if (steamDocSnap.exists()) {
         profile.steam = steamDocSnap.data()
-        console.log('🔥 Steam profile loaded')
       }
-    } else {
-      console.log('🔥 Steam NOT linked (steamId:', linkData.steamId, ')')
     }
     
     // Fetch Discord profile if linked
     if (linkData.discordId && linkData.discordId !== 'not-yet') {
-      console.log('🔥 Fetching Discord profile for ID:', linkData.discordId)
       const discordDocRef = doc(db, 'discord_profiles', linkData.discordId)
       const discordDocSnap = await getDoc(discordDocRef)
       if (discordDocSnap.exists()) {
         profile.discord = discordDocSnap.data()
-        console.log('🔥 Discord profile loaded')
       }
-    } else {
-      console.log('🔥 Discord NOT linked (discordId:', linkData.discordId, ')')
     }
     
     // Fetch Twitch profile if linked
     if (linkData.twitchId && linkData.twitchId !== 'not-yet') {
-      console.log('🔥 Fetching Twitch profile for ID:', linkData.twitchId)
       const twitchDocRef = doc(db, 'twitch_profiles', linkData.twitchId)
       const twitchDocSnap = await getDoc(twitchDocRef)
       if (twitchDocSnap.exists()) {
         profile.twitch = twitchDocSnap.data()
-        console.log('🔥 Twitch profile loaded')
       }
-    } else {
-      console.log('🔥 Twitch NOT linked (twitchId:', linkData.twitchId, ')')
     }
     
     userProfile.value = profile
-    console.log('🔥 Full user profile assembled:', profile)
     
   } catch (err) {
     console.error('Error loading user profile:', err)
@@ -529,7 +510,6 @@ const disconnectSteam = async () => {
     // In dev mode, just update local state
     if (import.meta.env.DEV) {
       userProfile.value.steam = null
-      console.log('🔥 DEV MODE: Steam disconnected (local only)')
       return
     }
     
@@ -547,9 +527,6 @@ const disconnectSteam = async () => {
     // Rebuild linkId with steamId set to 'not-yet'
     const newLinkId = `s:not-yet-d:${linkData.discordId || 'not-yet'}-t:${linkData.twitchId || 'not-yet'}`
     
-    console.log('🔥 Disconnecting Steam from UUID:', linkUuid)
-    console.log('🔥 New linkId:', newLinkId)
-    
     await updateDoc(linkDocRef, {
       steamId: 'not-yet',
       steamUsername: 'not-yet',
@@ -557,15 +534,12 @@ const disconnectSteam = async () => {
       updatedAt: new Date()
     })
     
-    console.log('✅ Steam disconnected, Firestore updated')
-    
     // Reload user profile to reflect changes
     await loadUserProfile(linkUuid)
     
     // Clear localStorage if all services disconnected
     if (!userProfile.value.steam && !userProfile.value.discord && !userProfile.value.twitch) {
       localStorage.removeItem('linkUuid')
-      console.log('🔥 Cleared link UUID - all services disconnected')
     }
   } catch (err) {
     console.error('Error disconnecting Steam:', err)
@@ -580,7 +554,6 @@ const disconnectDiscord = async () => {
     // In dev mode, just update local state
     if (import.meta.env.DEV) {
       userProfile.value.discord = null
-      console.log('🔥 DEV MODE: Discord disconnected (local only)')
       return
     }
     
@@ -598,9 +571,6 @@ const disconnectDiscord = async () => {
     // Rebuild linkId with discordId set to 'not-yet'
     const newLinkId = `s:${linkData.steamId || 'not-yet'}-d:not-yet-t:${linkData.twitchId || 'not-yet'}`
     
-    console.log('🔥 Disconnecting Discord from UUID:', linkUuid)
-    console.log('🔥 New linkId:', newLinkId)
-    
     await updateDoc(linkDocRef, {
       discordId: 'not-yet',
       discordUsername: 'not-yet',
@@ -608,15 +578,12 @@ const disconnectDiscord = async () => {
       updatedAt: new Date()
     })
     
-    console.log('✅ Discord disconnected, Firestore updated')
-    
     // Reload user profile to reflect changes
     await loadUserProfile(linkUuid)
     
     // Clear localStorage if all services disconnected
     if (!userProfile.value.steam && !userProfile.value.discord && !userProfile.value.twitch) {
       localStorage.removeItem('linkUuid')
-      console.log('🔥 Cleared link UUID - all services disconnected')
     }
   } catch (err) {
     console.error('Error disconnecting Discord:', err)
@@ -631,7 +598,6 @@ const disconnectTwitch = async () => {
     // In dev mode, just update local state
     if (import.meta.env.DEV) {
       userProfile.value.twitch = null
-      console.log('🔥 DEV MODE: Twitch disconnected (local only)')
       return
     }
     
@@ -649,9 +615,6 @@ const disconnectTwitch = async () => {
     // Rebuild linkId with twitchId set to 'not-yet'
     const newLinkId = `s:${linkData.steamId || 'not-yet'}-d:${linkData.discordId || 'not-yet'}-t:not-yet`
     
-    console.log('🔥 Disconnecting Twitch from UUID:', linkUuid)
-    console.log('🔥 New linkId:', newLinkId)
-    
     await updateDoc(linkDocRef, {
       twitchId: 'not-yet',
       twitchUsername: 'not-yet',
@@ -659,15 +622,12 @@ const disconnectTwitch = async () => {
       updatedAt: new Date()
     })
     
-    console.log('✅ Twitch disconnected, Firestore updated')
-    
     // Reload user profile to reflect changes
     await loadUserProfile(linkUuid)
     
     // Clear localStorage if all services disconnected
     if (!userProfile.value.steam && !userProfile.value.discord && !userProfile.value.twitch) {
       localStorage.removeItem('linkUuid')
-      console.log('🔥 Cleared link UUID - all services disconnected')
     }
   } catch (err) {
     console.error('Error disconnecting Twitch:', err)
@@ -677,7 +637,6 @@ const disconnectTwitch = async () => {
 
 // Load mock data for development
 const loadMockData = () => {
-  console.log('🔥 DEV MODE: Loading mock user data')
   user.value = { uid: 'mock-uuid-12345' }
   userProfile.value = { ...MOCK_USER_PROFILE }
   localStorage.setItem('linkUuid', 'mock-uuid-12345')
