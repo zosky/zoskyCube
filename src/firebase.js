@@ -8,12 +8,12 @@ import { getAuth, connectAuthEmulator } from 'firebase/auth'
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore'
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBTkO81igjNOO-lMGWPr4-FMc29-iFo4wc",
+  apiKey: "AIzaSyDl6HjloKSeSo_mfsYSxVbGibCHaC8EJdk",
   authDomain: "zoskycube-bossbattle.firebaseapp.com",
   projectId: "zoskycube-bossbattle",
   storageBucket: "zoskycube-bossbattle.firebasestorage.app",
   messagingSenderId: "592683947591",
-  appId: "1:592683947591:web:ef7e5e8b6e1e1d3b3d3d3d"
+  appId: "1:592683947591:web:06c2d76ececacaa845c362"
 }
 
 // Initialize Firebase
