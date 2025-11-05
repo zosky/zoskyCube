@@ -257,13 +257,17 @@ const connectSteam = () => {
 const connectDiscord = () => {
   loading.value.discord = true
   const returnOrigin = encodeURIComponent(window.location.origin)
-  window.location.href = `${OAUTH_ENDPOINTS.discord}?return_origin=${returnOrigin}`
+  // Pass current user ID if already authenticated (for account linking)
+  const userId = auth.currentUser?.uid || ''
+  window.location.href = `${OAUTH_ENDPOINTS.discord}?return_origin=${returnOrigin}&link_user=${userId}`
 }
 
 const connectTwitch = () => {
   loading.value.twitch = true
   const returnOrigin = encodeURIComponent(window.location.origin)
-  window.location.href = `${OAUTH_ENDPOINTS.twitch}?return_origin=${returnOrigin}`
+  // Pass current user ID if already authenticated (for account linking)
+  const userId = auth.currentUser?.uid || ''
+  window.location.href = `${OAUTH_ENDPOINTS.twitch}?return_origin=${returnOrigin}&link_user=${userId}`
 }
 
 // Sign out function
