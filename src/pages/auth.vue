@@ -517,13 +517,20 @@ const disconnectSteam = async () => {
     }
     
     const linkDocRef = doc(db, 'account_links', user.value.uid)
+    const linkDoc = await getDoc(linkDocRef)
+    const linkData = linkDoc.data()
+    
+    // Rebuild linkId with steamId set to 'not-yet'
+    const newLinkId = `s:not-yet-d:${linkData.discordId || 'not-yet'}-t:${linkData.twitchId || 'not-yet'}`
+    
     await updateDoc(linkDocRef, {
       steamId: 'not-yet',
       steamUsername: 'not-yet',
+      linkId: newLinkId,
       updatedAt: new Date()
     })
     
-    console.log('Steam disconnected')
+    console.log('Steam disconnected, linkId updated:', newLinkId)
     
     // Reload user profile to reflect changes
     await loadUserProfile()
@@ -551,13 +558,20 @@ const disconnectDiscord = async () => {
     }
     
     const linkDocRef = doc(db, 'account_links', user.value.uid)
+    const linkDoc = await getDoc(linkDocRef)
+    const linkData = linkDoc.data()
+    
+    // Rebuild linkId with discordId set to 'not-yet'
+    const newLinkId = `s:${linkData.steamId || 'not-yet'}-d:not-yet-t:${linkData.twitchId || 'not-yet'}`
+    
     await updateDoc(linkDocRef, {
       discordId: 'not-yet',
       discordUsername: 'not-yet',
+      linkId: newLinkId,
       updatedAt: new Date()
     })
     
-    console.log('Discord disconnected')
+    console.log('Discord disconnected, linkId updated:', newLinkId)
     
     // Reload user profile to reflect changes
     await loadUserProfile()
@@ -585,13 +599,20 @@ const disconnectTwitch = async () => {
     }
     
     const linkDocRef = doc(db, 'account_links', user.value.uid)
+    const linkDoc = await getDoc(linkDocRef)
+    const linkData = linkDoc.data()
+    
+    // Rebuild linkId with twitchId set to 'not-yet'
+    const newLinkId = `s:${linkData.steamId || 'not-yet'}-d:${linkData.discordId || 'not-yet'}-t:not-yet`
+    
     await updateDoc(linkDocRef, {
       twitchId: 'not-yet',
       twitchUsername: 'not-yet',
+      linkId: newLinkId,
       updatedAt: new Date()
     })
     
-    console.log('Twitch disconnected')
+    console.log('Twitch disconnected, linkId updated:', newLinkId)
     
     // Reload user profile to reflect changes
     await loadUserProfile()
