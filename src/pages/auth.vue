@@ -272,7 +272,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { onAuthStateChanged, signInWithCustomToken, signOut as firebaseSignOut } from 'firebase/auth'
-import { doc, getDoc, updateDoc } from 'firebase/firestore'
+import { doc, getDoc, updateDoc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { auth, db } from '../firebase'
 import { useRouter, useRoute } from 'vue-router'
 import { Twitch, Discord, Steam, Loading, CheckCircle, AlertCircle, Account, Identifier, Email, Tag, ClockOutline, AccountCircle } from 'mdue'
@@ -524,6 +524,27 @@ const disconnectSteam = async () => {
     const linkDoc = await getDoc(linkDocRef)
     const linkData = linkDoc.data()
     
+    // Create history entry for disconnect
+    const timestamp = Date.now()
+    const historyId = `${linkUuid}_${timestamp}_steam`
+    await setDoc(doc(db, 'profile_history', historyId), {
+      service: 'steam',
+      serviceChanged: 'steam',
+      action: 'account_disconnect',
+      reason: 'user_disconnect',
+      oldData: {
+        steamId: linkData.steamId,
+        steamUsername: linkData.steamUsername
+      },
+      newData: {
+        steamId: 'not-yet',
+        steamUsername: 'not-yet'
+      },
+      linkUuid: linkUuid,
+      timestamp: serverTimestamp(),
+      timestampMs: timestamp
+    })
+    
     // Rebuild linkId with steamId set to 'not-yet'
     const newLinkId = `s:not-yet-d:${linkData.discordId || 'not-yet'}-t:${linkData.twitchId || 'not-yet'}`
     
@@ -568,6 +589,27 @@ const disconnectDiscord = async () => {
     const linkDoc = await getDoc(linkDocRef)
     const linkData = linkDoc.data()
     
+    // Create history entry for disconnect
+    const timestamp = Date.now()
+    const historyId = `${linkUuid}_${timestamp}_discord`
+    await setDoc(doc(db, 'profile_history', historyId), {
+      service: 'discord',
+      serviceChanged: 'discord',
+      action: 'account_disconnect',
+      reason: 'user_disconnect',
+      oldData: {
+        discordId: linkData.discordId,
+        discordUsername: linkData.discordUsername
+      },
+      newData: {
+        discordId: 'not-yet',
+        discordUsername: 'not-yet'
+      },
+      linkUuid: linkUuid,
+      timestamp: serverTimestamp(),
+      timestampMs: timestamp
+    })
+    
     // Rebuild linkId with discordId set to 'not-yet'
     const newLinkId = `s:${linkData.steamId || 'not-yet'}-d:not-yet-t:${linkData.twitchId || 'not-yet'}`
     
@@ -611,6 +653,27 @@ const disconnectTwitch = async () => {
     const linkDocRef = doc(db, 'account_links', linkUuid)
     const linkDoc = await getDoc(linkDocRef)
     const linkData = linkDoc.data()
+    
+    // Create history entry for disconnect
+    const timestamp = Date.now()
+    const historyId = `${linkUuid}_${timestamp}_twitch`
+    await setDoc(doc(db, 'profile_history', historyId), {
+      service: 'twitch',
+      serviceChanged: 'twitch',
+      action: 'account_disconnect',
+      reason: 'user_disconnect',
+      oldData: {
+        twitchId: linkData.twitchId,
+        twitchUsername: linkData.twitchUsername
+      },
+      newData: {
+        twitchId: 'not-yet',
+        twitchUsername: 'not-yet'
+      },
+      linkUuid: linkUuid,
+      timestamp: serverTimestamp(),
+      timestampMs: timestamp
+    })
     
     // Rebuild linkId with twitchId set to 'not-yet'
     const newLinkId = `s:${linkData.steamId || 'not-yet'}-d:${linkData.discordId || 'not-yet'}-t:not-yet`
