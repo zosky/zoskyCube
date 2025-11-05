@@ -12,157 +12,165 @@
               <!-- Status Indicators -->
       <div class="flex justify-center gap-8 mb-4">
         <div class="flex items-center gap-2">
-          <i :class="['mdi mdi-steam text-2xl', steamConnected ? 'text-green-400' : 'text-red-400']"></i>
+          <Steam :class="['w-6 h-6', steamConnected ? 'text-green-400' : 'text-red-400']" />
         </div>
         <div class="flex items-center gap-2">
-          <i :class="['mdi mdi-discord text-2xl', discordConnected ? 'text-green-400' : 'text-red-400']"></i>
+          <Discord :class="['w-6 h-6', discordConnected ? 'text-green-400' : 'text-red-400']" />
         </div>
         <div class="flex items-center gap-2">
-          <i :class="['mdi mdi-twitch text-2xl', twitchConnected ? 'text-green-400' : 'text-red-400']"></i>
+          <Twitch :class="['w-6 h-6', twitchConnected ? 'text-green-400' : 'text-red-400']" />
         </div>
       </div>
       </div>
 
       <div class="grid md:grid-cols-3 gap-6 mb-8">
         <!-- Steam Connection -->
-        <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 text-center">
-          <div class="mb-4">
-            <i class="mdi mdi-steam text-6xl text-blue-400"></i>
-          </div>
-          <h3 class="text-xl font-semibold text-white mb-2">Steam</h3>
-          <p class="text-white/70 text-sm mb-4">
-            {{ steamConnected ? `Connected as ${userProfile?.steam?.personaname || 'Steam User'}` : 'Connect your Steam account' }}
-          </p>
-          <button 
-            @click="connectSteam"
-            :class="[
-              'w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200',
-              steamConnected 
-                ? 'bg-gray-600 cursor-not-allowed text-white' 
-                : 'bg-blue-600 hover:bg-blue-700 text-white'
-            ]"
-            :disabled="loading.steam || steamConnected"
-          >
-            <i v-if="loading.steam" class="mdi mdi-loading mdi-spin mr-2"></i>
-            {{ steamConnected ? 'Connected ✓' : 'Connect Steam' }}
-          </button>
+        <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 relative">
+          <!-- Platform icon - top left -->
+          <Steam class="absolute top-4 left-4 w-8 h-8 text-blue-400" />
           
-          <!-- Steam Profile Data -->
-          <div v-if="steamConnected && userProfile?.steam" class="mt-4 pt-4 border-t border-white/10 text-left">
-            <div class="text-white/80 text-xs space-y-2">
-              <div v-if="userProfile.steam.avatar" class="flex justify-center mb-2">
-                <img :src="userProfile.steam.avatar" alt="Steam Avatar" class="w-16 h-16 rounded-full border-2 border-blue-400">
-              </div>
-              <div><strong>Username:</strong> {{ userProfile.steam.username }}</div>
-              <div>
-                <strong>Steam ID:</strong> 
-                <a v-if="userProfile.steam.profileUrl" :href="userProfile.steam.profileUrl" target="_blank" class="text-blue-400 hover:underline">
-                  {{ userProfile.steam.id }}
-                </a>
-                <span v-else>{{ userProfile.steam.id }}</span>
-              </div>
-              <div v-if="userProfile.steam.lastSync" class="text-white/60">
-                <strong>Last Sync:</strong> {{ formatRelativeTime(userProfile.steam.lastSync) }}
+          <!-- Avatar - top right -->
+          <img v-if="steamConnected && userProfile?.steam?.avatar" 
+               :src="userProfile.steam.avatar" 
+               alt="Steam Avatar" 
+               class="absolute top-4 right-4 w-12 h-12 rounded-full border-2 border-blue-400">
+          
+          <!-- Content with top margin to clear absolute elements -->
+          <div class="mt-16 text-center">
+            <p class="text-white/70 text-sm mb-4">
+              {{ steamConnected ? `Logged in as ${userProfile?.steam?.personaname || 'Steam User'}` : 'Connect your Steam account' }}
+            </p>
+            
+            <!-- Single button with v-if/v-else -->
+            <button v-if="!steamConnected"
+              @click="connectSteam"
+              class="w-full py-3 px-4 rounded-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200"
+              :disabled="loading.steam"
+            >
+              <i v-if="loading.steam" class="mdi mdi-loading mdi-spin mr-2"></i>
+              Connect
+            </button>
+            <button v-else
+              @click="disconnectSteam"
+              class="w-full py-3 px-4 rounded-lg font-semibold bg-red-600/20 hover:bg-red-600/40 text-red-300 transition-all duration-200"
+            >
+              Disconnect
+            </button>
+            
+            <!-- Profile Data -->
+            <div v-if="steamConnected && userProfile?.steam" class="mt-4 pt-4 border-t border-white/10 text-left">
+              <div class="text-white/80 text-xs space-y-2">
+                <div><strong>Username:</strong> {{ userProfile.steam.username || userProfile.steam.personaname }}</div>
+                <div>
+                  <strong>Steam ID:</strong> 
+                  <a v-if="userProfile.steam.profileUrl" :href="userProfile.steam.profileUrl" target="_blank" class="text-blue-400 hover:underline">
+                    {{ userProfile.steam.id }}
+                  </a>
+                  <span v-else>{{ userProfile.steam.id }}</span>
+                </div>
+                <div v-if="userProfile.steam.lastSync" class="text-white/60">
+                  <strong>Last Sync:</strong> {{ formatRelativeTime(userProfile.steam.lastSync) }}
+                </div>
               </div>
             </div>
-            <button 
-              @click="disconnectSteam"
-              class="w-full mt-3 py-2 px-4 bg-red-600/20 hover:bg-red-600/40 text-red-300 rounded-lg text-xs font-semibold transition-all duration-200"
-            >
-              Disconnect Steam
-            </button>
           </div>
         </div>
 
         <!-- Discord Connection -->
-        <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 text-center">
-          <div class="mb-4">
-            <i class="mdi mdi-discord text-6xl text-indigo-400"></i>
-          </div>
-          <h3 class="text-xl font-semibold text-white mb-2">Discord</h3>
-          <p class="text-white/70 text-sm mb-4">
-            {{ discordConnected ? `Connected as ${userProfile?.discord?.username || 'Discord User'}` : 'Connect your Discord account' }}
-          </p>
-          <button 
-            @click="connectDiscord"
-            :class="[
-              'w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200',
-              discordConnected 
-                ? 'bg-gray-600 cursor-not-allowed text-white' 
-                : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-            ]"
-            :disabled="loading.discord || discordConnected"
-          >
-            <i v-if="loading.discord" class="mdi mdi-loading mdi-spin mr-2"></i>
-            {{ discordConnected ? 'Connected ✓' : 'Connect Discord' }}
-          </button>
+        <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 relative">
+          <!-- Platform icon - top left -->
+          <Discord class="absolute top-4 left-4 w-8 h-8 text-indigo-400" />
           
-          <!-- Discord Profile Data -->
-          <div v-if="discordConnected && userProfile?.discord" class="mt-4 pt-4 border-t border-white/10 text-left">
-            <div class="text-white/80 text-xs space-y-2">
-              <div v-if="userProfile.discord.avatar" class="flex justify-center mb-2">
-                <img :src="`https://cdn.discordapp.com/avatars/${userProfile.discord.id}/${userProfile.discord.avatar}.png`" alt="Discord Avatar" class="w-16 h-16 rounded-full border-2 border-indigo-400">
-              </div>
-              <div><strong>Username:</strong> {{ userProfile.discord.username }}</div>
-              <div v-if="userProfile.discord.discriminator"><strong>Tag:</strong> #{{ userProfile.discord.discriminator }}</div>
-              <div v-if="userProfile.discord.id"><strong>Discord ID:</strong> {{ userProfile.discord.id }}</div>
-              <div v-if="userProfile.discord.email"><strong>Email:</strong> {{ userProfile.discord.email }}</div>
-              <div v-if="userProfile.discord.lastSync" class="text-white/60">
-                <strong>Last Sync:</strong> {{ formatRelativeTime(userProfile.discord.lastSync) }}
+          <!-- Avatar - top right -->
+          <img v-if="discordConnected && userProfile?.discord?.avatar" 
+               :src="`https://cdn.discordapp.com/avatars/${userProfile.discord.id}/${userProfile.discord.avatar}.png`" 
+               alt="Discord Avatar" 
+               class="absolute top-4 right-4 w-12 h-12 rounded-full border-2 border-indigo-400">
+          
+          <!-- Content with top margin to clear absolute elements -->
+          <div class="mt-16 text-center">
+            <p class="text-white/70 text-sm mb-4">
+              {{ discordConnected ? `Logged in as ${userProfile?.discord?.username || 'Discord User'}` : 'Connect your Discord account' }}
+            </p>
+            
+            <!-- Single button with v-if/v-else -->
+            <button v-if="!discordConnected"
+              @click="connectDiscord"
+              class="w-full py-3 px-4 rounded-lg font-semibold bg-indigo-600 hover:bg-indigo-700 text-white transition-all duration-200"
+              :disabled="loading.discord"
+            >
+              <i v-if="loading.discord" class="mdi mdi-loading mdi-spin mr-2"></i>
+              Connect
+            </button>
+            <button v-else
+              @click="disconnectDiscord"
+              class="w-full py-3 px-4 rounded-lg font-semibold bg-red-600/20 hover:bg-red-600/40 text-red-300 transition-all duration-200"
+            >
+              Disconnect
+            </button>
+            
+            <!-- Profile Data -->
+            <div v-if="discordConnected && userProfile?.discord" class="mt-4 pt-4 border-t border-white/10 text-left">
+              <div class="text-white/80 text-xs space-y-2">
+                <div><strong>Username:</strong> {{ userProfile.discord.username }}</div>
+                <div><strong>Discord ID:</strong> {{ userProfile.discord.id }}</div>
+                <div v-if="userProfile.discord.email"><strong>Email:</strong> {{ userProfile.discord.email }}</div>
+                <div v-if="userProfile.discord.discriminator"><strong>Tag:</strong> #{{ userProfile.discord.discriminator }}</div>
+                <div v-if="userProfile.discord.lastSync" class="text-white/60">
+                  <strong>Last Sync:</strong> {{ formatRelativeTime(userProfile.discord.lastSync) }}
+                </div>
               </div>
             </div>
-            <button 
-              @click="disconnectDiscord"
-              class="w-full mt-3 py-2 px-4 bg-red-600/20 hover:bg-red-600/40 text-red-300 rounded-lg text-xs font-semibold transition-all duration-200"
-            >
-              Disconnect Discord
-            </button>
           </div>
         </div>
 
         <!-- Twitch Connection -->
-        <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 text-center">
-          <div class="mb-4">
-            <i class="mdi mdi-twitch text-6xl text-purple-400"></i>
-          </div>
-          <h3 class="text-xl font-semibold text-white mb-2">Twitch</h3>
-          <p class="text-white/70 text-sm mb-4">
-            {{ twitchConnected ? `Connected as ${userProfile?.twitch?.displayName || 'Twitch User'}` : 'Connect your Twitch account' }}
-          </p>
-          <button 
-            @click="connectTwitch"
-            :class="[
-              'w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200',
-              twitchConnected 
-                ? 'bg-gray-600 cursor-not-allowed text-white' 
-                : 'bg-purple-600 hover:bg-purple-700 text-white'
-            ]"
-            :disabled="loading.twitch || twitchConnected"
-          >
-            <i v-if="loading.twitch" class="mdi mdi-loading mdi-spin mr-2"></i>
-            {{ twitchConnected ? 'Connected ✓' : 'Connect Twitch' }}
-          </button>
+        <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 relative">
+          <!-- Platform icon - top left -->
+          <Twitch class="absolute top-4 left-4 w-8 h-8 text-purple-400" />
           
-          <!-- Twitch Profile Data -->
-          <div v-if="twitchConnected && userProfile?.twitch" class="mt-4 pt-4 border-t border-white/10 text-left">
-            <div class="text-white/80 text-xs space-y-2">
-              <div v-if="userProfile.twitch.profileImage" class="flex justify-center mb-2">
-                <img :src="userProfile.twitch.profileImage" alt="Twitch Avatar" class="w-16 h-16 rounded-full border-2 border-purple-400">
-              </div>
-              <div><strong>Display Name:</strong> {{ userProfile.twitch.displayName }}</div>
-              <div><strong>Username:</strong> {{ userProfile.twitch.username }}</div>
-              <div v-if="userProfile.twitch.id"><strong>Twitch ID:</strong> {{ userProfile.twitch.id }}</div>
-              <div v-if="userProfile.twitch.email"><strong>Email:</strong> {{ userProfile.twitch.email }}</div>
-              <div v-if="userProfile.twitch.lastSync" class="text-white/60">
-                <strong>Last Sync:</strong> {{ formatRelativeTime(userProfile.twitch.lastSync) }}
+          <!-- Avatar - top right -->
+          <img v-if="twitchConnected && userProfile?.twitch?.profileImage" 
+               :src="userProfile.twitch.profileImage" 
+               alt="Twitch Avatar" 
+               class="absolute top-4 right-4 w-12 h-12 rounded-full border-2 border-purple-400">
+          
+          <!-- Content with top margin to clear absolute elements -->
+          <div class="mt-16 text-center">
+            <p class="text-white/70 text-sm mb-4">
+              {{ twitchConnected ? `Logged in as ${userProfile?.twitch?.displayName || 'Twitch User'}` : 'Connect your Twitch account' }}
+            </p>
+            
+            <!-- Single button with v-if/v-else -->
+            <button v-if="!twitchConnected"
+              @click="connectTwitch"
+              class="w-full py-3 px-4 rounded-lg font-semibold bg-purple-600 hover:bg-purple-700 text-white transition-all duration-200"
+              :disabled="loading.twitch"
+            >
+              <i v-if="loading.twitch" class="mdi mdi-loading mdi-spin mr-2"></i>
+              Connect
+            </button>
+            <button v-else
+              @click="disconnectTwitch"
+              class="w-full py-3 px-4 rounded-lg font-semibold bg-red-600/20 hover:bg-red-600/40 text-red-300 transition-all duration-200"
+            >
+              Disconnect
+            </button>
+            
+            <!-- Profile Data -->
+            <div v-if="twitchConnected && userProfile?.twitch" class="mt-4 pt-4 border-t border-white/10 text-left">
+              <div class="text-white/80 text-xs space-y-2">
+                <div><strong>Username:</strong> {{ userProfile.twitch.username || userProfile.twitch.displayName }}</div>
+                <div><strong>Twitch ID:</strong> {{ userProfile.twitch.id }}</div>
+                <div v-if="userProfile.twitch.email"><strong>Email:</strong> {{ userProfile.twitch.email }}</div>
+                <div v-if="userProfile.twitch.displayName && userProfile.twitch.username !== userProfile.twitch.displayName">
+                  <strong>Display Name:</strong> {{ userProfile.twitch.displayName }}
+                </div>
+                <div v-if="userProfile.twitch.lastSync" class="text-white/60">
+                  <strong>Last Sync:</strong> {{ formatRelativeTime(userProfile.twitch.lastSync) }}
+                </div>
               </div>
             </div>
-            <button 
-              @click="disconnectTwitch"
-              class="w-full mt-3 py-2 px-4 bg-red-600/20 hover:bg-red-600/40 text-red-300 rounded-lg text-xs font-semibold transition-all duration-200"
-            >
-              Disconnect Twitch
-            </button>
           </div>
         </div>
       </div>
@@ -208,6 +216,7 @@ import { onAuthStateChanged, signInWithCustomToken, signOut as firebaseSignOut }
 import { doc, getDoc, updateDoc, deleteField, setDoc, deleteDoc } from 'firebase/firestore'
 import { auth, db } from '../firebase'
 import { useRouter, useRoute } from 'vue-router'
+import { Twitch, Discord, Steam } from 'mdue'
 
 const router = useRouter()
 const route = useRoute()
@@ -249,23 +258,25 @@ const allConnected = computed(() => steamConnected.value && discordConnected.val
 const connectSteam = () => {
   loading.value.steam = true
   const returnOrigin = encodeURIComponent(window.location.origin)
-  window.location.href = `${OAUTH_ENDPOINTS.steam}?return_origin=${returnOrigin}`
+  // Check for existing primary user ID in localStorage for account linking
+  const primaryUserId = localStorage.getItem('primaryUserId') || auth.currentUser?.uid || ''
+  window.location.href = `${OAUTH_ENDPOINTS.steam}?return_origin=${returnOrigin}&link_user=${primaryUserId}`
 }
 
 const connectDiscord = () => {
   loading.value.discord = true
   const returnOrigin = encodeURIComponent(window.location.origin)
-  // Pass current user ID if already authenticated (for account linking)
-  const userId = auth.currentUser?.uid || ''
-  window.location.href = `${OAUTH_ENDPOINTS.discord}?return_origin=${returnOrigin}&link_user=${userId}`
+  // Check for existing primary user ID in localStorage for account linking
+  const primaryUserId = localStorage.getItem('primaryUserId') || auth.currentUser?.uid || ''
+  window.location.href = `${OAUTH_ENDPOINTS.discord}?return_origin=${returnOrigin}&link_user=${primaryUserId}`
 }
 
 const connectTwitch = () => {
   loading.value.twitch = true
   const returnOrigin = encodeURIComponent(window.location.origin)
-  // Pass current user ID if already authenticated (for account linking)
-  const userId = auth.currentUser?.uid || ''
-  window.location.href = `${OAUTH_ENDPOINTS.twitch}?return_origin=${returnOrigin}&link_user=${userId}`
+  // Check for existing primary user ID in localStorage for account linking
+  const primaryUserId = localStorage.getItem('primaryUserId') || auth.currentUser?.uid || ''
+  window.location.href = `${OAUTH_ENDPOINTS.twitch}?return_origin=${returnOrigin}&link_user=${primaryUserId}`
 }
 
 // Sign out function
@@ -326,6 +337,12 @@ const handleOAuthCallback = async () => {
 const loadUserProfile = async (uid) => {
   try {
     console.log('🔥 Loading user profile for UID:', uid)
+    
+    // Store as primary user ID for future account linking
+    if (!localStorage.getItem('primaryUserId')) {
+      localStorage.setItem('primaryUserId', uid)
+      console.log('🔥 Stored primary user ID:', uid)
+    }
     
     // Fetch user document from Firestore
     const userDocRef = doc(db, 'users', uid)
@@ -447,6 +464,12 @@ const disconnectSteam = async () => {
     
     userProfile.value.steam = null
     console.log('Steam disconnected')
+    
+    // Clear localStorage if all services disconnected
+    if (!userProfile.value.steam && !userProfile.value.discord && !userProfile.value.twitch) {
+      localStorage.removeItem('primaryUserId')
+      console.log('🔥 Cleared primary user ID - all services disconnected')
+    }
   } catch (err) {
     console.error('Error disconnecting Steam:', err)
     error.value = 'Failed to disconnect Steam'
@@ -468,6 +491,12 @@ const disconnectDiscord = async () => {
     
     userProfile.value.discord = null
     console.log('Discord disconnected')
+    
+    // Clear localStorage if all services disconnected
+    if (!userProfile.value.steam && !userProfile.value.discord && !userProfile.value.twitch) {
+      localStorage.removeItem('primaryUserId')
+      console.log('🔥 Cleared primary user ID - all services disconnected')
+    }
   } catch (err) {
     console.error('Error disconnecting Discord:', err)
     error.value = 'Failed to disconnect Discord'
@@ -489,6 +518,12 @@ const disconnectTwitch = async () => {
     
     userProfile.value.twitch = null
     console.log('Twitch disconnected')
+    
+    // Clear localStorage if all services disconnected
+    if (!userProfile.value.steam && !userProfile.value.discord && !userProfile.value.twitch) {
+      localStorage.removeItem('primaryUserId')
+      console.log('🔥 Cleared primary user ID - all services disconnected')
+    }
   } catch (err) {
     console.error('Error disconnecting Twitch:', err)
     error.value = 'Failed to disconnect Twitch'
