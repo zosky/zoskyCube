@@ -9,20 +9,18 @@
         <p class="text-white/80 text-center mb-4">
           Connect all three gaming platforms to unlock full features and sync your profile data.
         </p>
-        <div class="flex justify-center space-x-4">
-          <div class="flex items-center">
-            <div :class="['w-3 h-3 rounded-full mr-2', steamConnected ? 'bg-green-500' : 'bg-red-500']"></div>
-            <span class="text-white/80">Steam</span>
-          </div>
-          <div class="flex items-center">
-            <div :class="['w-3 h-3 rounded-full mr-2', discordConnected ? 'bg-green-500' : 'bg-red-500']"></div>
-            <span class="text-white/80">Discord</span>
-          </div>
-          <div class="flex items-center">
-            <div :class="['w-3 h-3 rounded-full mr-2', twitchConnected ? 'bg-green-500' : 'bg-red-500']"></div>
-            <span class="text-white/80">Twitch</span>
-          </div>
+              <!-- Status Indicators -->
+      <div class="flex justify-center gap-8 mb-4">
+        <div class="flex items-center gap-2">
+          <i :class="['mdi mdi-steam text-2xl', steamConnected ? 'text-green-400' : 'text-red-400']"></i>
         </div>
+        <div class="flex items-center gap-2">
+          <i :class="['mdi mdi-discord text-2xl', discordConnected ? 'text-green-400' : 'text-red-400']"></i>
+        </div>
+        <div class="flex items-center gap-2">
+          <i :class="['mdi mdi-twitch text-2xl', twitchConnected ? 'text-green-400' : 'text-red-400']"></i>
+        </div>
+      </div>
       </div>
 
       <div class="grid md:grid-cols-3 gap-6 mb-8">
