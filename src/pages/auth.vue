@@ -25,31 +25,6 @@
         </div>
       </div>
 
-      <!-- User Profile Display -->
-      <div v-if="user" class="bg-white/10 backdrop-blur-md rounded-xl p-6 mb-8">
-        <h3 class="text-xl font-semibold text-white mb-4">
-          <i class="mdi mdi-account-circle text-green-400 mr-2"></i>
-          Signed in as {{ user.uid }}
-        </h3>
-        <div class="grid md:grid-cols-3 gap-4 text-white/80 text-sm">
-          <div v-if="userProfile?.twitch">
-            <strong>Twitch:</strong> {{ userProfile.twitch.displayName || userProfile.twitch.login }}
-          </div>
-          <div v-if="userProfile?.discord">
-            <strong>Discord:</strong> {{ userProfile.discord.username }}
-          </div>
-          <div v-if="userProfile?.steam">
-            <strong>Steam:</strong> {{ userProfile.steam.personaname || userProfile.steam.steamid }}
-          </div>
-        </div>
-        <button 
-          @click="signOut"
-          class="mt-4 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg font-semibold transition-all duration-200"
-        >
-          Sign Out
-        </button>
-      </div>
-
       <div class="grid md:grid-cols-3 gap-6 mb-8">
         <!-- Steam Connection -->
         <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 text-center">
@@ -73,6 +48,17 @@
             <i v-if="loading.steam" class="mdi mdi-loading mdi-spin mr-2"></i>
             {{ steamConnected ? 'Connected ✓' : 'Connect Steam' }}
           </button>
+          
+          <!-- Steam Profile Data -->
+          <div v-if="steamConnected && userProfile?.steam" class="mt-4 pt-4 border-t border-white/10 text-left">
+            <div class="text-white/80 text-xs space-y-1">
+              <div><strong>Username:</strong> {{ userProfile.steam.username }}</div>
+              <div><strong>Steam ID:</strong> {{ userProfile.steam.id }}</div>
+              <div v-if="userProfile.steam.profileUrl" class="truncate">
+                <strong>Profile:</strong> <a :href="userProfile.steam.profileUrl" target="_blank" class="text-blue-400 hover:underline">View</a>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Discord Connection -->
@@ -97,6 +83,15 @@
             <i v-if="loading.discord" class="mdi mdi-loading mdi-spin mr-2"></i>
             {{ discordConnected ? 'Connected ✓' : 'Connect Discord' }}
           </button>
+          
+          <!-- Discord Profile Data -->
+          <div v-if="discordConnected && userProfile?.discord" class="mt-4 pt-4 border-t border-white/10 text-left">
+            <div class="text-white/80 text-xs space-y-1">
+              <div><strong>Username:</strong> {{ userProfile.discord.username }}</div>
+              <div v-if="userProfile.discord.discriminator"><strong>Tag:</strong> #{{ userProfile.discord.discriminator }}</div>
+              <div v-if="userProfile.discord.email"><strong>Email:</strong> {{ userProfile.discord.email }}</div>
+            </div>
+          </div>
         </div>
 
         <!-- Twitch Connection -->
@@ -121,7 +116,27 @@
             <i v-if="loading.twitch" class="mdi mdi-loading mdi-spin mr-2"></i>
             {{ twitchConnected ? 'Connected ✓' : 'Connect Twitch' }}
           </button>
+          
+          <!-- Twitch Profile Data -->
+          <div v-if="twitchConnected && userProfile?.twitch" class="mt-4 pt-4 border-t border-white/10 text-left">
+            <div class="text-white/80 text-xs space-y-1">
+              <div><strong>Display Name:</strong> {{ userProfile.twitch.displayName }}</div>
+              <div><strong>Username:</strong> {{ userProfile.twitch.username }}</div>
+              <div v-if="userProfile.twitch.email"><strong>Email:</strong> {{ userProfile.twitch.email }}</div>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <!-- Sign Out Button (shown when user is authenticated) -->
+      <div v-if="user" class="text-center">
+        <button 
+          @click="signOut"
+          class="bg-red-600 hover:bg-red-700 text-white py-3 px-8 rounded-lg font-semibold transition-all duration-200 inline-flex items-center"
+        >
+          <i class="mdi mdi-logout mr-2"></i>
+          Sign Out
+        </button>
       </div>
 
       <!-- All Connected Success Message -->
