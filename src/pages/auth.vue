@@ -531,8 +531,8 @@ const disconnectSteam = async () => {
     const newLinkId = `s:not-yet-d:${linkData.discordId || 'not-yet'}-t:${linkData.twitchId || 'not-yet'}`
     
     await updateDoc(linkDocRef, {
-      steamId: null,
-      steamUsername: null,
+      steamId: 'not-yet',
+      steamUsername: 'not-yet',
       linkId: newLinkId,
       updatedAt: new Date()
     })
@@ -540,7 +540,7 @@ const disconnectSteam = async () => {
     console.log('Steam disconnected, linkId updated:', newLinkId)
     
     // Reload user profile to reflect changes
-    await loadUserProfile()
+    await loadUserProfile(user.value.uid)
     
     // Clear localStorage if all services disconnected
     if (!userProfile.value.steam && !userProfile.value.discord && !userProfile.value.twitch) {
@@ -572,8 +572,8 @@ const disconnectDiscord = async () => {
     const newLinkId = `s:${linkData.steamId || 'not-yet'}-d:not-yet-t:${linkData.twitchId || 'not-yet'}`
     
     await updateDoc(linkDocRef, {
-      discordId: null,
-      discordUsername: null,
+      discordId: 'not-yet',
+      discordUsername: 'not-yet',
       linkId: newLinkId,
       updatedAt: new Date()
     })
@@ -581,7 +581,7 @@ const disconnectDiscord = async () => {
     console.log('Discord disconnected, linkId updated:', newLinkId)
     
     // Reload user profile to reflect changes
-    await loadUserProfile()
+    await loadUserProfile(user.value.uid)
     
     // Clear localStorage if all services disconnected
     if (!userProfile.value.steam && !userProfile.value.discord && !userProfile.value.twitch) {
@@ -613,8 +613,8 @@ const disconnectTwitch = async () => {
     const newLinkId = `s:${linkData.steamId || 'not-yet'}-d:${linkData.discordId || 'not-yet'}-t:not-yet`
     
     await updateDoc(linkDocRef, {
-      twitchId: null,
-      twitchUsername: null,
+      twitchId: 'not-yet',
+      twitchUsername: 'not-yet',
       linkId: newLinkId,
       updatedAt: new Date()
     })
@@ -622,7 +622,7 @@ const disconnectTwitch = async () => {
     console.log('Twitch disconnected, linkId updated:', newLinkId)
     
     // Reload user profile to reflect changes
-    await loadUserProfile()
+    await loadUserProfile(user.value.uid)
     
     // Clear localStorage if all services disconnected
     if (!userProfile.value.steam && !userProfile.value.discord && !userProfile.value.twitch) {
