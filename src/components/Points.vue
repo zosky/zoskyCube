@@ -1,20 +1,31 @@
 <template>
   <span v-if="n !== null && n !== undefined" class="points-container">
-    <span class="points-number">{{ formattedNumber }}</span>
+    <span class="points-number">
+      <template v-if="isCAD">
+        {{ cadDollars }}<sup v-if="cadCents !== '00'" class="cents-superscript">{{ cadCents }}</sup>
+      </template>
+      <template v-else>
+        {{ formattedNumber }}
+      </template>
+    </span>
+    <span v-if="isCAD" class="cad-icon">🍁</span>
     <img 
+      v-else
       :src="currencyIcon" 
       :alt="currencyName"
       class="points-icon"
       :style="{ width: size, height: size }"
     />
   </span>
-  <img 
-    v-else
-    :src="currencyIcon" 
-    :alt="currencyName"
-    class="points-icon"
-  />
-
+  <span v-else class="icon-only">
+    <span v-if="isCAD" class="cad-icon">🍁</span>
+    <img 
+      v-else
+      :src="currencyIcon" 
+      :alt="currencyName"
+      class="points-icon"
+    />
+  </span>
 </template>
 
 <script setup>
@@ -28,7 +39,7 @@ const props = defineProps({
     required: true,
     validator: (value) => {
       const normalized = value.toLowerCase()
-      return normalized === 'zb' || normalized === 'zc'
+      return normalized === 'zb' || normalized === 'zc' || normalized === 'cad'
     }
   },
   n: {
@@ -39,6 +50,24 @@ const props = defineProps({
     type: String,
     default: '1.5em'
   }
+})
+
+const isCAD = computed(() => {
+  return props.currency.toLowerCase() === 'cad'
+})
+
+const cadDollars = computed(() => {
+  if (!isCAD.value || props.n === null || props.n === undefined) return ''
+  const num = typeof props.n === 'string' ? parseFloat(props.n) : props.n
+  const dollars = Math.floor(num / 100)
+  return `$${dollars.toLocaleString()}`
+})
+
+const cadCents = computed(() => {
+  if (!isCAD.value || props.n === null || props.n === undefined) return '00'
+  const num = typeof props.n === 'string' ? parseFloat(props.n) : props.n
+  const cents = num % 100
+  return cents.toString().padStart(2, '0')
 })
 
 const currencyIcon = computed(() => {
@@ -66,6 +95,11 @@ const formattedNumber = computed(() => {
   vertical-align: middle;
 }
 
+.icon-only {
+  display: inline-flex;
+  align-items: center;
+}
+
 .points-number {
   font-weight: 600;
   line-height: 1;
@@ -75,5 +109,16 @@ const formattedNumber = computed(() => {
   display: inline-block;
   vertical-align: middle;
   object-fit: contain;
+}
+
+.cad-icon {
+  font-size: 1.2em;
+  line-height: 1;
+}
+
+.cents-superscript {
+  text-decoration: underline;
+  font-size: 0.75em;
+  font-weight: 500;
 }
 </style>
