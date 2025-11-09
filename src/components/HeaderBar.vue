@@ -1,5 +1,5 @@
 <script setup>
-import { Twitch, Youtube, Steam, GamepadVariantOutline, SkullCrossbones, Store, PlusBox, TrophyOutline, Account } from 'mdue'
+import { Twitch, Youtube, Steam, GamepadVariantOutline, SkullCrossbones, Store, PlusBox, TrophyOutline, Account, HelpCircleOutline } from 'mdue'
 </script>
 
 <template>
@@ -30,6 +30,11 @@ import { Twitch, Youtube, Steam, GamepadVariantOutline, SkullCrossbones, Store, 
             class="cursor-pointer"
             @click="$router.push('/winning')"
             title="Completed Games" />
+        <HelpCircleOutline
+            :class="{ 'active' : $route.path.includes('/help/') }" 
+            class="cursor-pointer"
+            @click="$router.push('/help/')"
+            title="Help Center" />
         <Account
             v-if="$route.path=='/auth'"
             :class="{ 'active' : $route.path=='/auth' }" 
