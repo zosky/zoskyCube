@@ -22,16 +22,15 @@
             </td>
             <td class="px-6 py-4">
               <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold" 
-                    :style="{ backgroundColor: getSourceColor(entry.source) }">
-                {{ formatSource(entry.source) }}
+                    :style="{ XbackgroundColor: getSourceColor(entry.source) }">
+                    <gameLogo :game="formatSource(entry.source)" class="h-10 -my-8" />
               </span>
             </td>
             <td class="px-6 py-4 text-white/90 text-sm max-w-md truncate" :title="entry.reason">
               {{ entry.reason }}
             </td>
             <td class="px-6 py-4 text-right">
-              <span class="text-lg font-bold text-yellow-400">{{ entry.amount }}</span>
-              <span class="text-sm text-white/70 ml-1">zC</span>
+              <Points currency="zC" :n="entry.amount" class="text-yellow-400" />
             </td>
           </tr>
         </tbody>
@@ -41,6 +40,8 @@
 </template>
 
 <script setup>
+import Points from '../Points.vue'
+
 const props = defineProps({
   data: {
     type: Array,

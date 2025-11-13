@@ -6,7 +6,7 @@
           <tr class="text-white/90 text-left">
             <th class="px-6 py-3 font-semibold">Reason</th>
             <th class="px-6 py-3 font-semibold text-right">Count</th>
-            <th class="px-6 py-3 font-semibold text-right">Total zC</th>
+            <th class="px-6 py-3 font-semibold text-right">Total <Points currency="zC" class="h-6 w-6 inline -mt-2" /></th>
             <th class="px-6 py-3 font-semibold">Most Common Source</th>
           </tr>
         </thead>
@@ -18,8 +18,12 @@
           >
             <td class="px-6 py-4 font-medium">{{ reason.reason }}</td>
             <td class="px-6 py-4 text-right text-white/90">{{ reason.count }}</td>
-            <td class="px-6 py-4 text-right text-yellow-400 font-bold">{{ reason.total.toLocaleString() }} zC</td>
-            <td class="px-6 py-4 text-white/80">{{ formatSource(reason.topSource) }}</td>
+            <td class="px-6 py-4 text-right text-yellow-400 font-bold">
+              <Points currency="zC" :n="reason.total" />
+            </td>
+            <td class="px-6 py-4 text-white/80">
+              <gameLogo :game="formatSource(reason.topSource)" />
+            </td>
           </tr>
         </tbody>
       </table>
@@ -28,6 +32,9 @@
 </template>
 
 <script setup>
+import vodVoteIcon from '../../assets/ttv/vodVote.png'
+import pixelPower from '../../assets/ttv/pixelPower.png'
+import squadRush from '../../assets/ttv/squadRush.png'
 defineProps({
   stats: {
     type: Array,

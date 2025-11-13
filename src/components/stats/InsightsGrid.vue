@@ -7,7 +7,12 @@
     >
       <div class="text-4xl mb-3">{{ insight.icon }}</div>
       <h3 class="text-lg font-bold text-white mb-2">{{ insight.title }}</h3>
-      <p class="text-white/80 text-sm">{{ insight.description }}</p>
+      <div v-if="insight.description.includes('zC')" class="flex flex-row gap-1">
+        {{ insight.description.split('zC')?.[0] }}
+        <Points currency="zC" class="h-6 w-6" />
+        {{ insight.description.split('zC')?.[1] }}
+      </div>
+      <p v-else class="text-white/80 text-sm">{{ insight.description }}</p>
     </div>
   </div>
 </template>

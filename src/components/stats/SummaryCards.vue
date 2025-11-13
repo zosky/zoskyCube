@@ -2,7 +2,9 @@
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
     <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 ring-1 ring-white/20">
       <div class="text-xs text-white/70 mb-1">Total Winnings</div>
-      <div class="text-2xl font-bold text-yellow-400">{{ totalAmount.toLocaleString() }} <span class="text-sm">zC</span></div>
+      <div class="text-2xl font-bold text-yellow-400">
+        <Points currency="zC" :n="totalAmount" />
+      </div>
     </div>
     
     <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 ring-1 ring-white/20">
@@ -12,12 +14,18 @@
     
     <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 ring-1 ring-white/20">
       <div class="text-xs text-white/70 mb-1">Avg Per Win</div>
-      <div class="text-2xl font-bold text-green-400">{{ avgAmount }} <span class="text-sm">zC</span></div>
+      <div class="text-2xl font-bold text-green-400">
+        <Points currency="zC" :n="avgAmount" />
+      </div>
     </div>
     
     <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 ring-1 ring-white/20">
       <div class="text-xs text-white/70 mb-1">Best Source</div>
-      <div class="text-lg font-bold text-blue-400">{{ formatSource(topSource) }}</div>
+      <div class="text-lg font-bold text-blue-400">
+        <!-- {{ formatSource(topSource) }} -->
+        <gameLogo :game="formatSource(topSource)" />
+
+      </div>
     </div>
     
     <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 ring-1 ring-white/20">
@@ -33,6 +41,8 @@
 </template>
 
 <script setup>
+import Points from '../Points.vue'
+
 const props = defineProps({
   data: {
     type: Array,

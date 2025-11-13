@@ -10,7 +10,7 @@
               :key="source"
               class="px-4 py-3 font-semibold text-center"
             >
-              {{ formatSource(source) }}
+              <gameLogo :game="formatSource(source)" />
             </th>
             <th class="px-4 py-3 font-semibold text-center bg-white/10">Total</th>
           </tr>
@@ -27,13 +27,15 @@
             <td 
               v-for="source in sources" 
               :key="source"
-              :class="getCellClass(data[hour]?.[source] || 0)"
+              :class="getCellClass(data[hour]?.[source] || '')"
               class="px-4 py-3 text-center font-medium transition-colors"
             >
-              {{ data[hour]?.[source] || 0 }}
+              <Points v-if="data[hour]?.[source]" currency="zC" :n="data[hour][source]" />
+              <!-- {{ data[hour]?.[source] || '' }} -->
             </td>
             <td class="px-4 py-3 text-center font-bold text-white bg-white/5">
-              {{ hourTotals[hour] || 0 }}
+              <Points v-if="hourTotals[hour]" currency="zC" :n="hourTotals[hour]" />
+              <!-- {{ hourTotals[hour] || '' }} -->
             </td>
           </tr>
         </tbody>
@@ -45,7 +47,8 @@
               :key="source"
               class="px-4 py-3 text-center text-yellow-400"
             >
-              {{ sourceTotals[source] || 0 }}
+              <Points v-if="sourceTotals[source]" currency="zC" :n="sourceTotals[source]" />
+              <!-- {{ sourceTotals[source] || '' }} -->
             </th>
             <th class="px-4 py-3 text-center text-green-400">
               {{ grandTotal }}
@@ -58,6 +61,8 @@
 </template>
 
 <script setup>
+import Points from '../Points.vue'
+
 const props = defineProps({
   data: {
     type: Object,
