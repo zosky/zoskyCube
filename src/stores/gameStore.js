@@ -40,11 +40,11 @@ const fetchCsvToJson = async (url) => {
     
     // Extract headers from first line
     const headers = parseCSVLine(lines[0]);
-    console.log('Headers found:', headers);
+    // console.log('Headers found:', headers);
 
     // Find the private column index for debugging
     const privateColumnIndex = headers.indexOf('private');
-    console.log('Private column index:', privateColumnIndex);
+    // console.log('Private column index:', privateColumnIndex);
 
     // Process data rows
     const jsonARR = lines.slice(1).map((line, index) => {
@@ -52,9 +52,9 @@ const fetchCsvToJson = async (url) => {
         const obj = {};
         
         // Log first few rows to see raw private values
-        if (index < 5 && privateColumnIndex >= 0) {
-            console.log(`Row ${index + 1} raw private value:`, JSON.stringify(values[privateColumnIndex]));
-        }
+        // if (index < 5 && privateColumnIndex >= 0) {
+        //     console.log(`Row ${index + 1} raw private value:`, JSON.stringify(values[privateColumnIndex]));
+        // }
         
         headers.forEach((header, headerIndex) => {
             const value = values[headerIndex] || ''; // Handle undefined values
@@ -66,9 +66,9 @@ const fetchCsvToJson = async (url) => {
                 const isFalse = value && value.toLowerCase() === 'false';
                 const result = value && value.toLowerCase() !== 'false' && value.trim() !== '';
                 
-                if (index < 5) {
-                    console.log(`Private field processing - Raw: "${value}", isEmpty: ${isEmpty}, isFalse: ${isFalse}, result: ${result}`);
-                }
+                // if (index < 5) {
+                //     console.log(`Private field processing - Raw: "${value}", isEmpty: ${isEmpty}, isFalse: ${isFalse}, result: ${result}`);
+                // }
                 
                 obj[header] = result;
             } else {
@@ -85,13 +85,13 @@ const fetchCsvToJson = async (url) => {
 // Helper function to safely parse timestamps
 const parseTimestamp = (timestamp) => {
     if (!timestamp || timestamp === '' || timestamp === 'undefined') {
-        console.warn('Invalid timestamp detected:', timestamp);
+        // console.warn('Invalid timestamp detected:', timestamp);
         return null;
     }
     
     const date = new Date(timestamp);
     if (isNaN(date.getTime())) {
-        console.warn('Failed to parse timestamp:', timestamp);
+        // console.warn('Failed to parse timestamp:', timestamp);
         return null;
     }
     
@@ -102,7 +102,7 @@ const parseTimestamp = (timestamp) => {
 const getSteamId = (entry) => {
     const steamId = entry?.steamID ?? entry?.steamId;
     if (!steamId || steamId === '' || steamId === 'undefined') {
-        console.warn('Invalid steamId detected:', steamId);
+        // console.warn('Invalid steamId detected:', steamId);
         return null;
     }
     return steamId;
@@ -134,7 +134,7 @@ const getLives = (entry) => {
         return Number(livesValue) || 0;
     }
     
-    console.warn('No valid death or lives value found:', entry);
+    // console.warn('No valid death or lives value found:', entry);
     return 0;
 }
 

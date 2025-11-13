@@ -24,10 +24,11 @@ const db = getFirestore(app)
 const functions = getFunctions(app, 'us-central1')
 
 // Connect to emulators in development
-if (import.meta.env.DEV) {
-  connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true })
-  connectFirestoreEmulator(db, 'localhost', 8080)
-  connectFunctionsEmulator(functions, 'localhost', 5001)
-}
+// COMMENTED OUT TO USE PRODUCTION DATA IN DEV MODE
+// if (import.meta.env.DEV) {
+//   connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true })
+//   connectFirestoreEmulator(db, 'localhost', 8080)
+//   connectFunctionsEmulator(functions, 'localhost', 5001)
+// }
 
 export { auth, db, functions, app }
