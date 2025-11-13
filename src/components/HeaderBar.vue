@@ -40,7 +40,7 @@ const currentAvatar = computed(() => {
 function navigateToStats() {
   if (user.value && userProfile.value?.twitch?.username) {
     // Navigate to user's specific stats
-    router.push(`/stats/${userProfile.value.twitch.username}`)
+    router.push(`/stats/user?username=${userProfile.value.twitch.username}`)
   } else {
     // Navigate to leaderboard
     router.push('/stats')
@@ -49,7 +49,7 @@ function navigateToStats() {
 
 function navigateToMyStats() {
   if (user.value && userProfile.value?.twitch?.username) {
-    router.push(`/stats/${userProfile.value.twitch.username}`)
+    router.push(`/stats/user?username=${userProfile.value.twitch.username}`)
   }
 }
 

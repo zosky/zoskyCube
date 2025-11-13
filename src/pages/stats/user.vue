@@ -144,8 +144,8 @@ import { useExport } from '../../composables/useExport'
 const route = useRoute()
 const router = useRouter()
 
-// Get username from route params
-const username = computed(() => route.params.username)
+// Get username from query parameter
+const username = computed(() => route.query.username || '')
 
 // User history composable
 const {

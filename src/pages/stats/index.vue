@@ -45,7 +45,7 @@
                   v-for="(user, idx) in leaderboard" 
                   :key="user.username"
                   class="text-white hover:bg-blue-500/20 cursor-pointer transition-colors"
-                  @click="$router.push(`/stats/${user.username}`)"
+                  @click="$router.push(`/stats/user?username=${user.username}`)"
                 >
                   <td class="px-6 py-4">
                     <span v-if="idx === 0" class="text-2xl">🥇</span>
@@ -87,7 +87,7 @@ onMounted(async () => {
   // Check if user is logged in and has a Twitch username
   if (user.value && userProfile.value?.twitch?.username) {
     // Redirect to user's stats page
-    router.push(`/stats/${userProfile.value.twitch.username}`)
+    router.push(`/stats/user?username=${userProfile.value.twitch.username}`)
   } else {
     // Load leaderboard
     await loadLeaderboard()
