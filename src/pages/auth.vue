@@ -94,16 +94,35 @@
         </div>
 
         <!-- Discord Connection -->
-        <div class="from-purple-800 to-purple-950 ring-1 ring-purple-600 shadow-purple-500 shadow-md bg-gradient-to-br backdrop-blur-md rounded-xl p-6 relative min-w-0">
+        <div class="bg-gradient-to-br backdrop-blur-md rounded-xl p-6 relative min-w-0 transition-all duration-300" 
+             :class="discordVerificationStatus?.verified ? 
+               'from-green-700 to-purple-900 ring-2 ring-green-400 shadow-green-400 shadow-lg' : 
+               discordInServer ?
+               'from-yellow-700 to-purple-900 ring-2 ring-yellow-400 shadow-yellow-400 shadow-lg' :
+               'from-purple-800 to-purple-950 ring-1 ring-purple-600 shadow-purple-500 shadow-md'">
           <!-- Platform icon - top left -->
-          <div class="flex flex-row justify-center -space-x-8 items-center scale-[2]">
-            <Discord class="w-auto h-[5.5em] text-indigo-400" />
+          <div class="flex flex-row justify-center -space-x-8 items-center scale-[2] relative">
+            <Discord class="w-auto h-[5.5em] transition-all duration-300" 
+                     :class="discordVerificationStatus?.verified ? 'text-green-400' : 
+                             discordInServer ? 'text-yellow-400 animate-pulse' : 
+                             'text-indigo-400'" />
+            
+            <!-- Verification Badge - Green checkmark when verified -->
+            <CheckCircle v-if="discordVerificationStatus?.verified" 
+                        class="absolute -top-2 -right-2 w-8 h-8 text-green-400 bg-gray-900 rounded-full z-10" />
+            
+            <!-- Waiting Badge - Yellow alert when joined but not verified -->
+            <AlertCircle v-else-if="discordInServer" 
+                        class="absolute -top-2 -right-2 w-8 h-8 text-yellow-400 bg-gray-900 rounded-full z-10 animate-pulse" />
           
           <!-- Avatar - top right -->
             <img v-if="discordConnected && userProfile?.discord?.avatar" 
                 :src="`https://cdn.discordapp.com/avatars/${userProfile.discord.id}/${userProfile.discord.avatar}.png`" 
                 alt="Discord Avatar" 
-                class="w-auto h-[5.5em] rounded-full border-2 border-indigo-400 aspect-square" />
+                class="w-auto h-[5.5em] rounded-full border-2 aspect-square transition-all duration-300"
+                :class="discordVerificationStatus?.verified ? 'border-green-400' : 
+                        discordInServer ? 'border-yellow-400' : 
+                        'border-indigo-400'" />
           </div>
             
           <!-- Content with top margin to clear absolute elements -->
@@ -112,22 +131,47 @@
               {{ discordConnected ? `Logged in as ${userProfile?.discord?.username || 'Discord User'}` : 'Connect your Discord account' }}
             </p> -->
             
-            <!-- Single button with v-if/v-else -->
-            <button v-if="!discordConnected"
-              @click="connectDiscord"
-              class="w-full py-3 px-4 rounded-lg font-semibold bg-indigo-600 hover:bg-indigo-700 text-white transition-all duration-200"
-              :disabled="loading.discord || loadingProfile"
-            >
-              <Loading v-if="loading.discord || loadingProfile" class="inline w-5 h-5 mr-2 animate-spin" />
-              Connect
-            </button>
-            <button v-else
-              @click="disconnectDiscord"
-              class="w-full py-3 px-4 rounded-lg font-semibold bg-red-600/20 hover:bg-red-600/40 text-red-300 transition-all duration-200"
-              :disabled="loadingProfile"
-            >
-              Disconnect
-            </button>
+            <!-- Step 1: Connect Discord (OAuth + Auto-join Server) -->
+            <div v-if="!discordConnected" class="space-y-2">
+              <button
+                @click="connectDiscord"
+                class="w-full py-3 px-4 rounded-lg font-semibold bg-indigo-600 hover:bg-indigo-700 text-white transition-all duration-200"
+                :disabled="loading.discord || loadingProfile"
+              >
+                <Loading v-if="loading.discord || loadingProfile" class="inline w-5 h-5 mr-2 animate-spin" />
+                Connect & Join Server
+              </button>
+            </div>
+            
+            <!-- Step 2: Verify Member Role (after joining) -->
+            <div v-else class="space-y-2">
+              <!-- Discord Verification Status -->
+              <div v-if="discordVerificationStatus" class="mb-2 p-3 rounded-lg text-sm" :class="discordVerificationStatus.verified ? 'bg-green-500/20 text-green-300' : 'bg-yellow-500/20 text-yellow-300'">
+                <CheckCircle v-if="discordVerificationStatus.verified" class="inline w-4 h-4 mr-1 -mt-0.5" />
+                <AlertCircle v-else class="inline w-4 h-4 mr-1 -mt-0.5 animate-pulse" />
+                {{ discordVerificationStatus.message }}
+              </div>
+              
+              <!-- Check Member Role Button (only show if not verified) -->
+              <button
+                v-if="!discordVerificationStatus?.verified"
+                @click="checkDiscordStatus"
+                class="w-full py-3 px-4 rounded-lg font-semibold bg-yellow-600 hover:bg-yellow-700 text-white transition-all duration-200 animate-pulse"
+                :disabled="loading.discordVerify"
+              >
+                <Loading v-if="loading.discordVerify" class="inline w-5 h-5 mr-2 animate-spin" />
+                Check Member Status
+              </button>
+              
+              <!-- Disconnect Button -->
+              <button
+                @click="disconnectDiscord"
+                class="w-full py-2 px-4 rounded-lg font-semibold bg-red-600/20 hover:bg-red-600/40 text-red-300 transition-all duration-200 text-sm"
+                :disabled="loadingProfile"
+              >
+                Disconnect
+              </button>
+            </div>
             
             <!-- Profile Data -->
             <div v-if="discordConnected && userProfile?.discord" class="mt-4 pt-4 border-t border-white/10 text-left">
@@ -329,7 +373,8 @@ const MOCK_USER_PROFILE = {
 const loading = ref({
   steam: false,
   discord: false,
-  twitch: false
+  twitch: false,
+  discordVerify: false
 })
 const loadingProfile = ref(false)
 
@@ -337,6 +382,9 @@ const user = ref(null)
 const userProfile = ref(null)
 const error = ref('')
 const isProcessingCallback = ref(false)
+const discordVerificationStatus = ref(null)
+const discordInServer = ref(false)
+const errorMessage = ref('')
 
 // Computed properties
 const steamConnected = computed(() => !!userProfile.value?.steam)
@@ -358,6 +406,7 @@ const connectDiscord = () => {
   const returnOrigin = encodeURIComponent(window.location.origin)
   // Pass link_uuid for account linking (UUID from localStorage or current auth user)
   const linkUuid = localStorage.getItem('linkUuid') || auth.currentUser?.uid || ''
+  // Note: Server join happens automatically in discordCallbackV2 cloud function
   window.location.href = `${OAUTH_ENDPOINTS.discord}?return_origin=${returnOrigin}&link_uuid=${linkUuid}`
 }
 
@@ -462,6 +511,31 @@ const loadUserProfile = async (uid) => {
       if (discordDocSnap.exists()) {
         profile.discord = discordDocSnap.data()
       }
+      
+      // Load Discord server status from account_links
+      discordInServer.value = linkData.discordInServer || false
+      
+      // Load Discord verification status from account_links
+      if (linkData.discordVerified !== undefined) {
+        discordVerificationStatus.value = {
+          verified: linkData.discordVerified,
+          inServer: linkData.discordInServer,
+          hasMemberRole: linkData.discordHasMemberRole,
+          hasNoobRole: linkData.discordHasNoobRole,
+          message: linkData.discordVerified ? 
+            '✅ Discord verified! DoubleCounter complete.' :
+            linkData.discordInServer ?
+            '⏳ Complete DoubleCounter verification, then check status' :
+            '⏳ Join server first'
+        }
+      } else if (linkData.discordInServer) {
+        // User is in server but hasn't checked status yet
+        discordVerificationStatus.value = {
+          verified: false,
+          inServer: true,
+          message: '⏳ Complete DoubleCounter verification, then check status'
+        }
+      }
     }
     
     // Fetch Twitch profile if linked
@@ -538,6 +612,44 @@ const disconnectSteam = async () => {
   }
 }
 
+// Check Discord verification status (after DoubleCounter)
+const checkDiscordStatus = async () => {
+  loading.value.discordVerify = true
+  errorMessage.value = ''
+  
+  try {
+    // In dev mode, mock successful verification
+    if (import.meta.env.DEV) {
+      discordVerificationStatus.value = {
+        verified: true,
+        inServer: true,
+        hasMemberRole: true,
+        hasNoobRole: false,
+        message: '✅ Discord verified! DoubleCounter complete.'
+      }
+      loading.value.discordVerify = false
+      return
+    }
+    
+    // Call Cloud Function to verify Discord membership
+    const verifyMembership = httpsCallable(functions, 'verifyDiscordMembership')
+    const result = await verifyMembership()
+    
+    discordVerificationStatus.value = result.data
+    
+    console.log('Discord verification result:', result.data)
+  } catch (err) {
+    console.error('Error checking Discord status:', err)
+    errorMessage.value = `Failed to check Discord status: ${err.message}`
+    discordVerificationStatus.value = {
+      verified: false,
+      message: '❌ Could not check Discord status'
+    }
+  } finally {
+    loading.value.discordVerify = false
+  }
+}
+
 const disconnectDiscord = async () => {
   if (!confirm('Are you sure you want to disconnect Discord?')) return
   
@@ -545,6 +657,7 @@ const disconnectDiscord = async () => {
     // In dev mode, just update local state
     if (import.meta.env.DEV) {
       userProfile.value.discord = null
+      discordVerificationStatus.value = null
       return
     }
     
@@ -558,6 +671,9 @@ const disconnectDiscord = async () => {
     // Call Cloud Function to disconnect with history tracking
     const disconnectService = httpsCallable(functions, 'disconnectService')
     await disconnectService({ service: 'discord', linkUuid })
+    
+    // Clear verification status
+    discordVerificationStatus.value = null
     
     // Reload user profile to reflect changes
     await loadUserProfile(linkUuid)
@@ -611,6 +727,16 @@ const loadMockData = () => {
   user.value = { uid: 'mock-uuid-12345' }
   userProfile.value = { ...MOCK_USER_PROFILE }
   localStorage.setItem('linkUuid', 'mock-uuid-12345')
+  
+  // Mock Discord as joined to server but not verified (yellow state)
+  discordInServer.value = true
+  discordVerificationStatus.value = {
+    verified: false,
+    inServer: true,
+    hasMemberRole: false,
+    hasNoobRole: true,
+    message: '⏳ Complete DoubleCounter verification, then check status'
+  }
 }
 
 // Listen for auth state changes
