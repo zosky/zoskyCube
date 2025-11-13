@@ -631,6 +631,19 @@ const checkDiscordStatus = async () => {
       return
     }
     
+    // Verify user is authenticated before calling function
+    const currentUser = auth.currentUser
+    if (!currentUser) {
+      throw new Error('Not authenticated. Please refresh and sign in again.')
+    }
+    
+    console.log('🔒 Current user UID:', currentUser.uid)
+    console.log('🔒 Getting ID token...')
+    
+    // Force token refresh to ensure it's valid
+    const token = await currentUser.getIdToken(true)
+    console.log('🔒 Got fresh ID token')
+    
     // Call Cloud Function to verify Discord membership
     const verifyMembership = httpsCallable(functions, 'verifyDiscordMembership')
     const result = await verifyMembership()
