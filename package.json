@@ -1,6 +1,6 @@
 {
   "name": "vue-timeline-app",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A Vue 3 application that displays a timeline of events using Tailwind CSS.",
   "main": "src/main.js",
   "scripts": {
