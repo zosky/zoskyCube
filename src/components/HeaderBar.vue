@@ -108,7 +108,19 @@ function cycleAvatar(event) {
             <gameLogo game="Squad Rush" class="translate-y-1" />
           </section> -->
 
-        <!-- User Avatar (right side) - goes to personal stats -->
+        <HaloLogo
+            :class="{ 'animate-pulse' : $route.path=='/halo' }" 
+            class="cursor-pointer h-10 w-auto -mx-1"
+            title="Halo campaign Stats"
+            @click="$router.push('/halo')" />
+        <ArkLogo 
+            :class="{ 'animate-pulse' : $route.path=='/halo' }" 
+            class="cursor-pointer w-10 h-auto -mx-2"
+            title="arkTribe timeline"
+            @click="$router.push('/ark')" />
+        <GamepadVariantOutline />
+        
+        <!-- User Avatar (floating right side) - goes to personal stats -->
         <div 
             v-if="user && userProfile && currentAvatar" 
             class="user-avatar-container"
@@ -123,17 +135,6 @@ function cycleAvatar(event) {
                 class="user-avatar"
             />
         </div>
-        <HaloLogo
-            :class="{ 'animate-pulse' : $route.path=='/halo' }" 
-            class="cursor-pointer h-10 w-auto -mx-1"
-            title="Halo campaign Stats"
-            @click="$router.push('/halo')" />
-        <ArkLogo 
-            :class="{ 'animate-pulse' : $route.path=='/halo' }" 
-            class="cursor-pointer w-10 h-auto -mx-2"
-            title="arkTribe timeline"
-            @click="$router.push('/ark')" />
-        <GamepadVariantOutline />
     </nav>
 </template>
 
