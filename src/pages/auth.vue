@@ -101,19 +101,11 @@
                'from-yellow-700 to-purple-900 ring-2 ring-yellow-400 shadow-yellow-400 shadow-lg' :
                'from-purple-800 to-purple-950 ring-1 ring-purple-600 shadow-purple-500 shadow-md'">
           <!-- Platform icon - top left -->
-          <div class="flex flex-row justify-center -space-x-8 items-center scale-[2] relative">
+          <div class="flex flex-row justify-center -space-x-8 items-center scale-[2]">
             <Discord class="w-auto h-[5.5em] transition-all duration-300" 
                      :class="discordVerificationStatus?.verified ? 'text-green-400' : 
-                             discordInServer ? 'text-yellow-400 animate-pulse' : 
+                             discordInServer ? 'text-yellow-400' : 
                              'text-indigo-400'" />
-            
-            <!-- Verification Badge - Green checkmark when verified -->
-            <CheckCircle v-if="discordVerificationStatus?.verified" 
-                        class="absolute -top-2 -right-2 w-8 h-8 text-green-400 bg-gray-900 rounded-full z-10" />
-            
-            <!-- Waiting Badge - Yellow alert when joined but not verified -->
-            <AlertCircle v-else-if="discordInServer" 
-                        class="absolute -top-2 -right-2 w-8 h-8 text-yellow-400 bg-gray-900 rounded-full z-10 animate-pulse" />
           
           <!-- Avatar - top right -->
             <img v-if="discordConnected && userProfile?.discord?.avatar" 
