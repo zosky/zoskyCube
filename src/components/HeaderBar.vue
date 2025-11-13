@@ -22,31 +22,28 @@ const currentAvatar = computed(() => {
   const platforms = ['twitch', 'steam', 'discord']
   const platform = platforms[avatarIndex.value % 3]
   
-  // Get avatar URL based on platform
-  if (platform === 'twitch' && userProfile.value.twitch?.profileImageUrl) {
-    return userProfile.value.twitch.profileImageUrl
+  // Get avatar URL based on platform - match auth.vue field names
+  if (platform === 'twitch' && userProfile.value.twitch?.profileImage) {
+    return userProfile.value.twitch.profileImage
   } else if (platform === 'steam' && userProfile.value.steam?.avatar) {
     return userProfile.value.steam.avatar
-  } else if (platform === 'discord' && userProfile.value.discord?.avatar) {
+  } else if (platform === 'discord' && userProfile.value.discord?.avatar && userProfile.value.discord?.id) {
     return `https://cdn.discordapp.com/avatars/${userProfile.value.discord.id}/${userProfile.value.discord.avatar}.png`
   }
   
   // Fallback to any available avatar
-  return userProfile.value.twitch?.profileImageUrl || 
+  return userProfile.value.twitch?.profileImage || 
          userProfile.value.steam?.avatar || 
-         (userProfile.value.discord?.avatar ? `https://cdn.discordapp.com/avatars/${userProfile.value.discord.id}/${userProfile.value.discord.avatar}.png` : null)
+         (userProfile.value.discord?.avatar && userProfile.value.discord?.id ? 
+          `https://cdn.discordapp.com/avatars/${userProfile.value.discord.id}/${userProfile.value.discord.avatar}.png` : null)
 })
 
-function navigateToStats() {
-  if (user.value && userProfile.value?.twitch?.username) {
-    // Navigate to user's specific stats
-    router.push(`/stats/user?username=${userProfile.value.twitch.username}`)
-  } else {
-    // Navigate to leaderboard
-    router.push('/stats')
-  }
+// ChartBar icon - goes to leaderboard always
+function navigateToLeaderboard() {
+  router.push('/stats')
 }
 
+// Avatar icon - goes to user's personal stats
 function navigateToMyStats() {
   if (user.value && userProfile.value?.twitch?.username) {
     router.push(`/stats/user?username=${userProfile.value.twitch.username}`)
@@ -94,10 +91,10 @@ function cycleAvatar(event) {
             @click="$router.push('/help/')"
             title="Help Center" />
         <ChartBar
-            :class="{ 'active' : $route.path.includes('/stats') }" 
+            :class="{ 'active' : $route.path === '/stats' && !$route.query.username }" 
             class="cursor-pointer"
-            @click="navigateToStats"
-            :title="user ? 'My Stats' : 'Leaderboard'" />
+            @click="navigateToLeaderboard"
+            title="Leaderboard / Table of Contents" />
         <Account
             v-if="$route.path=='/auth' || !user"
             :class="{ 'active' : $route.path=='/auth' }" 
@@ -111,21 +108,20 @@ function cycleAvatar(event) {
             <gameLogo game="Squad Rush" class="translate-y-1" />
           </section> -->
 
-        <!-- User Avatar (right side) -->
+        <!-- User Avatar (right side) - goes to personal stats -->
         <div 
-            v-if="user && userProfile" 
+            v-if="user && userProfile && currentAvatar" 
             class="user-avatar-container"
+            :class="{ 'active' : $route.path.includes('/stats/user') }"
             @click="navigateToMyStats"
             @mousedown.middle.prevent="cycleAvatar"
-            :title="`${userProfile.twitch?.username || 'My'} Stats (Middle-click to cycle avatar)`"
+            :title="`My Personal Stats (Middle-click to cycle avatar)`"
         >
             <img 
-                v-if="currentAvatar"
                 :src="currentAvatar" 
                 :alt="`${userProfile.twitch?.username || 'User'} avatar`"
                 class="user-avatar"
             />
-            <Account v-else class="w-10 h-10 text-blue-400" />
         </div>
         <HaloLogo
             :class="{ 'animate-pulse' : $route.path=='/halo' }" 

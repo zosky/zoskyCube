@@ -22,27 +22,61 @@ const allConnected = computed(() =>
   steamConnected.value && discordConnected.value && twitchConnected.value
 )
 
-// Load user profile from Firestore
+// Load user profile from Firestore (UUID-based architecture)
 const loadUserProfile = async (uid) => {
   try {
     console.log('🔥 useAuth: Loading user profile for UID:', uid)
     
-    const userDocRef = doc(db, 'users', uid)
-    const userDocSnap = await getDoc(userDocRef)
-    
-    if (userDocSnap.exists()) {
-      const userData = userDocSnap.data()
-      console.log('🔥 useAuth: User profile loaded:', userData)
-      
-      userProfile.value = {
-        twitch: userData.twitch,
-        discord: userData.discord,
-        steam: userData.steam
-      }
-    } else {
-      console.log('🔥 useAuth: No user profile found in Firestore')
-      userProfile.value = null
+    // Store as link UUID for future account linking
+    if (!localStorage.getItem('linkUuid')) {
+      localStorage.setItem('linkUuid', uid)
     }
+    
+    // Fetch account_links document by UUID
+    const linkDocRef = doc(db, 'account_links', uid)
+    const linkDocSnap = await getDoc(linkDocRef)
+    
+    if (!linkDocSnap.exists()) {
+      console.log('🔥 useAuth: No account links found in Firestore')
+      userProfile.value = null
+      return
+    }
+    
+    const linkData = linkDocSnap.data()
+    console.log('🔥 useAuth: Account links loaded:', linkData)
+    
+    // Build userProfile by fetching individual service profiles
+    const profile = {}
+    
+    // Fetch Steam profile if linked
+    if (linkData.steamId && linkData.steamId !== 'not-yet') {
+      const steamDocRef = doc(db, 'steam_profiles', linkData.steamId)
+      const steamDocSnap = await getDoc(steamDocRef)
+      if (steamDocSnap.exists()) {
+        profile.steam = steamDocSnap.data()
+      }
+    }
+    
+    // Fetch Discord profile if linked
+    if (linkData.discordId && linkData.discordId !== 'not-yet') {
+      const discordDocRef = doc(db, 'discord_profiles', linkData.discordId)
+      const discordDocSnap = await getDoc(discordDocRef)
+      if (discordDocSnap.exists()) {
+        profile.discord = discordDocSnap.data()
+      }
+    }
+    
+    // Fetch Twitch profile if linked
+    if (linkData.twitchId && linkData.twitchId !== 'not-yet') {
+      const twitchDocRef = doc(db, 'twitch_profiles', linkData.twitchId)
+      const twitchDocSnap = await getDoc(twitchDocRef)
+      if (twitchDocSnap.exists()) {
+        profile.twitch = twitchDocSnap.data()
+      }
+    }
+    
+    userProfile.value = profile
+    console.log('🔥 useAuth: User profile built:', profile)
     
   } catch (err) {
     console.error('🔥 useAuth: Error loading user profile:', err)
