@@ -23,7 +23,7 @@
       <div class="text-xs text-white/70 mb-1">Best Source</div>
       <div class="text-lg font-bold text-blue-400">
         <!-- {{ formatSource(topSource) }} -->
-        <gameLogo :game="formatSource(topSource)" />
+        <gameLogo :game="formatSource(topSource)" class="h-10" />
 
       </div>
     </div>

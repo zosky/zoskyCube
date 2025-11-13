@@ -18,7 +18,7 @@
             class="text-white hover:bg-white/5 transition-colors"
           >
             <td class="pl-6">
-              <gameLogo :game="formatSource(game.source)" />
+              <gameLogo :game="formatSource(game.source)" class="h-10" />
             </td>
             <td class="px-6 py-4 text-right text-white/90">{{ game.count }}</td>
             <td class="px-6 py-4 text-right text-yellow-400 font-bold"><Points currency="zC" :n="game.total" /></td>

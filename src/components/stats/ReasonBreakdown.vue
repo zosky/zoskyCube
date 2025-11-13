@@ -22,7 +22,7 @@
               <Points currency="zC" :n="reason.total" />
             </td>
             <td class="px-6 py-4 text-white/80">
-              <gameLogo :game="formatSource(reason.topSource)" />
+              <gameLogo :game="formatSource(reason.topSource)" class="h-10" />
             </td>
           </tr>
         </tbody>

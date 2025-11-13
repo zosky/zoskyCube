@@ -10,7 +10,7 @@
               :key="source"
               class="px-4 py-3 font-semibold text-center"
             >
-              <gameLogo :game="formatSource(source)" />
+              <gameLogo :game="formatSource(source)" class="h-10" />
             </th>
             <th class="px-4 py-3 font-semibold text-center bg-white/10">Total</th>
           </tr>

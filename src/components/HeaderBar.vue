@@ -105,6 +105,12 @@ function cycleAvatar(event) {
             @click="$router.push('/auth')"
             title="Connect Gaming Accounts" />
         
+          <!-- <section class="flex flex-row gap-3 bg-blue-900 px-5 justify-start translate-y-14">
+            <gameLogo game="AI Art" class="scale-[1.2] translate-y-0" />
+            <gameLogo game="VOD Vote" class="h-3 w-auto translate-y-1" />
+            <gameLogo game="Squad Rush" class="translate-y-1" />
+          </section> -->
+
         <!-- User Avatar (right side) -->
         <div 
             v-if="user && userProfile" 

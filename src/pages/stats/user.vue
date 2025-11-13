@@ -2,7 +2,7 @@
   <div class="user-stats-page min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 p-4">
     <div class="max-w-7xl mx-auto">
       <!-- Breadcrumb Navigation -->
-      <div class="breadcrumb mb-6 print:hidden">
+      <div class="breadcrumb mt-8 mb-2 print:hidden">
         <button 
           @click="$router.push('/stats')" 
           class="text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-2"
