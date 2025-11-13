@@ -422,13 +422,3 @@ function clearCacheAndReload() {
   location.reload()
 }
 </script>
-
-<style scoped>
-@media print {
-  .breadcrumb,
-  .export-toolbar,
-  footer {
-    display: none;
-  }
-}
-</style>
