@@ -16,7 +16,17 @@
     <noscript>
         <base href="https://zosky.github.io/zoskyCube/" />
     </noscript>
-    <link rel="manifest" href="/manifest.webmanifest">
+    <script>
+        // Unregister old service worker (PWA removed in v1.2.0)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for (let registration of registrations) {
+                    registration.unregister();
+                    console.log('Old service worker unregistered');
+                }
+            });
+        }
+    </script>
 </head>
 <body>
     <div id="app"></div>
