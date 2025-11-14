@@ -60,7 +60,7 @@ function cycleAvatar(event) {
 <template>
     <nav class="custom-cyan-shadow">
         <a href="./">
-            <img src="@/assets/logo.png" alt="zoskyCube Logo" />
+            <img id="logo" src="@/assets/logo.png" alt="zoskyCube Logo" />
         </a>
         <a href="https://twitch.tv/zoskyCube" :title="'ttv:zoskyCube'">
             <ttv-status />
@@ -101,6 +101,13 @@ function cycleAvatar(event) {
             class="cursor-pointer"
             @click="$router.push('/auth')"
             title="Connect Gaming Accounts" />
+        <img 
+          src="@/assets/ttv/pixelPower.png" 
+          alt="PixelPower Art Collection" 
+          title="PixelPower Art Collection" 
+          :class="{ 'bg-purple-400/40' : $route.path=='/pixelPower' }" 
+          class="inline h-14 -mb-4 -mt-3" 
+          @click="$router.push('/pixelPower')" />
         
           <!-- <section class="flex flex-row gap-3 bg-blue-900 px-5 justify-start translate-y-14">
             <gameLogo game="AI Art" class="scale-[1.2] translate-y-0" />
@@ -143,7 +150,7 @@ nav {
     @apply text-2xl font-bold flex items-center gap-2 -mb-7 bg-blue-950 px-3 py-1; 
     filter: drop-shadow(0 10px 15px rgba(6, 182, 212, 0.5));
 }
-img { @apply h-20 -mt-20 -mb-20 }
+#logo { @apply h-20 -mt-20 -mb-20 }
 a { @apply flex flex-row items-center hover:scale-105 transition-transform duration-200 }
 .active { @apply text-yellow-400 scale-110 }
 
