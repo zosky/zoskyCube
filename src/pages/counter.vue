@@ -1,3 +1,8 @@
+<route lang="yaml">
+meta:
+  title: manual ☠️++
+</route>
+
 <script setup>
 import { ref, computed, onMounted, watch, inject, nextTick } from 'vue'
 import { Account, Magnify, Steam, SkullCrossbones } from 'mdue'

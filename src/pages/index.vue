@@ -1,3 +1,8 @@
+<route lang="yaml">
+meta:
+  title: Game Stats
+</route>
+
 <template>
     <div class="mx-auto p-4">
         <div v-if="isLoading" class="text-center py-8">

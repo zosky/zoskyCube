@@ -1,3 +1,8 @@
+<route lang="yaml">
+meta:
+  title: Halo Stats
+</route>
+
 <script setup>
 
 const theData = ref(null);

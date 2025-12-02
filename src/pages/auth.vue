@@ -1,3 +1,8 @@
+<route lang="yaml">
+meta:
+  title: Whitelist Auth
+</route>
+
 <template>
   <div class="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 p-4">
     <div class="max-w-4xl mx-auto">
@@ -314,6 +319,7 @@ import { auth, db, functions } from '../firebase'
 import { useRouter, useRoute } from 'vue-router'
 import { Twitch, Discord, Steam, Loading, CheckCircle, AlertCircle, Account, Identifier, Email, Tag, ClockOutline, AccountCircle } from 'mdue'
 import Points from '../components/Points.vue'
+import { trackEvent } from '../utils/analytics'
 
 const router = useRouter()
 const route = useRoute()
@@ -387,6 +393,14 @@ const allConnected = computed(() => steamConnected.value && discordConnected.val
 // OAuth Functions - Now just redirect to Cloud Functions!
 const connectSteam = () => {
   loading.value.steam = true
+  
+  // Track OAuth start
+  trackEvent('oauth_start', {
+    event_category: 'authentication',
+    service: 'steam',
+    twitch_username: userProfile.value?.twitch?.username || 'anonymous'
+  })
+  
   const returnOrigin = encodeURIComponent(window.location.origin)
   // Pass link_uuid for account linking (UUID from localStorage or current auth user)
   const linkUuid = localStorage.getItem('linkUuid') || auth.currentUser?.uid || ''
@@ -395,6 +409,14 @@ const connectSteam = () => {
 
 const connectDiscord = () => {
   loading.value.discord = true
+  
+  // Track OAuth start
+  trackEvent('oauth_start', {
+    event_category: 'authentication',
+    service: 'discord',
+    twitch_username: userProfile.value?.twitch?.username || 'anonymous'
+  })
+  
   const returnOrigin = encodeURIComponent(window.location.origin)
   // Pass link_uuid for account linking (UUID from localStorage or current auth user)
   const linkUuid = localStorage.getItem('linkUuid') || auth.currentUser?.uid || ''
@@ -404,6 +426,14 @@ const connectDiscord = () => {
 
 const connectTwitch = () => {
   loading.value.twitch = true
+  
+  // Track OAuth start
+  trackEvent('oauth_start', {
+    event_category: 'authentication',
+    service: 'twitch',
+    twitch_username: 'anonymous'
+  })
+  
   const returnOrigin = encodeURIComponent(window.location.origin)
   // Pass link_uuid for account linking (UUID from localStorage or current auth user)
   const linkUuid = localStorage.getItem('linkUuid') || auth.currentUser?.uid || ''
@@ -431,6 +461,15 @@ const handleOAuthCallback = async () => {
 
   if (errorParam) {
     error.value = `Authentication failed: ${decodeURIComponent(errorParam)}`
+    
+    // Track OAuth error
+    trackEvent('oauth_complete', {
+      event_category: 'authentication',
+      service: success || 'unknown',
+      success: false,
+      error: decodeURIComponent(errorParam)
+    })
+    
     // Clean URL - use router to respect base path
     router.replace('/auth')
     return
@@ -451,6 +490,22 @@ const handleOAuthCallback = async () => {
       
       // Fetch user profile from Firestore
       await loadUserProfile(user.value.uid)
+      
+      // Track OAuth completion
+      trackEvent('oauth_complete', {
+        event_category: 'authentication',
+        service: success,
+        twitch_username: userProfile.value?.twitch?.username || 'anonymous',
+        success: true
+      })
+      
+      // Check if whitelist is now complete (all 3 services connected)
+      if (steamConnected.value && discordConnected.value && twitchConnected.value) {
+        trackEvent('whitelist_complete', {
+          event_category: 'authentication',
+          twitch_username: userProfile.value?.twitch?.username || 'anonymous'
+        })
+      }
       
       // Clean URL - use router to respect base path
       router.replace('/auth')
@@ -733,6 +788,12 @@ const loadMockData = () => {
 
 // Listen for auth state changes
 onMounted(() => {
+  // Track auth page view
+  trackEvent('auth_page_view', {
+    event_category: 'authentication',
+    referrer: document.referrer || 'direct'
+  })
+  
   // In development, load mock data
   if (import.meta.env.DEV) {
     loadMockData()

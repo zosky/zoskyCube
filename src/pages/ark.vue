@@ -1,3 +1,8 @@
+<route lang="yaml">
+meta:
+  title: ARK Tribe
+</route>
+
 <script setup>
 import { ref, computed, onMounted, inject } from 'vue'
 import ArkDayCard from '../components/ark/ArkDayCard.vue'

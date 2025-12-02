@@ -1,3 +1,8 @@
+<route lang="yaml">
+meta:
+  title: Page Not Found
+</route>
+
 <script setup>
 import { Loading } from 'mdue'
 const router = useRouter()

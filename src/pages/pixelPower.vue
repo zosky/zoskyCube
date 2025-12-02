@@ -1,3 +1,8 @@
+<route lang="yaml">
+meta:
+  title: Pixel Power Gallery
+</route>
+
 <template>
     <div class="mx-auto p-4">
         <!-- <div class="mb-6">

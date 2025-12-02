@@ -1,3 +1,8 @@
+<route lang="yaml">
+meta:
+  title: Completed Games
+</route>
+
 <template>
     <div class="p-2">
       <h1 class="text-2xl font-bold mt-8 mb-1">Completed Games</h1>

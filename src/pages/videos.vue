@@ -1,3 +1,8 @@
+<route lang="yaml">
+meta:
+  title: VOD Archive
+</route>
+
 <template>
   <div class="min-h-screen bg-gray-900 text-white p-4 pt-10">
     <!-- Loading State -->
