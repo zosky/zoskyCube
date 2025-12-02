@@ -16,7 +16,7 @@
             :key="reason.reason"
             class="text-white hover:bg-white/5 transition-colors"
           >
-            <td class="px-6 py-4 font-medium">{{ reason.reason }}</td>
+            <td class="px-6 py-4 font-medium">{{ reason.reason.replace(' zoskyZappers ', ' ') }}</td>
             <td class="px-6 py-4 text-right text-white/90">{{ reason.count }}</td>
             <td class="px-6 py-4 text-right text-yellow-400 font-bold">
               <Points currency="zC" :n="reason.total" />
@@ -35,6 +35,7 @@
 import vodVoteIcon from '../../assets/ttv/vodVote.png'
 import pixelPower from '../../assets/ttv/pixelPower.png'
 import squadRush from '../../assets/ttv/squadRush.png'
+import zoskyZappers from '../../assets/ttv/zoskyZappers.png'
 defineProps({
   stats: {
     type: Array,
@@ -49,7 +50,8 @@ function formatSource(source) {
     art: 'AI Art',
     manual: 'Manual',
     storePurchases: 'Store',
-    vouchers: 'Vouchers'
+    vouchers: 'Vouchers',
+    zoskyZappers: 'zoskyZappers'
   }
   return names[source] || source
 }

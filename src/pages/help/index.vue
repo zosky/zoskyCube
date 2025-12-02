@@ -50,6 +50,20 @@
             <span class="feature-reward">win <Points currency="zc" class="points-inline" /></span>
           </div>
         </router-link>
+
+        <router-link to="/help/zoskyZappers" class="help-card zappers">
+          <div class="card-icon">⚡</div>
+          <h2>Zosky Zappers</h2>
+          <p class="card-subtitle">PvP Throwing Battle</p>
+          <p class="card-description">
+            Challenge other viewers in an epic throwing battle! Adjust angle and power, account for wind, and try to hit your opponent!
+          </p>
+          <div class="card-features">
+            <span class="feature">🎯 Angle & Power</span>
+            <span class="feature">💨 Wind Effects</span>
+            <span class="feature-reward">win <Points currency="zc" class="points-inline" /></span>
+          </div>
+        </router-link>
       </div>
 
       <!-- Full-width Coming Soon Banner -->
@@ -217,6 +231,17 @@
   transform: translateY(-5px);
 }
 
+.help-card.zappers {
+  --accent-color: #ffff00;
+  border-color: rgba(255, 255, 0, 0.3);
+}
+
+.help-card.zappers:hover {
+  border-color: #ffff00;
+  box-shadow: 0 0 30px rgba(255, 255, 0, 0.3);
+  transform: translateY(-5px);
+}
+
 .help-card.coming-soon {
   --accent-color: #888;
   border-color: rgba(136, 136, 136, 0.3);
@@ -254,6 +279,11 @@
 .help-card.vote h2 {
   color: #00ff00;
   text-shadow: 0 0 10px #00ff00;
+}
+
+.help-card.zappers h2 {
+  color: #ffff00;
+  text-shadow: 0 0 10px #ffff00;
 }
 
 .help-card.coming-soon h2 {
@@ -311,6 +341,12 @@
   background: rgba(0, 255, 0, 0.1);
   border-color: rgba(0, 255, 0, 0.3);
   color: #00ff00;
+}
+
+.help-card.zappers .feature {
+  background: rgba(255, 255, 0, 0.1);
+  border-color: rgba(255, 255, 0, 0.3);
+  color: #ffff00;
 }
 
 .feature-reward {

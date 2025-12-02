@@ -114,7 +114,8 @@ function formatSource(source) {
     art: 'AI Art',
     manual: 'Manual',
     storePurchases: 'Store',
-    vouchers: 'Vouchers'
+    vouchers: 'Vouchers',
+    zoskyZappers: 'zoskyZappers'
   }
   return names[source] || source
 }

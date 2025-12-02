@@ -27,7 +27,7 @@
               </span>
             </td>
             <td class="px-6 py-4 text-white/90 text-sm max-w-md truncate" :title="entry.reason">
-              {{ entry.reason }}
+              {{ entry.reason.replace(' zoskyZappers ', ' ') }}
             </td>
             <td class="px-6 py-4 text-right">
               <Points currency="zC" :n="entry.amount" class="text-yellow-400" />
@@ -76,7 +76,8 @@ function formatSource(source) {
     art: 'AI Art',
     manual: 'Manual',
     storePurchases: 'Store',
-    vouchers: 'Vouchers'
+    vouchers: 'Vouchers',
+    zoskyZappers: 'zoskyZappers'
   }
   return names[source] || source
 }
