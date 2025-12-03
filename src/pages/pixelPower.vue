@@ -154,7 +154,7 @@ meta:
 </template>
 
 <script setup>
-import { collection, query, orderBy, getDocs, where, limit } from 'firebase/firestore'
+import { collection, query, orderBy, getDocs, where, limit, Timestamp } from 'firebase/firestore'
 import { db } from '../firebase'
 
 // State
@@ -242,9 +242,15 @@ async function fetchAllImages() {
 // Fetch only images newer than given timestamp
 async function fetchImagesAfter(afterTimestamp) {
     const imagesRef = collection(db, 'generatedImages')
+    
+    // Convert ISO string back to Firestore Timestamp for query
+    const timestampObj = afterTimestamp instanceof Timestamp 
+        ? afterTimestamp 
+        : Timestamp.fromDate(new Date(afterTimestamp))
+    
     const q = query(
         imagesRef,
-        where('createdAt', '>', afterTimestamp),
+        where('createdAt', '>', timestampObj),
         orderBy('createdAt', 'desc'),
         limit(100)
     )
@@ -257,6 +263,7 @@ async function fetchImagesAfter(afterTimestamp) {
         fetchedImages.push(mapImageData(doc.id, data))
     })
     
+    console.log(`📥 Fetched ${fetchedImages.length} images newer than ${afterTimestamp}`)
     return sortImages(fetchedImages)
 }
 
@@ -307,15 +314,27 @@ function updateCache(imageList) {
     // Limit to last 500 images to avoid localStorage overflow
     const limitedImages = imageList.slice(0, 500)
     
+    // Convert Firestore Timestamp to ISO string for cache storage
+    const newestTimestamp = limitedImages[0].createdAt
+    let timestampString
+    
+    if (newestTimestamp?.toDate) {
+        timestampString = newestTimestamp.toDate().toISOString()
+    } else if (newestTimestamp?.seconds) {
+        timestampString = new Date(newestTimestamp.seconds * 1000).toISOString()
+    } else {
+        timestampString = new Date(newestTimestamp).toISOString()
+    }
+    
     const cacheData = {
         lastUpdated: new Date().toISOString(),
-        newestTimestamp: limitedImages[0].createdAt,  // First image (newest)
+        newestTimestamp: timestampString,  // Store as ISO string for JSON compatibility
         records: limitedImages
     }
     
     try {
         localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData))
-        console.log(`💾 Cached ${limitedImages.length} images`)
+        console.log(`💾 Cached ${limitedImages.length} images (newest: ${timestampString})`)
     } catch (e) {
         if (e.name === 'QuotaExceededError') {
             console.warn('⚠️ localStorage quota exceeded, clearing old cache')
