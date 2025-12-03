@@ -54,7 +54,7 @@ const recentEntries = computed(() => props.data.slice(0, 10))
 
 function formatDate(timestamp) {
   const date = new Date(timestamp.seconds * 1000)
-  return date.toLocaleDateString('en-US', { 
+  return date.toLocaleDateString(undefined, { 
     month: 'short', 
     day: 'numeric', 
     year: 'numeric' 
@@ -63,9 +63,10 @@ function formatDate(timestamp) {
 
 function formatTime(timestamp) {
   const date = new Date(timestamp.seconds * 1000)
-  return date.toLocaleTimeString('en-US', { 
+  return date.toLocaleTimeString(undefined, { 
     hour: '2-digit', 
-    minute: '2-digit'
+    minute: '2-digit',
+    hour12: true
   })
 }
 

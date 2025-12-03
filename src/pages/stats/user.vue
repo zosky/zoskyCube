@@ -189,7 +189,10 @@ const cacheTimestamp = computed(() => {
   const cached = localStorage.getItem(cacheKey)
   if (cached) {
     const cacheData = JSON.parse(cached)
-    return new Date(cacheData.lastUpdated).toLocaleString()
+    return new Date(cacheData.lastUpdated).toLocaleString(undefined, {
+      dateStyle: 'medium',
+      timeStyle: 'medium'
+    })
   }
   return 'Never'
 })

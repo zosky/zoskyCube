@@ -388,12 +388,13 @@ function formatDate(timestamp) {
     
     if (isNaN(date.getTime())) return 'Invalid Date'
     
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString(undefined, {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
+        hour12: true
     })
 }
 
