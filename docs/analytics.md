@@ -5,6 +5,9 @@
 **Tracking Method**: gtag.js (client-side)  
 **Created**: 2024-12-02
 
+FIX: must add VITE_GA4_MEASUREMENT_ID to both .env file AND gitHub "equivalent"
+https://github.com/zosky/zoskyCube/settings/secrets/actions
+
 ---
 
 ## 🎯 Purpose
