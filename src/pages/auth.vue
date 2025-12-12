@@ -272,6 +272,39 @@ meta:
                 </div>
               </div>
             </div>
+            
+            <!-- Referral Input - Only show if Twitch connected -->
+            <div v-if="twitchConnected" class="mt-4 pt-4 border-t border-white/10">
+              <label class="text-white/80 text-sm block mb-2">
+                Referred By (optional)
+              </label>
+              <div class="flex gap-2">
+                <input
+                  v-model="referredByInput"
+                  type="text"
+                  placeholder="Enter Twitch username"
+                  :disabled="referredByLocked || savingReferral"
+                  :readonly="referredByLocked"
+                  class="flex-1 px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white text-sm"
+                  :class="referredByLocked ? 'opacity-50 cursor-not-allowed' : 'focus:outline-none focus:border-purple-400'"
+                />
+                <button
+                  v-if="!referredByLocked && referredByInput.trim()"
+                  @click="saveReferral"
+                  :disabled="savingReferral"
+                  class="px-4 py-2 rounded-lg font-semibold bg-purple-600 hover:bg-purple-700 text-white text-sm transition-all duration-200"
+                >
+                  <Loading v-if="savingReferral" class="inline w-4 h-4 animate-spin" />
+                  <span v-else>Save</span>
+                </button>
+              </div>
+              <p v-if="referredByLocked" class="text-green-400 text-xs mt-1">
+                ✓ Referral saved (cannot be changed)
+              </p>
+              <p v-else class="text-white/60 text-xs mt-1">
+                Who referred you to the channel?
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -323,6 +356,11 @@ import { trackEvent } from '../utils/analytics'
 
 const router = useRouter()
 const route = useRoute()
+
+// Referral state
+const referredByInput = ref('')
+const referredByLocked = ref(false)
+const savingReferral = ref(false)
 
 // Cloud Functions URLs - use emulator in development
 const CLOUD_FUNCTIONS_BASE_URL = import.meta.env.DEV 
@@ -594,6 +632,15 @@ const loadUserProfile = async (uid) => {
       }
     }
     
+    // Load referredBy from account_links
+    if (linkData.referredBy) {
+      referredByInput.value = linkData.referredBy
+      referredByLocked.value = true
+    } else {
+      referredByInput.value = ''
+      referredByLocked.value = false
+    }
+    
     userProfile.value = profile
     
   } catch (err) {
@@ -766,6 +813,73 @@ const disconnectTwitch = async () => {
   } catch (err) {
     console.error('Error disconnecting Twitch:', err)
     errorMessage.value = 'Failed to disconnect Twitch'
+  }
+}
+
+// Save referral relationship
+const saveReferral = async () => {
+  const referrer = referredByInput.value.trim().toLowerCase()
+  
+  if (!referrer) {
+    errorMessage.value = 'Please enter a Twitch username'
+    return
+  }
+  
+  if (!userProfile.value?.twitch?.username) {
+    errorMessage.value = 'You must be logged into Twitch first'
+    return
+  }
+  
+  const referred = userProfile.value.twitch.username.toLowerCase()
+  
+  // Prevent self-referral
+  if (referrer === referred) {
+    errorMessage.value = 'You cannot refer yourself'
+    return
+  }
+  
+  savingReferral.value = true
+  errorMessage.value = ''
+  
+  try {
+    // In dev mode, just update local state
+    if (import.meta.env.DEV) {
+      referredByLocked.value = true
+      console.log('Mock: Referral saved', { referrer, referred })
+      return
+    }
+    
+    const linkUuid = localStorage.getItem('linkUuid')
+    if (!linkUuid) {
+      errorMessage.value = 'Cannot save referral: No link UUID found'
+      return
+    }
+    
+    // Call Cloud Function to save referral
+    const saveReferralFunc = httpsCallable(functions, 'saveReferral')
+    const result = await saveReferralFunc({ 
+      linkUuid, 
+      referredBy: referrer 
+    })
+    
+    console.log('Referral saved:', result.data)
+    
+    // Lock the input
+    referredByLocked.value = true
+    
+    // Track referral link event
+    trackEvent('referral_link', {
+      event_category: 'referral',
+      referrer: referrer,
+      referred: referred,
+      twitch_username: referred
+    })
+    
+  } catch (err) {
+    console.error('Error saving referral:', err)
+    errorMessage.value = `Failed to save referral: ${err.message}`
+  } finally {
+    savingReferral.value = false
   }
 }
 
