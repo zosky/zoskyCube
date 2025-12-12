@@ -855,14 +855,26 @@ const saveReferral = async () => {
       return
     }
     
-    // Call Cloud Function to save referral
-    const saveReferralFunc = httpsCallable(functions, 'saveReferral')
-    const result = await saveReferralFunc({ 
-      linkUuid, 
-      referredBy: referrer 
+    // Call Cloud Function HTTP endpoint to save referral
+    const functionUrl = 'https://us-central1-zoskycube-bossbattle.cloudfunctions.net/saveReferral'
+    const response = await fetch(functionUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        linkUuid, 
+        referredBy: referrer 
+      })
     })
     
-    console.log('Referral saved:', result.data)
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || 'Failed to save referral')
+    }
+    
+    const result = await response.json()
+    console.log('Referral saved:', result)
     
     // Lock the input
     referredByLocked.value = true
