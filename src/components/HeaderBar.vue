@@ -96,7 +96,6 @@ function cycleAvatar(event) {
             @click="navigateToLeaderboard"
             title="Leaderboard / Table of Contents" />
         <Account
-            v-if="$route.path=='/auth' || !user"
             :class="{ 'active' : $route.path=='/auth' }" 
             class="cursor-pointer"
             @click="$router.push('/auth')"
@@ -125,7 +124,7 @@ function cycleAvatar(event) {
             class="cursor-pointer w-10 h-auto -mx-2"
             title="arkTribe timeline"
             @click="$router.push('/ark')" />
-        <GamepadVariantOutline />
+        <!-- <GamepadVariantOutline /> -->
         
         <!-- User Avatar (floating right side) - goes to personal stats -->
         <div 
@@ -150,6 +149,8 @@ nav {
     @apply text-2xl font-bold flex items-center gap-2 -mb-7 bg-blue-950 px-3 py-1; 
     filter: drop-shadow(0 10px 15px rgba(6, 182, 212, 0.5));
 }
+nav .cursor-pointer, nav a 
+  { @apply hover:scale-110 transition-all }
 #logo { @apply h-20 -mt-20 -mb-20 }
 a { @apply flex flex-row items-center hover:scale-105 transition-transform duration-200 }
 .active { @apply text-yellow-400 scale-110 }
