@@ -66,40 +66,56 @@ function cycleAvatar(event) {
             <ttv-status />
         </a>
         <header-bar-yt />
-        <Steam
-            :class="{ 'active' : $route.path=='/collection' }" 
-            class="cursor-pointer"
-            @click="$router.push('./collection')"
-            title="Game Collection" />
-        <SkullCrossbones             
-            :class="{ 'active' : $route.path=='/' }" 
-            class="cursor-pointer"
-            @click="$router.push('/')" />
-        <PlusBox
-            :class="$route.path=='/counter' ? 'active' : 'hidden' "
-            class="cursor-pointer"
-            @click="$router.push('/counter')"
-            title="Add Death" />
-        <TrophyOutline
-            :class="{ 'active' : $route.path=='/winning' }" 
-            class="cursor-pointer"
-            @click="$router.push('/winning')"
-            title="Completed Games" />
-        <HelpCircleOutline
-            :class="{ 'active' : $route.path.includes('/help/') }" 
-            class="cursor-pointer"
-            @click="$router.push('/help/')"
-            title="Help Center" />
-        <ChartBar
-            :class="{ 'active' : $route.path === '/stats' && !$route.query.username }" 
-            class="cursor-pointer"
-            @click="navigateToLeaderboard"
-            title="Leaderboard / Table of Contents" />
-        <Account
-            :class="{ 'active' : $route.path=='/auth' }" 
-            class="cursor-pointer"
-            @click="$router.push('/auth')"
-            title="Connect Gaming Accounts" />
+        <div
+          :class="{ 'active' : $route.path=='/collection' }" 
+          class="cursor-pointer"
+          @click="$router.push('./collection')"
+          title="Game Collection">
+          <Steam />
+        </div>
+        <div
+          :class="{ 'active' : $route.path=='/' }" 
+          class="cursor-pointer"
+          title="Death Counter"
+          @click="$router.push('/')">
+          <SkullCrossbones />
+        </div>
+        <div
+          :class="$route.path=='/counter' ? 'active' : 'hidden' "
+          class="cursor-pointer"
+          @click="$router.push('/counter')"
+          title="Add Death">
+          <PlusBox />
+        </div>
+        <div
+          :class="{ 'active' : $route.path=='/winning' }" 
+          class="cursor-pointer"
+          @click="$router.push('/winning')"
+          title="Completed Games">
+          <TrophyOutline />
+        </div>
+        <div
+          :class="{ 'active' : $route.path.includes('/help/') }" 
+          class="cursor-pointer"
+          @click="$router.push('/help/')"
+          title="Help Center">
+
+          <HelpCircleOutline />
+        </div>
+        <div
+          :class="{ 'active' : $route.path === '/stats' && !$route.query.username }" 
+          class="cursor-pointer"
+          @click="navigateToLeaderboard"
+          title="Leaderboard / Table of Contents">
+          <ChartBar />
+        </div>
+        <div             
+          :class="{ 'active' : $route.path=='/auth' }" 
+          class="cursor-pointer"
+          @click="$router.push('/auth')"
+          title="Connect Gaming Accounts">
+          <Account />
+        </div>
         <img 
           src="@/assets/ttv/pixelPower.png" 
           alt="PixelPower Art Collection" 
@@ -114,16 +130,20 @@ function cycleAvatar(event) {
             <gameLogo game="Squad Rush" class="translate-y-1" />
           </section> -->
 
-        <HaloLogo
-            :class="{ 'animate-pulse' : $route.path=='/halo' }" 
-            class="cursor-pointer h-10 w-auto -mx-1"
-            title="Halo campaign Stats"
-            @click="$router.push('/halo')" />
-        <ArkLogo 
-            :class="{ 'animate-pulse' : $route.path=='/halo' }" 
-            class="cursor-pointer w-10 h-auto -mx-2"
-            title="arkTribe timeline"
-            @click="$router.push('/ark')" />
+        <div               
+          :class="{ 'animate-pulse' : $route.path=='/halo' }" 
+          class="cursor-pointer h-10 w-auto -mx-1"
+          title="Halo campaign Stats"
+          @click="$router.push('/halo')">
+          <HaloLogo />
+        </div>
+        <div
+          :class="{ 'animate-pulse' : $route.path=='/halo' }" 
+          class="cursor-pointer w-10 h-auto -mx-2"
+          title="arkTribe timeline"
+          @click="$router.push('/ark')">
+          <ArkLogo />
+        </div>
         <!-- <GamepadVariantOutline /> -->
         
         <!-- User Avatar (floating right side) - goes to personal stats -->
