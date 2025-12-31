@@ -30,6 +30,7 @@ meta:
                 <Discord :class="['sm:-my-4 w-12 h-12', discordConnected ? 'text-green-400' : 'text-red-400']" />
                 <Twitch :class="['sm:-my-4 w-12 h-12', twitchConnected ? 'text-green-400' : 'text-red-400']" />
               </p>
+              all 3...
             </div>
           </div>
       </div>
@@ -46,10 +47,19 @@ meta:
                   class="w-auto h-[5em] rounded-full border-2 border-blue-400 aspect-square">
            </div>
           
-          <!-- Avatar - top right -->
-          
-          <!-- Content with top margin to clear absolute elements -->
-          <div class="mt-16 text-center">
+           
+           <!-- Avatar - top right -->
+           
+           <!-- Content with top margin to clear absolute elements -->
+           <div class="mt-16 text-center">
+            <details class="why" :open="!steamConnected">
+              <summary class="text-white/60 text-sm mt-10 mb-1">
+                your WL is my <span class="line-through">command</span> <span class="font-bold">shoppingList protocol</span>
+              </summary>
+              <div class="text-xs font-light">
+                member WLs <span class="italic">-that are public-</span> will be aggregated ... when stuff you want is on sale it moves to the top of my list
+              </div>
+            </details>
             <!-- <p class="text-white/70 text-sm mb-4">
               {{ steamConnected ? `Logged in as ${userProfile?.steam?.personaname || 'Steam User'}` : 'Connect your Steam account' }}
             </p> -->
@@ -121,9 +131,18 @@ meta:
                         discordInServer ? 'border-yellow-400' : 
                         'border-indigo-400'" />
           </div>
-            
+
+          
           <!-- Content with top margin to clear absolute elements -->
           <div class="mt-16 text-center">
+            <details class="why" :open="!discordConnected">
+              <summary class="text-white/60 text-sm mt-10 mb-1">
+                <span class="font-bold">super secret disco server</span>
+              </summary>
+              <div class="text-xs font-light">
+                the only way to get in is if you can find the door 👇 <span class="line-through">like fightClub</span>
+              </div>
+            </details>
             <!-- <p class="text-white/70 text-sm mb-4">
               {{ discordConnected ? `Logged in as ${userProfile?.discord?.username || 'Discord User'}` : 'Connect your Discord account' }}
             </p> -->
@@ -219,6 +238,14 @@ meta:
           </div>
           <!-- Content with top margin to clear absolute elements -->
           <div class="mt-16 text-center">
+            <details class="why" :open="!twitchConnected">
+              <summary class="text-white/60 text-sm mt-10 mb-1">
+                <span class="font-bold">live miniGames, instant rewards, & channel vouchers</span>
+              </summary>
+              <div class="text-xs font-light">
+                play, hangout, and win zCubes (zC) & zBlocks (zB) while watching the stream
+              </div>
+            </details>            
             <!-- <p class="text-white/70 text-sm mb-4">
               {{ twitchConnected ? `Logged in as ${userProfile?.twitch?.displayName || 'Twitch User'}` : 'Connect your Twitch account' }}
             </p> -->
@@ -944,3 +971,12 @@ onMounted(() => {
   })
 })
 </script>
+
+<style scoped>
+.why {
+  @apply px-2 pb-1 mb-3 bg-gray-600/20 rounded-lg shadow-md shadow-gray-700
+}
+.why summary { @apply pt-2 }
+.why div { @apply text-gray-300
+}
+</style>
