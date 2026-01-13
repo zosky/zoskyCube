@@ -306,17 +306,26 @@ meta:
                 Referred By (optional)
               </label>
               <div class="flex gap-2">
-                <input
+                <select
                   v-model="referredByInput"
-                  type="text"
-                  placeholder="Enter Twitch username"
-                  :disabled="referredByLocked || savingReferral"
-                  :readonly="referredByLocked"
-                  class="flex-1 px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white text-sm"
+                  :disabled="referredByLocked || savingReferral || loadingUsernames"
+                  class="flex-1 px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white text-sm appearance-none cursor-pointer"
                   :class="referredByLocked ? 'opacity-50 cursor-not-allowed' : 'focus:outline-none focus:border-purple-400'"
-                />
+                >
+                  <option value="" disabled class="bg-gray-800 text-gray-400">
+                    {{ loadingUsernames ? 'Loading...' : 'Select who referred you' }}
+                  </option>
+                  <option 
+                    v-for="username in whitelistedUsernames" 
+                    :key="username" 
+                    :value="username"
+                    class="bg-gray-800 text-white"
+                  >
+                    {{ username }}
+                  </option>
+                </select>
                 <button
-                  v-if="!referredByLocked && referredByInput.trim()"
+                  v-if="!referredByLocked && referredByInput"
                   @click="saveReferral"
                   :disabled="savingReferral"
                   class="px-4 py-2 rounded-lg font-semibold bg-purple-600 hover:bg-purple-700 text-white text-sm transition-all duration-200"
@@ -388,10 +397,34 @@ const route = useRoute()
 const referredByInput = ref('')
 const referredByLocked = ref(false)
 const savingReferral = ref(false)
+const whitelistedUsernames = ref([])
+const loadingUsernames = ref(false)
 
-// Cloud Functions URLs - use emulator in development
+// Fetch whitelisted usernames for referral dropdown
+const fetchWhitelistedUsernames = async () => {
+  loadingUsernames.value = true
+  try {
+    const url = import.meta.env.DEV
+      ? '/api/whitelistedUsernames'
+      : 'https://us-central1-zoskycube-bossbattle.cloudfunctions.net/whitelistedUsernames'
+    const response = await fetch(url)
+    if (response.ok) {
+      const data = await response.json()
+      if (data.success && data.usernames) {
+        whitelistedUsernames.value = data.usernames
+        console.log(`✅ Loaded ${data.count} whitelisted usernames for referral dropdown`)
+      }
+    }
+  } catch (error) {
+    console.error('Failed to fetch whitelisted usernames:', error)
+  } finally {
+    loadingUsernames.value = false
+  }
+}
+
+// Cloud Functions URLs - use proxy in development
 const CLOUD_FUNCTIONS_BASE_URL = import.meta.env.DEV 
-  ? 'http://localhost:5001/zoskycube-bossbattle/us-central1'
+  ? '/api'
   : 'https://us-central1-zoskycube-bossbattle.cloudfunctions.net'
 
 console.log('DEV mode:', import.meta.env.DEV)
@@ -848,7 +881,7 @@ const saveReferral = async () => {
   const referrer = referredByInput.value.trim().toLowerCase()
   
   if (!referrer) {
-    errorMessage.value = 'Please enter a Twitch username'
+    errorMessage.value = 'Please select who referred you'
     return
   }
   
@@ -883,7 +916,9 @@ const saveReferral = async () => {
     }
     
     // Call Cloud Function HTTP endpoint to save referral
-    const functionUrl = 'https://us-central1-zoskycube-bossbattle.cloudfunctions.net/saveReferral'
+    const functionUrl = import.meta.env.DEV
+      ? '/api/saveReferral'
+      : 'https://us-central1-zoskycube-bossbattle.cloudfunctions.net/saveReferral'
     const response = await fetch(functionUrl, {
       method: 'POST',
       headers: {
@@ -946,6 +981,9 @@ onMounted(() => {
     event_category: 'authentication',
     referrer: document.referrer || 'direct'
   })
+  
+  // Fetch whitelisted usernames for referral dropdown
+  fetchWhitelistedUsernames()
   
   // In development, load mock data
   if (import.meta.env.DEV) {

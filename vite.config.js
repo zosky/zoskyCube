@@ -10,12 +10,15 @@ import { fileURLToPath, URL } from 'node:url'
 export default defineConfig({
   base: process.env.NODE_ENV === 'production' ? '/zoskyCube/' : '/',
   server: { 
-    open: true, 
-    // proxy: { '^/api/.*': {
-    //   target: 'http://localhost:3715/',
-    //   rewrite: (path:string) => path.replace(/.api./, ''),
-    // },
-    // }
+    open: true,
+    proxy: {
+      '/api': {
+        target: 'https://us-central1-zoskycube-bossbattle.cloudfunctions.net',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+        secure: true,
+      },
+    }
   },
   build: {
     chunkSizeWarningLimit: 1000,
