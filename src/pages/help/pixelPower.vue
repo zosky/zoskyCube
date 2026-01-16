@@ -29,19 +29,20 @@
         
         <div class="content-block">
           <h3>What is Pixel Power?</h3>
-          <p>Pixel Power is a collaborative AI art creation game where the Twitch community works together to generate unique images! Submit words in chat, and when 32 words are collected (or 24 hours pass), an AI will create a stunning video game-style artwork based on ALL the submitted words combined!</p>
+          <p>Pixel Power is a collaborative AI art creation game where the Twitch community works together to generate unique images! Submit words in chat through 12 rounds (3 words per round = 36 total), and the AI creates a stunning video game-style artwork based on ALL submitted words combined!</p>
           
           <h3>How It Works</h3>
           <ol>
-            <li><strong>Submit Words:</strong> Type <code class="crt-text-yellow">!art [word]</code> in chat</li>
-            <li><strong>Collection Builds:</strong> Watch as words accumulate (0/32)</li>
-            <li><strong>Words Display:</strong> See each word's definition for 1 minute</li>
-            <li><strong>Image Generated:</strong> AI creates art when 32 words are reached OR 24 hours pass</li>
-            <li><strong>Earn Rewards:</strong> Get zCubes based on your contribution!</li>
+            <li><strong>Submit Words:</strong> Type <code class="crt-text-yellow">!art [word]</code> in chat during active rounds</li>
+            <li><strong>Round System:</strong> Game has 12 rounds, each collecting 3 words with cooldowns between rounds</li>
+            <li><strong>Collection Builds:</strong> Watch as words accumulate (0/36) across all rounds</li>
+            <li><strong>Words Display:</strong> Each word shows with definition for 60 seconds</li>
+            <li><strong>Image Generated:</strong> AI creates art when 36 words reached OR 24 hours pass</li>
+            <li><strong>Earn Rewards:</strong> Get zCubes based on Scrabble score × 13 multiplier!</li>
           </ol>
 
           <div class="pro-tip">
-            <strong>💡 Cool Feature:</strong> The game runs on a 24-hour cycle. If 32 words aren't collected in time, the AI generates an image from whatever words were submitted, then resets for a new session!
+            <strong>💡 Cool Feature:</strong> The game runs on a 24-hour cycle with cooldowns between rounds (25-45 min). This prevents spam and gives everyone time to participate across different time zones!
           </div>
         </div>
 
@@ -190,7 +191,7 @@
 
         <div class="content-block">
           <h3>How Scoring Works</h3>
-          <p>Each word earns a Scrabble score based on the letter values. This affects your share of the rewards!</p>
+          <p>Each word earns a Scrabble score based on letter values, multiplied by 13! Higher scores mean more zCubes. This rewards creative vocabulary!</p>
 
           <div class="score-table">
             <h4>Letter Values</h4>
@@ -200,8 +201,12 @@
                 <th>Letters</th>
               </tr>
               <tr>
+                <td class="score">0</td>
+                <td>X, Z</td>
+              </tr>
+              <tr>
                 <td class="score">1</td>
-                <td>A, E, I, O, U, L, N, S, T, R</td>
+                <td>A, E, I, O, U, L, N, S, T, R, Q</td>
               </tr>
               <tr>
                 <td class="score">2</td>
@@ -221,34 +226,12 @@
               </tr>
               <tr>
                 <td class="score">8</td>
-                <td>J, X</td>
-              </tr>
-              <tr>
-                <td class="score">10</td>
-                <td>Q, Z</td>
+                <td>J</td>
               </tr>
             </table>
           </div>
 
-          <h3>Scoring Examples</h3>
-          <div class="score-examples">
-            <div class="score-example">
-              <strong>"DRAGON"</strong>
-              <p>D(2) + R(1) + A(1) + G(2) + O(1) + N(1) = <span class="crt-text-yellow">8 points</span></p>
-            </div>
-            <div class="score-example">
-              <strong>"QUEST"</strong>
-              <p>Q(10) + U(1) + E(1) + S(1) + T(1) = <span class="crt-text-yellow">14 points</span></p>
-            </div>
-            <div class="score-example">
-              <strong>"ZEPHYR"</strong>
-              <p>Z(10) + E(1) + P(3) + H(4) + Y(4) + R(1) = <span class="crt-text-yellow">23 points!</span></p>
-            </div>
-          </div>
 
-          <div class="pro-tip">
-            <strong>💡 Strategy:</strong> Higher-value letters (Q, Z, X, J) give you more points, but they're harder to use! Balance creativity with point value for maximum rewards.
-          </div>
         </div>
 
         <a href="#top" class="back-to-top">↑ Back to Top</a>

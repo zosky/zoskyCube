@@ -9,20 +9,6 @@
 
       <!-- Help Topics Grid -->
       <div class="help-topics">
-        <router-link to="/help/squadRush" class="help-card boss">
-          <div class="card-icon">🎮</div>
-          <h2>Boss Battle</h2>
-          <p class="card-subtitle">Squad Rush Guide</p>
-          <p class="card-description">
-            Learn how to fight bosses with the community! Master ATB codes, healing zones, and combo attacks.
-          </p>
-          <div class="card-features">
-            <span class="feature">⚔️ Combat System</span>
-            <span class="feature">💚 Healing Mechanics</span>
-            <span class="feature-reward">win <Points currency="zc" class="points-inline" /></span>
-          </div>
-        </router-link>
-
         <router-link to="/help/pixelPower" class="help-card art">
           <div class="card-icon">🎨</div>
           <h2>Pixel Power</h2>
@@ -61,6 +47,49 @@
           <div class="card-features">
             <span class="feature">🎯 Angle & Power</span>
             <span class="feature">💨 Wind Effects</span>
+            <span class="feature-reward">win <Points currency="zc" class="points-inline" /></span>
+          </div>
+        </router-link>
+
+        <router-link to="/help/dailyDose" class="help-card daily">
+          <div class="card-icon">💊</div>
+          <h2>Daily Dose</h2>
+          <p class="card-subtitle">Daily zCube Reward</p>
+          <p class="card-description">
+            Redeem 1,000 zCubes every 25 hours! Simple channel points redemption with automatic cooldown tracking.
+          </p>
+          <div class="card-features">
+            <span class="feature">💰 1,000 zC Reward</span>
+            <span class="feature">⏰ 25 Hour Cooldown</span>
+            <span class="feature-reward">earn <Points currency="zc" class="points-inline" /></span>
+          </div>
+        </router-link>
+
+        <router-link to="/help/referralRewards" class="help-card referral">
+          <div class="card-icon">🤝</div>
+          <h2>Referral Rewards</h2>
+          <p class="card-subtitle">Earn 10% from Referrals</p>
+          <p class="card-description">
+            Invite friends and earn 10% of their daily earnings! Your top 10 earners count toward bonuses.
+          </p>
+          <div class="card-features">
+            <span class="feature">📈 10% Bonus</span>
+            <span class="feature">🏆 Top 10 Daily</span>
+            <span class="feature-reward">earn <Points currency="zc" class="points-inline" /></span>
+          </div>
+        </router-link>
+
+        <router-link to="/help/squadRush" class="help-card boss hiatus">
+          <div class="hiatus-badge">On Hiatus</div>
+          <div class="card-icon">🎮</div>
+          <h2>Boss Battle</h2>
+          <p class="card-subtitle">Squad Rush Guide</p>
+          <p class="card-description">
+            Boss battles are currently on hiatus. Check back later for community boss fights with ATB codes and healing zones!
+          </p>
+          <div class="card-features">
+            <span class="feature">⚔️ Combat System</span>
+            <span class="feature">💚 Healing Mechanics</span>
             <span class="feature-reward">win <Points currency="zc" class="points-inline" /></span>
           </div>
         </router-link>
@@ -201,6 +230,32 @@
 .help-card.boss {
   --accent-color: #ff0000;
   border-color: rgba(255, 0, 0, 0.3);
+  position: relative;
+}
+
+.help-card.boss.hiatus {
+  opacity: 0.5;
+  filter: grayscale(0.5);
+}
+
+.help-card.boss.hiatus:hover {
+  opacity: 0.7;
+}
+
+.hiatus-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(255, 165, 0, 0.9);
+  color: #000;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  z-index: 10;
+  box-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
 }
 
 .help-card.boss:hover {
@@ -239,6 +294,28 @@
 .help-card.zappers:hover {
   border-color: #ffff00;
   box-shadow: 0 0 30px rgba(255, 255, 0, 0.3);
+  transform: translateY(-5px);
+}
+
+.help-card.daily {
+  --accent-color: #ff00ff;
+  border-color: rgba(255, 0, 255, 0.3);
+}
+
+.help-card.daily:hover {
+  border-color: #ff00ff;
+  box-shadow: 0 0 30px rgba(255, 0, 255, 0.3);
+  transform: translateY(-5px);
+}
+
+.help-card.referral {
+  --accent-color: #ffa500;
+  border-color: rgba(255, 165, 0, 0.3);
+}
+
+.help-card.referral:hover {
+  border-color: #ffa500;
+  box-shadow: 0 0 30px rgba(255, 165, 0, 0.3);
   transform: translateY(-5px);
 }
 

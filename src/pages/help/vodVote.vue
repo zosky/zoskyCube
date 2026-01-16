@@ -30,12 +30,17 @@
         <h2 class="crt-text-green">💎 Rewards & <Points currency="zc" class="points-inline" /> zCubes</h2>
 
         <div class="content-block">
-          <h3>🎉 Correct Vote = 
-                <Points currency="zc" class="points-display" /> 
-                <Points currency="zc" class="points-display" /> 
-                <Points currency="zc" class="points-display" />
-          </h3>
-          <p>If you voted for the winning game, you'll be rewarded with zCubes!</p>
+          <h3>💰 Reward Breakdown</h3>
+          <ul>
+            <li><strong>+86 zC</strong> - Start a new game with <code>!vote</code> after cooldown</li>
+            <li><strong>+75 zC</strong> - Vote for any game during voting period</li>
+            <li><strong>+722 zC Jackpot!</strong> - Split among all winners if you picked the winning game!</li>
+          </ul>
+          <p>Everyone who votes for the winner shares the jackpot evenly. More winners = smaller individual share, but you still win!</p>
+          
+          <div class="pro-tip">
+            <strong>💡 Example:</strong> If 3 people vote for the winner, each gets 722 ÷ 3 = 240 zC. If you're the only winner, you get the full 722 zC!
+          </div>
         </div>
     </section>
     
