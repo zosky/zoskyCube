@@ -108,7 +108,7 @@
 
           <div class="tip-card">
             <h3>🔗 Share the Auth Link</h3>
-            <p>Make it easy for friends by sending the direct link: <code>/auth</code></p>
+            <p>Make it easy for friends by sending the direct link: <a href="https://zosky.github.io/zoskyCube/auth">auth</a></p>
           </div>
 
           <div class="tip-card">
