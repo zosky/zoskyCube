@@ -244,9 +244,17 @@ async function fetchImagesAfter(afterTimestamp) {
     const imagesRef = collection(db, 'generatedImages')
     
     // Convert ISO string back to Firestore Timestamp for query
-    const timestampObj = afterTimestamp instanceof Timestamp 
-        ? afterTimestamp 
-        : Timestamp.fromDate(new Date(afterTimestamp))
+    let dateObj
+    if (afterTimestamp instanceof Timestamp) {
+        dateObj = afterTimestamp.toDate()
+    } else {
+        dateObj = new Date(afterTimestamp)
+        if (isNaN(dateObj.getTime())) {
+            // If invalid, set to 1 week ago
+            dateObj = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+        }
+    }
+    const timestampObj = Timestamp.fromDate(dateObj)
     
     const q = query(
         imagesRef,
