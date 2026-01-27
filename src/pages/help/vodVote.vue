@@ -32,7 +32,7 @@
         <div class="content-block">
           <h3>💰 Reward Breakdown</h3>
           <ul>
-            <li><strong>+86 zC</strong> - Start a new game with <code>!vote</code> after cooldown</li>
+            <li><strong>+86 zC</strong> - Start a new game with <code>!v###</code> after cooldown</li>
             <li><strong>+75 zC</strong> - Vote for any game during voting period</li>
             <li><strong>+722 zC Jackpot!</strong> - Split among all winners if you picked the winning game!</li>
           </ul>
@@ -80,7 +80,7 @@
         <div class="tips-grid">
           <div class="tip-card">
             <h3>⏰ Don't Wait Too Long</h3>
-            <p>You have 5 minutes, but don't wait until the last second! Get your vote in early to avoid missing out.</p>
+            <p>You have ~2 minutes, but don't wait until the last second! Get your vote in early to avoid missing out.</p>
           </div>
 
           <div class="tip-card">
@@ -100,7 +100,7 @@
 
           <div class="tip-card">
             <h3>⚡ !vote Starts the Fun</h3>
-            <p>After cooldown, be the first to type <code>!vote</code> to get the next round started! Community participation keeps it exciting.</p>
+            <p>After cooldown, be the first to type <code>!v###</code> (as seen on stream) to get the next round started! Community participation keeps it exciting.</p>
           </div>
         </div>
 
@@ -114,7 +114,7 @@
         <div class="grid-container">
           <div class="ref-block">
             <h3 class="crt-text-cyan">Vote Duration</h3>
-            <p class="big-number">5 min</p>
+            <p class="big-number">2.5 min</p>
             <p>Time to choose</p>
           </div>
 
@@ -127,13 +127,13 @@
 
           <div class="ref-block">
             <h3 class="crt-text-red">Cooldown Period</h3>
-            <p class="big-number">10 min</p>
+            <p class="big-number">7-12 min</p>
             <p>Enjoy the VOD</p>
           </div>
 
           <div class="ref-block">
             <h3 class="crt-text-green">New game</h3>
-            <p class="big-number">!vote</p>
+            <p class="big-number">!v###</p>
             <p>Begin new round</p>
           </div>
         </div>
