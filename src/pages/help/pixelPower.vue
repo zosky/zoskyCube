@@ -33,16 +33,16 @@
           
           <h3>How It Works</h3>
           <ol>
-            <li><strong>Submit Words:</strong> Type <code class="crt-text-yellow">!art [word]</code> in chat during active rounds</li>
-            <li><strong>Round System:</strong> Game has 12 rounds, each collecting 3 words with cooldowns between rounds</li>
-            <li><strong>Collection Builds:</strong> Watch as words accumulate (0/36) across all rounds</li>
-            <li><strong>Words Display:</strong> Each word shows with definition for 60 seconds</li>
-            <li><strong>Image Generated:</strong> AI creates art when 36 words reached OR 24 hours pass</li>
-            <li><strong>Earn Rewards:</strong> Get zCubes based on Scrabble score × 13 multiplier!</li>
+            <li><strong>Round System:</strong> Game has 12 rounds, each accepting 3 words starting with a specific letter</li>
+            <li><strong>Submit Words:</strong> When each round starts, the starting letter is displayed on stream.<br> Type <code class="crt-text-yellow">!art [word-with-matching-first-letter]</code> in chat</li>
+            <li><strong>Collection Builds:</strong> 3 words per round x 12 rounds = 36 words across all rounds</li>
+            <!-- <li><strong>Words Display:</strong> Each word shows with definition for 60 seconds</li> -->
+            <li><strong>Image Generated:</strong> AI creates art when 36 words reached every 4-6 hours<br>(or in the very unlikely event 24 hours pass without collecting enough words)</li>
+            <li><strong>Earn Rewards:</strong> Get zCubes based on a mod'd Scrabble score × 13 multiplier!</li>
           </ol>
 
           <div class="pro-tip">
-            <strong>💡 Cool Feature:</strong> The game runs on a 24-hour cycle with cooldowns between rounds (25-45 min). This prevents spam and gives everyone time to participate across different time zones!
+            <strong>💡 Cool Feature:</strong> each round will end after 3 words are submitted. There is a 5-10 min cooldown before the next round. This prevents spam and gives everyone time to participate across different time zones!
           </div>
         </div>
 
@@ -74,13 +74,13 @@
             <ol>
               <li><strong>Validation:</strong> Word is checked against dictionary API</li>
               <li><strong>Scoring:</strong> Scrabble score is calculated (see Scoring section)</li>
-              <li><strong>Display:</strong> Word appears on stream with full definition for 60 seconds</li>
-              <li><strong>Collection Update:</strong> Counter updates (e.g., 15/32 words)</li>
+              <!-- <li><strong>Display:</strong> Word appears on stream with full definition for 60 seconds</li> -->
+              <li><strong>Collection Update:</strong>per round countdown (e.g. 3 words left)</li>
             </ol>
 
-            <div class="pro-tip">
+            <!-- <div class="pro-tip">
               <strong>💡 Pro Tip:</strong> While your word is being displayed, the word cloud is hidden. After 60 seconds, the display switches back to show ALL submitted words in the cloud!
-            </div>
+            </div> -->
           </div>
         </div>
 
@@ -95,7 +95,7 @@
           <h3>Per-User Limits</h3>
           <p>To keep things fair and give everyone a chance to contribute:</p>
           
-          <div class="limit-box hourly">
+          <!-- <div class="limit-box hourly">
             <h4>🕐 Hourly Limit</h4>
             <ul>
               <li><strong>3 words per hour</strong> per user</li>
@@ -113,22 +113,22 @@
                 <li>✅ 1:00 PM - Your hour resets, can submit 3 more!</li>
               </ul>
             </div>
-          </div>
+          </div> -->
 
           <div class="limit-box daily">
             <h4>📅 Daily Limit</h4>
             <ul>
               <li><strong>12 words per day</strong> per user</li>
-              <li>Resets when the global 24-hour timer expires</li>
+              <li>Reset when the next picture is created <strong>after midnight EST (UTC-5) or in summer EDT (UTC-4)</strong></li>
               <li>Shared across all users (everyone resets together)</li>
             </ul>
 
             <div class="example">
               <strong>Example:</strong>
               <ul>
-                <li>If the session started at 3:00 PM yesterday</li>
-                <li>You can submit up to 12 words total until 3:00 PM today</li>
-                <li>At 3:00 PM today, everyone's daily count resets to 0</li>
+                <li>If the session started (in winter) at 5:01 UTC</li>
+                <li>You can submit up to 12 words total until 5:00 UTC</li>
+                <li>At 5:00 UTC, everyone's daily limit resets to 12</li>
               </ul>
             </div>
           </div>
@@ -136,12 +136,13 @@
           <h3>What Happens When You Hit a Limit?</h3>
           <div class="limit-messages">
             <div class="message-box">
-              <code class="crt-text-red">⚠️ @username hourly limit reached, wait 15 minutes</code>
-              <p>You've used all 3 hourly submissions. The bot tells you how long until your hourly timer resets.</p>
+              <code class="crt-text-red">🔄 @username You've added your word this round! Wait for the next round (check overlay for cooldown).</code>
+              <p>each user may submit 1 word per round, please wait for the next round</p>
             </div>
             <div class="message-box">
-              <code class="crt-text-red">⚠️ @username daily limit reached, wait 6 hours</code>
-              <p>You've used all 12 daily submissions. The bot tells you how long until the global timer resets.</p>
+              <code class="crt-text-red">🎨 @username 🟨 YELLOW card! You've hit your daily limit. Half points on your next word tomorrow 🌙</code>
+              <p>each successful submission will tell you how many words you have left. when you have used all 12, your avatar will also display on stream beside a lock symbol as a reminder with a timer counting down till "tomorrow" (in EDT/EST) then it will say "reset after round 12"</p>
+              <p>reset happens after a new picture is made every "new day" (relative to the streamer's timezone)</p>
             </div>
           </div>
         </div>
@@ -159,7 +160,7 @@
           <ul>
             <li>✅ Be a real English word</li>
             <li>✅ Be found in the dictionary</li>
-            <li>✅ Be a single word (no spaces)</li>
+            <li>✅ Be a single word (some exceptions apply like "black hole")</li>
             <li>✅ Be spelled correctly</li>
           </ul>
 
@@ -177,8 +178,9 @@
 
           <h3>What Happens if Word is Invalid?</h3>
           <div class="message-box">
-            <code class="crt-text-red">📖 @username "dragn" is not a valid dictionary word. Try another!</code>
-            <p>The bot will let you know, and your submission won't count against your limits.</p>
+            <code class="crt-text-red">⚠️ @username 🟨 1/3 fails: that is not a dictionary word</code>
+            <p>after three invalid words, a 🟨 yellow card is issued that will give half points on your next submission.</p>
+            <p>any "proper" word will reset the counter</p>
           </div>
         </div>
 
@@ -238,7 +240,7 @@
       </section>
 
       <!-- Section 6: Word Display -->
-      <section id="display" class="help-section">
+      <!-- <section id="display" class="help-section">
         <h2 class="crt-text-green">📺 Word Display</h2>
 
         <div class="content-block">
@@ -266,7 +268,7 @@
               <p><strong>Shows:</strong></p>
               <ul>
                 <li>☁️ All submitted words in a cloud</li>
-                <li>📊 Progress circle (X/32 words)</li>
+                <li>📊 Progress circle (X/36 words)</li>
                 <li>⏰ Time remaining until generation</li>
                 <li>📈 Collection progress messages</li>
               </ul>
@@ -288,7 +290,7 @@
         </div>
 
         <a href="#top" class="back-to-top">↑ Back to Top</a>
-      </section>
+      </section> -->
 
       <!-- Section 7: Image Generation -->
       <section id="generation" class="help-section">
@@ -300,24 +302,24 @@
 
           <div class="trigger-conditions">
             <div class="trigger">
-              <h4 class="crt-text-yellow">🎯 32 Words Collected</h4>
-              <p>When the 32nd word is submitted, image generation starts immediately!</p>
+              <h4 class="crt-text-yellow">🎯 36 Words Collected</h4>
+              <p>When the 36th word is submitted, image generation starts immediately!</p>
             </div>
 
             <div class="trigger">
               <h4 class="crt-text-cyan">⏰ 24-Hour Timer Expires</h4>
-              <p>If 32 words aren't reached in 24 hours, the AI generates from whatever words are available (even if just 5 or 10 words!).</p>
+              <p>If 36 words aren't reached in 24 hours, the AI generates from whatever words are available (even if just 5 or 10 words!).</p>
             </div>
           </div>
 
           <h3>The Generation Process</h3>
           <ol>
-            <li><strong>Collection Completes:</strong> 32 words OR timer expires</li>
+            <li><strong>Collection Completes:</strong> 36 words OR timer expires</li>
             <li><strong>Prompt Building:</strong> All words combined into AI prompt</li>
-            <li><strong>AI Generation:</strong> Stable Diffusion creates the image</li>
+            <li><strong>AI Generation:</strong> Nano Banana creates the image</li>
             <li><strong>Style Applied:</strong> "video game art, concept art, cinematic lighting"</li>
             <li><strong>Display:</strong> Generated image appears in carousel</li>
-            <li><strong>Reset:</strong> New session begins with 0/32 words!</li>
+            <li><strong>Reset:</strong> New session begins with 0/36 words!</li>
           </ol>
 
           <h3>What Makes the Art Unique?</h3>
@@ -345,7 +347,7 @@
       </section>
 
       <!-- Section 8: Rewards -->
-      <section id="rewards" class="help-section">
+      <!-- <section id="rewards" class="help-section">
         <h2 class="crt-text-green">💰 Rewards & zCubes</h2>
 
         <div class="content-block">
@@ -394,27 +396,27 @@
         </div>
 
         <a href="#top" class="back-to-top">↑ Back to Top</a>
-      </section>
+      </section> -->
 
       <!-- Section 9: Pro Tips -->
       <section id="tips" class="help-section">
         <h2 class="crt-text-green">🏆 Pro Tips & Strategy</h2>
 
         <div class="tips-grid">
-          <div class="tip-card">
+          <!-- <div class="tip-card">
             <h3>📝 Use High-Value Letters</h3>
             <p>Words with Q, Z, X, J earn more points! "JAZZ" (29 points) beats "SONG" (5 points).</p>
-          </div>
+          </div> -->
 
           <div class="tip-card">
             <h3>🎭 Theme Your Words</h3>
             <p>Coordinate with chat! Themed collections create better, more cohesive AI art.</p>
           </div>
 
-          <div class="tip-card">
+          <!-- <div class="tip-card">
             <h3>⏰ Use Your Hourly Limit Wisely</h3>
             <p>You get 3 words per hour. Spread them out or use them all at once - your choice!</p>
-          </div>
+          </div> -->
 
           <div class="tip-card">
             <h3>🌟 Be Creative</h3>
@@ -539,6 +541,10 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+ul li,
+ol li { @apply list-disc }
+li strong { @apply font-bold }
+
 .help-page {
   width: 100%;
   height: 100vh;
@@ -1005,7 +1011,7 @@ code {
   }
 
   .help-header h1 {
-    font-size: 32px;
+  font-size: 32px;
   }
 }
 </style>

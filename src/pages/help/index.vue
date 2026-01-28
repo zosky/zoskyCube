@@ -32,7 +32,7 @@
           </p>
           <div class="card-features">
             <span class="feature">🗳️ Community Voting</span>
-            <span class="feature">⏲️ 5 Min Timer</span>
+            <span class="feature">⏲️ 2.5 Min Timer</span>
             <span class="feature-reward">win <Points currency="zc" class="points-inline" /></span>
           </div>
         </router-link>

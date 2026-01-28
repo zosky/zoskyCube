@@ -38,13 +38,14 @@
             <li><strong>Wait for opponent:</strong> Another viewer joins using <code class="crt-text-yellow">!zz [new-code]</code></li>
             <li><strong>Or wait 3 minutes:</strong> If no one joins, you'll face the machine! </li>
             <li>Try not to get turned into a battery</li>
+            <li><strong>[OPTIONAL] pay-to-play/impatience tax:</strong> use <code class="crt-text-yellow">!zz goTime</code> to skip waiting before & after a game at a cost of 1 <Points currency="zc" class="points-inline" /> per second</li>
           </ol>
 
           <h3>During Your Turn</h3>
           <ol class="list-disc">
-            <li><code class="crt-text-yellow">!zz [angle] [power]</code></li>
-            <li><strong>Set your angle:</strong> Choose the trajectory of your throw (~45° is usually optimal)</li>
-            <li><strong>Set your power:</strong> Determine how far your projectile will go (~200 is a good starting point)</li>
+            <li><code class="crt-text-yellow">!zz [angle:20-89] [power:120-800]</code></li>
+            <li><strong>Set your angle:</strong> Choose the trajectory of your throw<br>(min:20, max:89. ~45° is usually optimal)</li>
+            <li><strong>Set your power:</strong> Determine how far your projectile will go<br>(min:120, max:800. ~350 is a good starting point)</li>
             <li><strong>Account for wind:</strong> Check the wind indicator and adjust accordingly</li>
             <li><strong>Throw!</strong> Watch your projectile fly and hope for a hit!</li>
           </ol>
@@ -67,12 +68,17 @@
           <h3>🎯 Strike System</h3>
           <p>Players get 3 strikes before losing:</p>
           <ul>
-            <li><strong>Miss:</strong> If your throw doesn't hit the opponent, you get a strike</li>
-            <li><strong>3 Strikes:</strong> You're out! Your opponent wins</li>
-            <li><strong>Direct Hit:</strong> Landing a hit doesn't give you a strike</li>
+            <li><strong>Miss:</strong> If your throw doesn't hit the opponent, no strike. make adjustments for your next turn<br>(and remember to account for the wind!)</li>
+            <li><strong>Miss a Turn:</strong> If you don't take a shot during your turn (1 minute) you will get a strike!</li>
+
+            <li><strong>3 Strikes:</strong> You're out! Your opponent wins & you forfeit for being AFK (0 <Points currency="zc" class="points-inline" />)</li>
           </ul>
 
           <h3>🏆 Win/Loss Ratio</h3>
+          <ul>
+            <li><strong>Direct Hit:</strong> Landing a hit gives you a point</li>
+            <li><strong>Winning:</strong> 3 points/hits to win the match</li>
+          </ul>
           <p>Your performance is tracked with a W/L ratio displayed during gameplay. Build your reputation as a throwing champion!</p>
         </div>
       </section>
@@ -82,11 +88,17 @@
         <h2 class="crt-text-yellow">💎 Rewards & <Points currency="zc" class="points-inline" /> zCubes</h2>
 
         <div class="content-block">
-          <h3>🎉 Win the Match = 
-                <Points currency="zc" class="points-display" /> 
-                <Points currency="zc" class="points-display" /> 
-                <Points currency="zc" class="points-display" />
-          </h3>
+          <ul>
+            <li>🎉 Win = 
+                  <Points currency="zc" class="points-display" /> 
+                  <Points currency="zc" class="points-display" /> 
+                  <Points currency="zc" class="points-display" />
+            </li>
+            <li>
+              ☠️ Lose = 
+                  <Points currency="zc" class="points-display" /> (participation prize)
+            </li>          
+          </ul>
           <p>Victory earns you zCubes to spend in the store! The better your aim, the more you'll win.</p>
         </div>
       </section>
@@ -108,7 +120,7 @@
 
           <div class="tip-card">
             <h3>⚡ Quick Joins</h3>
-            <p>Watch for lobby codes in chat! Quick joiners get more PvP action and avoid AI matches.</p>
+            <p>Watch for lobby codes on stream! Quick joiners get more PvP action and avoid AI matches.</p>
           </div>
 
           <div class="tip-card">

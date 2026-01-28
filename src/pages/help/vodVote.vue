@@ -99,7 +99,7 @@
           </div>
 
           <div class="tip-card">
-            <h3>⚡ !vote Starts the Fun</h3>
+            <h3>⚡ !v### Starts the Fun</h3>
             <p>After cooldown, be the first to type <code>!v###</code> (as seen on stream) to get the next round started! Community participation keeps it exciting.</p>
           </div>
         </div>

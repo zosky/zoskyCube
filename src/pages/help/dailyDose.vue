@@ -28,8 +28,8 @@
         <div class="content-block">
           <h3>Step-by-Step</h3>
           <ol>
-            <li><strong>Complete Triple OAuth</strong> - Must link Twitch, Discord, AND Steam accounts at <a href="/auth" class="crt-text-cyan">zoskycube.github.io/zoskyCube/auth</a></li>
-            <li><strong>Open Channel Points</strong> - Click the trophy icon below the stream player</li>
+            <li><strong>Complete Triple OAuth</strong> - Must link Twitch, Discord, AND Steam accounts at <a href="https://zosky.github.io/zoskyCube/auth" class="crt-text-cyan">zosky.github.io/zoskyCube/auth</a></li>
+            <li><strong>Open Channel Points</strong> - Click the <Points currency="zB" class="points-inline h-6 w-6 -mt-3" /> (zBlock icon) below the chat</li>
             <li><strong>Find "dailyDose"</strong> - Look for the reward in the list</li>
             <li><strong>Click Redeem</strong> - Spend your Twitch channel points</li>
             <li><strong>Wait for Confirmation</strong> - Chat will announce your reward!</li>
@@ -64,12 +64,12 @@
           
           <div class="cooldown-timeline">
             <div class="timeline-item">
-              <strong>🕐 12:00 PM Monday</strong>
+              <strong>🕐 4:20 PM Monday</strong>
               <p>You redeem Daily Dose → Get 1,000 zC</p>
             </div>
             <div class="timeline-arrow">⬇️</div>
             <div class="timeline-item">
-              <strong>🕐 1:00 PM Tuesday</strong>
+              <strong>🕐 5:20 PM Tuesday</strong>
               <p>Cooldown expires → Can redeem again!</p>
             </div>
           </div>
@@ -118,7 +118,7 @@
           </div>
 
           <p class="center-text">
-            <a href="/auth" class="auth-button">Complete Triple OAuth →</a>
+            <a href="https://zosky.github.io/zoskyCube/auth" class="auth-button">Complete Triple OAuth →</a>
           </p>
 
           <div class="warning-box">
@@ -137,12 +137,11 @@
           <ul>
             <li><strong>StreamElements:</strong> Your zCube balance updates instantly</li>
             <li><strong>Firestore:</strong> Redemption history and cooldown status</li>
-            <li><strong>Discord:</strong> Economy channel posts (first-time only)</li>
-            <li><strong>MySQL:</strong> IRC analyzer logs for statistics</li>
+            <li><strong>Discord:</strong> redeems channel post</li>
           </ul>
 
           <div class="pro-tip">
-            <strong>💡 Did you know?</strong> You can check your balance anytime by typing <code>!balance</code> in Twitch chat!
+            <strong>💡 Did you know?</strong> You can check your balance anytime by typing <code>!zCubes</code> in Twitch chat!
           </div>
         </div>
       </section>
@@ -153,8 +152,14 @@
 
         <div class="grid-container">
           <div class="ref-block">
+            <h3 class="crt-text-red">Cost</h3>
+            <p class="big-number">1000 <Points currency="zb" class="points-inline h-10 w-10 -ml-2 -mt-4" /></p>
+            <p>Channel Points</p>
+          </div>
+
+          <div class="ref-block">
             <h3 class="crt-text-cyan">Reward Amount</h3>
-            <p class="big-number">+1,000 zC</p>
+            <p class="big-number">+1,000 <Points currency="zc" class="points-inline h-10 w-10 -ml-2 -mt-4" /></p>
             <p>Every redemption</p>
           </div>
 
@@ -164,17 +169,11 @@
             <p>Between redemptions</p>
           </div>
 
-          <div class="ref-block">
-            <h3 class="crt-text-red">Cost</h3>
-            <p class="big-number">Twitch Points</p>
-            <p>Check channel rewards</p>
-          </div>
-
-          <div class="ref-block">
+          <!-- <div class="ref-block">
             <h3 class="crt-text-green">Requirement</h3>
-            <p class="big-number">Triple OAuth</p>
+            <p class="big-number">Triple oAuth</p>
             <p>Twitch + Discord + Steam</p>
-          </div>
+          </div> -->
         </div>
       </section>
 
@@ -187,6 +186,8 @@
 </template>
 
 <script setup>
+import Points from '../../components/Points.vue';
+
 // No special logic needed
 </script>
 
