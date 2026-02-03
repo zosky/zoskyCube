@@ -415,7 +415,7 @@ const fetchWhitelistedUsernames = async () => {
         console.log(`✅ Loaded ${data.count} whitelisted usernames for referral dropdown`)
         
         // Check for ref query parameter OR localStorage (survives OAuth redirect)
-        const refParam = route.query.ref || localStorage.getItem('referralRef')
+        const refParam = route.query.ref || new URLSearchParams(window.location.search).get('ref') || localStorage.getItem('referralRef')
         if (refParam && !referredByLocked.value) {
           // Case-insensitive match against whitelist
           const matchedUsername = data.usernames.find(
@@ -1003,7 +1003,8 @@ onMounted(() => {
   })
   
   // Store ref param in localStorage to survive OAuth redirects
-  const refParam = route.query.ref
+  // Use both route.query and URLSearchParams as fallback (router may not be ready)
+  const refParam = route.query.ref || new URLSearchParams(window.location.search).get('ref')
   if (refParam) {
     localStorage.setItem('referralRef', refParam)
     console.log(`💾 Stored referral param for OAuth: ${refParam}`)
