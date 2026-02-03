@@ -390,6 +390,15 @@ import { Twitch, Discord, Steam, Loading, CheckCircle, AlertCircle, Account, Ide
 import Points from '../components/Points.vue'
 import { trackEvent } from '../utils/analytics'
 
+// IMMEDIATELY capture ref param before Vue router processes the URL
+// This runs synchronously when the script loads
+const urlParams = new URLSearchParams(window.location.search)
+const refFromUrl = urlParams.get('ref')
+if (refFromUrl) {
+  localStorage.setItem('referralRef', refFromUrl)
+  console.log(`💾 [IMMEDIATE] Stored referral param: ${refFromUrl}`)
+}
+
 const router = useRouter()
 const route = useRoute()
 
