@@ -413,6 +413,21 @@ const fetchWhitelistedUsernames = async () => {
       if (data.success && data.usernames) {
         whitelistedUsernames.value = data.usernames
         console.log(`✅ Loaded ${data.count} whitelisted usernames for referral dropdown`)
+        
+        // Check for ref query parameter and pre-populate if valid
+        const refParam = route.query.ref
+        if (refParam && !referredByLocked.value) {
+          // Case-insensitive match against whitelist
+          const matchedUsername = data.usernames.find(
+            u => u.toLowerCase() === refParam.toLowerCase()
+          )
+          if (matchedUsername) {
+            referredByInput.value = matchedUsername
+            console.log(`🔗 Pre-populated referral from URL: ${matchedUsername}`)
+          } else {
+            console.log(`⚠️ Referral param "${refParam}" not found in whitelist`)
+          }
+        }
       }
     }
   } catch (error) {
