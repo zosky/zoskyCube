@@ -433,8 +433,8 @@ const fetchWhitelistedUsernames = async () => {
           if (matchedUsername) {
             referredByInput.value = matchedUsername
             console.log(`🔗 Pre-populated referral from URL/storage: ${matchedUsername}`)
-            // Clear from storage after successful restore
-            localStorage.removeItem('referralRef')
+            // DON'T clear localStorage here - user may not have Twitch connected yet
+            // localStorage will be cleared when referral is actually SAVED (saveReferral function)
           } else {
             console.log(`⚠️ Referral param "${refParam}" not found in whitelist`)
           }
@@ -934,6 +934,7 @@ const saveReferral = async () => {
     // In dev mode, just update local state
     if (import.meta.env.DEV) {
       referredByLocked.value = true
+      localStorage.removeItem('referralRef')
       console.log('Mock: Referral saved', { referrer, referred })
       return
     }
@@ -969,6 +970,9 @@ const saveReferral = async () => {
     
     // Lock the input
     referredByLocked.value = true
+    
+    // NOW clear localStorage since referral is permanently saved
+    localStorage.removeItem('referralRef')
     
     // Track referral link event
     trackEvent('referral_link', {
