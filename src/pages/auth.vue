@@ -414,8 +414,8 @@ const fetchWhitelistedUsernames = async () => {
         whitelistedUsernames.value = data.usernames
         console.log(`✅ Loaded ${data.count} whitelisted usernames for referral dropdown`)
         
-        // Check for ref query parameter OR sessionStorage (survives OAuth redirect)
-        const refParam = route.query.ref || sessionStorage.getItem('referralRef')
+        // Check for ref query parameter OR localStorage (survives OAuth redirect)
+        const refParam = route.query.ref || localStorage.getItem('referralRef')
         if (refParam && !referredByLocked.value) {
           // Case-insensitive match against whitelist
           const matchedUsername = data.usernames.find(
@@ -425,7 +425,7 @@ const fetchWhitelistedUsernames = async () => {
             referredByInput.value = matchedUsername
             console.log(`🔗 Pre-populated referral from URL/storage: ${matchedUsername}`)
             // Clear from storage after successful restore
-            sessionStorage.removeItem('referralRef')
+            localStorage.removeItem('referralRef')
           } else {
             console.log(`⚠️ Referral param "${refParam}" not found in whitelist`)
           }
@@ -1002,10 +1002,10 @@ onMounted(() => {
     referrer: document.referrer || 'direct'
   })
   
-  // Store ref param in sessionStorage to survive OAuth redirects
+  // Store ref param in localStorage to survive OAuth redirects
   const refParam = route.query.ref
   if (refParam) {
-    sessionStorage.setItem('referralRef', refParam)
+    localStorage.setItem('referralRef', refParam)
     console.log(`💾 Stored referral param for OAuth: ${refParam}`)
   }
   
