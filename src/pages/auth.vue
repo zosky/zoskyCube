@@ -714,7 +714,10 @@ const loadUserProfile = async (uid) => {
       referredByInput.value = linkData.referredBy
       referredByLocked.value = true
     } else {
-      referredByInput.value = ''
+      // Don't clear referredByInput if it was pre-populated from URL/sessionStorage
+      if (!referredByInput.value) {
+        referredByInput.value = ''
+      }
       referredByLocked.value = false
     }
     
