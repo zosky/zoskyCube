@@ -629,10 +629,9 @@ async function openDetails(item) {
   steamDataLoading.value = true
   
   try {
-    // Steam API blocks CORS, so we need a proxy for browser requests
-    // corsproxy.io works for both dev and production (GitHub Pages)
-    const steamUrl = `https://store.steampowered.com/api/appdetails?appids=${appId}&cc=ca&l=english`
-    const url = `https://corsproxy.io/?${encodeURIComponent(steamUrl)}`
+    // Use Cloud Function to proxy Steam API (Steam blocks browser CORS)
+    const FUNCTIONS_BASE = 'https://us-central1-zoskycube-bossbattle.cloudfunctions.net'
+    const url = `${FUNCTIONS_BASE}/getSteamAppDetails?appid=${appId}`
     
     const response = await fetch(url)
     if (!response.ok) throw new Error(`API error: ${response.status}`)
