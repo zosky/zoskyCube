@@ -42,8 +42,26 @@ meta:
     <div v-else>
       <!-- Controls Bar -->
       <div class="mb-6 flex flex-wrap gap-4 items-center justify-between bg-gray-900/50 p-4 rounded-lg">
-        <!-- Left: View Toggle & Stats -->
+        <!-- Left: Search, View Toggle & Stats -->
         <div class="flex items-center gap-4">
+          <!-- Search Box -->
+          <div class="relative">
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Search games..."
+              class="w-48 px-3 py-2 pl-9 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
+            />
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">🔍</span>
+            <button
+              v-if="searchQuery"
+              @click="searchQuery = ''"
+              class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white"
+            >
+              ✕
+            </button>
+          </div>
+          
           <!-- View Toggle -->
           <div class="flex rounded-lg overflow-hidden border border-blue-800">
             <button 
@@ -67,6 +85,30 @@ meta:
             <span class="text-cyan-400 font-bold">{{ filteredItems.length }}</span> items
             <span class="mx-2">•</span>
             <span class="text-yellow-400 font-bold">{{ totalKeys }}</span> keys available
+          </div>
+          
+          <!-- Favorites/Hidden Filters -->
+          <div class="flex items-center gap-2">
+            <button
+              @click="showFavorites = !showFavorites"
+              :class="showFavorites ? 'bg-yellow-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'"
+              class="px-3 py-1.5 text-sm rounded transition-colors flex items-center gap-1"
+              :title="showFavorites ? 'Favorites highlighted' : 'Favorites not highlighted'"
+            >
+              <Star v-if="showFavorites" class="w-4 h-4" />
+              <StarOutline v-else class="w-4 h-4" />
+              <span>{{ favoritesCount }}</span>
+            </button>
+            <button
+              @click="showHidden = !showHidden"
+              :class="showHidden ? 'bg-gray-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'"
+              class="px-3 py-1.5 text-sm rounded transition-colors flex items-center gap-1"
+              :title="showHidden ? 'Showing hidden items' : 'Hidden items are hidden'"
+            >
+              <EyeOutline v-if="showHidden" class="w-4 h-4" />
+              <EyeOffOutline v-else class="w-4 h-4" />
+              <span>{{ hiddenCount }}</span>
+            </button>
           </div>
         </div>
 
@@ -107,6 +149,110 @@ meta:
         </div>
       </div>
 
+      <!-- Favorites Section (Grid mode only) -->
+      <div 
+        v-if="viewMode === 'grid' && showFavorites && favoriteItems.length > 0" 
+        class="mb-6"
+      >
+        <h3 class="text-yellow-400 font-bold mb-3 flex items-center gap-2">
+          <Star class="w-5 h-5" />
+          Favorites ({{ favoriteItems.length }})
+        </h3>
+        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-9 gap-2">
+          <div 
+            v-for="item in favoriteItems" 
+            :key="'fav-' + item._id"
+            @click="openDetails(item)"
+            class="relative rounded-lg overflow-hidden border border-yellow-500/40 hover:border-yellow-400 transition-all hover:scale-105 shadow-lg hover:shadow-yellow-500/20 cursor-pointer group"
+          >
+            <!-- Thumbnail with overlay -->
+            <div class="relative aspect-[16/9] bg-gray-800">
+              <img 
+                :src="item.thumbnail || getDefaultThumbnail(item)"
+                :alt="item.name"
+                class="w-full h-full object-cover"
+                loading="lazy"
+                @error="handleImageError($event, item)"
+              />
+              <!-- Unfavorite button (top right) -->
+              <button
+                @click.stop="toggleFavorite(item.bot?.identifier)"
+                class="absolute top-1 right-1 text-yellow-400 hover:text-yellow-300 bg-black/60 rounded p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                title="Remove from favorites"
+              >
+                <Star class="w-3.5 h-3.5" />
+              </button>
+              <!-- Bottom overlay bar -->
+              <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent px-1.5 py-1">
+                <h4 class="text-white text-[10px] font-medium line-clamp-1 leading-tight" :title="item.name">
+                  {{ item.name }}
+                </h4>
+                <div class="flex justify-between items-center mt-0.5">
+                  <span class="text-[9px]" :class="item.quantity.current > 0 ? 'text-green-400' : 'text-red-400'">
+                    🔑{{ item.quantity.current }}
+                  </span>
+                  <span class="text-[9px] text-yellow-400">
+                    <Points currency="zC" :n="item.cost" />
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hidden Items Section (Grid mode only, when showHidden is on) -->
+      <div 
+        v-if="viewMode === 'grid' && showHidden && hiddenItemsList.length > 0" 
+        class="mb-6"
+      >
+        <h3 class="text-gray-400 font-bold mb-3 flex items-center gap-2">
+          <EyeOffOutline class="w-5 h-5" />
+          Hidden ({{ hiddenItemsList.length }})
+        </h3>
+        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-9 gap-2">
+          <div 
+            v-for="item in hiddenItemsList" 
+            :key="'hidden-' + item._id"
+            @click="openDetails(item)"
+            class="relative rounded-lg overflow-hidden border border-gray-700/40 hover:border-gray-500 transition-all hover:scale-105 shadow-lg cursor-pointer opacity-50 hover:opacity-100 group"
+          >
+            <!-- Thumbnail with overlay -->
+            <div class="relative aspect-[16/9] bg-gray-800">
+              <img 
+                :src="item.thumbnail || getDefaultThumbnail(item)"
+                :alt="item.name"
+                class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all"
+                loading="lazy"
+                @error="handleImageError($event, item)"
+              />
+              <!-- Unhide button (top right) -->
+              <button
+                @click.stop="toggleHidden(item.bot?.identifier)"
+                class="absolute top-1 right-1 text-gray-400 hover:text-white bg-black/60 rounded p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                title="Unhide item"
+              >
+                <EyeOutline class="w-3.5 h-3.5" />
+              </button>
+              <!-- Bottom overlay bar -->
+              <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent px-1.5 py-1">
+                <h4 class="text-gray-300 text-[10px] font-medium line-clamp-1 leading-tight" :title="item.name">
+                  {{ item.name }}
+                </h4>
+                <div class="flex justify-between items-center mt-0.5">
+                  <span class="text-[9px]" :class="item.quantity.current > 0 ? 'text-green-400' : 'text-red-400'">
+                    🔑{{ item.quantity.current }}
+                  </span>
+                  <span class="text-[9px] text-gray-400">
+                    <Points currency="zC" :n="item.cost" />
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Grid View -->
       <div 
         v-if="viewMode === 'grid'" 
@@ -116,14 +262,19 @@ meta:
           v-for="item in sortedItems" 
           :key="item._id"
           @click="openDetails(item)"
-          class="bg-gray-900 rounded-lg overflow-hidden border border-gray-800 hover:border-cyan-500 transition-all hover:scale-105 shadow-lg hover:shadow-cyan-500/20 cursor-pointer"
+          class="bg-gray-900 rounded-lg overflow-hidden border transition-all hover:scale-105 shadow-lg cursor-pointer"
+          :class="{
+            'border-yellow-500/50 ring-1 ring-yellow-500/30 hover:shadow-yellow-500/20': isFavorite(item.bot?.identifier),
+            'border-gray-800 hover:border-cyan-500 hover:shadow-cyan-500/20': !isFavorite(item.bot?.identifier),
+            'opacity-50': isHidden(item.bot?.identifier)
+          }"
         >
           <!-- Thumbnail -->
           <div class="bg-gray-800 relative overflow-hidden">
             <img 
               :src="item.thumbnail || getDefaultThumbnail(item)"
               :alt="item.name"
-              class="w-full h-fit object-fit aspect-[16/8]"
+              class="w-full h-fit object-fit aspect-[16/9]"
               loading="lazy"
               @error="handleImageError($event, item)"
             />
@@ -150,16 +301,38 @@ meta:
               <span class="flex items-center gap-1">
                 💰 <Points currency="zC" :n="item.cost" />
               </span>
-              <!-- Steam Link -->
-              <a 
-                :href="getSteamLink(item)"
-                target="_blank"
-                @click.stop
-                class="text-blue-400 hover:text-blue-300"
-                title="View on Steam"
-              >
-                <Steam class="w-5 h-5" />
-              </a>
+              <!-- Action Buttons -->
+              <div class="flex items-center gap-1">
+                <!-- Favorite -->
+                <button
+                  @click.stop="toggleFavorite(item.bot?.identifier)"
+                  :class="isFavorite(item.bot?.identifier) ? 'text-yellow-400' : 'text-gray-500 hover:text-yellow-400'"
+                  class="transition-colors"
+                  :title="isFavorite(item.bot?.identifier) ? 'Remove from favorites' : 'Add to favorites'"
+                >
+                  <Star v-if="isFavorite(item.bot?.identifier)" class="w-5 h-5" />
+                  <StarOutline v-else class="w-5 h-5" />
+                </button>
+                <!-- Hide -->
+                <button
+                  @click.stop="toggleHidden(item.bot?.identifier)"
+                  :class="isHidden(item.bot?.identifier) ? 'text-red-400' : 'text-gray-500 hover:text-red-400'"
+                  class="transition-colors"
+                  :title="isHidden(item.bot?.identifier) ? 'Unhide item' : 'Hide item'"
+                >
+                  <EyeOffOutline class="w-5 h-5" />
+                </button>
+                <!-- Steam Link -->
+                <a 
+                  :href="getSteamLink(item)"
+                  target="_blank"
+                  @click.stop
+                  class="text-blue-400 hover:text-blue-300"
+                  title="View on Steam"
+                >
+                  <Steam class="w-5 h-5" />
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -194,7 +367,7 @@ meta:
               >
                 Added {{ getSortIndicator('createdAt') }}
               </th>
-              <th class="px-4 py-3 text-center">Links</th>
+              <th class="px-4 py-3 text-center">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-800">
@@ -203,7 +376,11 @@ meta:
               :key="item._id"
               @click="openDetails(item)"
               class="bg-gray-950 hover:bg-gray-900 transition-colors cursor-pointer"
-              :class="{ 'opacity-50': item.quantity.current === 0 }"
+              :class="{ 
+                'opacity-50': item.quantity.current === 0,
+                'ring-1 ring-yellow-500/30 bg-yellow-950/20': isFavorite(item.bot?.identifier),
+                'opacity-40': isHidden(item.bot?.identifier)
+              }"
             >
               <td class="px-4 py-3">
                 <div class="flex items-center gap-3">
@@ -236,24 +413,47 @@ meta:
                 {{ formatDate(item.createdAt) }}
               </td>
               <td class="px-4 py-3 text-center">
-                <a 
-                  :href="getSteamLink(item)"
-                  target="_blank"
-                  @click.stop
-                  class="text-blue-400 hover:text-blue-300 mr-3"
-                  title="View on Steam"
-                >
-                  <Steam class="w-5 h-5 inline" />
-                </a>
-                <a 
-                  href="https://streamelements.com/zoskycube/store"
-                  target="_blank"
-                  @click.stop
-                  class="text-cyan-400 hover:text-cyan-300"
-                  title="Buy on StreamElements"
-                >
-                  🛒
-                </a>
+                <div class="flex items-center justify-center gap-2">
+                  <!-- Favorite -->
+                  <button
+                    @click.stop="toggleFavorite(item.bot?.identifier)"
+                    :class="isFavorite(item.bot?.identifier) ? 'text-yellow-400' : 'text-gray-500 hover:text-yellow-400'"
+                    class="transition-colors"
+                    :title="isFavorite(item.bot?.identifier) ? 'Remove from favorites' : 'Add to favorites'"
+                  >
+                    <Star v-if="isFavorite(item.bot?.identifier)" class="w-5 h-5 inline" />
+                    <StarOutline v-else class="w-5 h-5 inline" />
+                  </button>
+                  <!-- Hide -->
+                  <button
+                    @click.stop="toggleHidden(item.bot?.identifier)"
+                    :class="isHidden(item.bot?.identifier) ? 'text-red-400' : 'text-gray-500 hover:text-red-400'"
+                    class="transition-colors"
+                    :title="isHidden(item.bot?.identifier) ? 'Unhide item' : 'Hide item'"
+                  >
+                    <EyeOffOutline class="w-5 h-5 inline" />
+                  </button>
+                  <!-- Steam -->
+                  <a 
+                    :href="getSteamLink(item)"
+                    target="_blank"
+                    @click.stop
+                    class="text-blue-400 hover:text-blue-300"
+                    title="View on Steam"
+                  >
+                    <Steam class="w-5 h-5 inline" />
+                  </a>
+                  <!-- Buy -->
+                  <a 
+                    href="https://streamelements.com/zoskycube/store"
+                    target="_blank"
+                    @click.stop
+                    class="text-cyan-400 hover:text-cyan-300"
+                    title="Buy on StreamElements"
+                  >
+                    🛒
+                  </a>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -319,7 +519,7 @@ meta:
                     v-else
                     :src="currentMedia?.src || steamData.header_image"
                     :alt="selectedItem.name"
-                    class="w-full h-full object-cover"
+                    class="w-full h-full aspect-[16/9]"
                   />
                 </div>
 
@@ -442,7 +642,7 @@ meta:
 </template>
 
 <script setup>
-import { Steam } from 'mdue'
+import { Steam, StarOutline, Star, EyeOffOutline, EyeOutline } from 'mdue'
 import Points from '@/components/Points.vue'
 import { useAuth } from '@/composables/useAuth'
 
@@ -466,6 +666,41 @@ const viewMode = ref('grid')
 const sortKey = ref('cost')
 const sortDirection = ref('desc')
 const canAffordOnly = ref(false)
+const searchQuery = ref('')
+
+// Favorites and hidden items (stored by item _id)
+const favorites = ref(new Set(JSON.parse(localStorage.getItem('store_favorites') || '[]')))
+const hiddenItems = ref(new Set(JSON.parse(localStorage.getItem('store_hidden') || '[]')))
+const showFavorites = ref(true)  // Show favorites by default
+const showHidden = ref(false)    // Hide hidden items by default
+
+// Toggle favorite status (using bot.identifier as stable key)
+const toggleFavorite = (identifier) => {
+  if (!identifier) return
+  if (favorites.value.has(identifier)) {
+    favorites.value.delete(identifier)
+  } else {
+    favorites.value.add(identifier)
+  }
+  favorites.value = new Set(favorites.value) // Trigger reactivity
+  localStorage.setItem('store_favorites', JSON.stringify([...favorites.value]))
+}
+
+// Toggle hidden status (using bot.identifier as stable key)
+const toggleHidden = (identifier) => {
+  if (!identifier) return
+  if (hiddenItems.value.has(identifier)) {
+    hiddenItems.value.delete(identifier)
+  } else {
+    hiddenItems.value.add(identifier)
+  }
+  hiddenItems.value = new Set(hiddenItems.value) // Trigger reactivity
+  localStorage.setItem('store_hidden', JSON.stringify([...hiddenItems.value]))
+}
+
+// Check if item is favorite or hidden (by bot.identifier)
+const isFavorite = (identifier) => identifier && favorites.value.has(identifier)
+const isHidden = (identifier) => identifier && hiddenItems.value.has(identifier)
 
 // Detail modal state
 const selectedItem = ref(null)
@@ -486,28 +721,46 @@ const sortOptions = [
   { key: 'quantity', label: 'Stock' }
 ]
 
-// Filtered items (only enabled items, optionally filtered by affordability)
+// Filtered items (only enabled items, optionally filtered by affordability, favorites, hidden, search)
 const filteredItems = computed(() => {
   let items = storeItems.value.filter(item => item.enabled)
+  
+  // Filter by search query
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase().trim()
+    items = items.filter(item => 
+      (item.name || '').toLowerCase().includes(query) ||
+      (item.description || '').toLowerCase().includes(query)
+    )
+  }
   
   // Filter by affordability if checked and user has points
   if (canAffordOnly.value && userPoints.value !== null) {
     items = items.filter(item => (item.cost || 0) <= userPoints.value)
   }
   
+  // Filter hidden items (unless showHidden is on)
+  if (!showHidden.value) {
+    items = items.filter(item => !hiddenItems.value.has(item.bot?.identifier))
+  }
+  
+  // If showFavorites is off, hide favorites from main list
+  // (This would only make sense in a "non-favorites" view, but we keep it simple)
+  
   return items
 })
 
-// Total keys available
-const totalKeys = computed(() => {
-  return filteredItems.value.reduce((sum, item) => sum + (item.quantity?.current || 0), 0)
+// Count of favorites and hidden for display
+const favoritesCount = computed(() => {
+  return storeItems.value.filter(item => item.enabled && favorites.value.has(item.bot?.identifier)).length
+})
+const hiddenCount = computed(() => {
+  return storeItems.value.filter(item => item.enabled && hiddenItems.value.has(item.bot?.identifier)).length
 })
 
-// Sorted items
-const sortedItems = computed(() => {
-  const items = [...filteredItems.value]
-  
-  items.sort((a, b) => {
+// Helper function to sort items by current sortKey and sortDirection
+function sortItemsByCurrentKey(items) {
+  return [...items].sort((a, b) => {
     let aVal, bVal
     
     switch (sortKey.value) {
@@ -539,8 +792,57 @@ const sortedItems = computed(() => {
     const result = aVal - bVal
     return sortDirection.value === 'asc' ? result : -result
   })
+}
+
+// Favorite items for separate display (sorted by current sort key)
+const favoriteItems = computed(() => {
+  let items = storeItems.value
+    .filter(item => item.enabled && favorites.value.has(item.bot?.identifier))
   
-  return items
+  // Apply search filter to favorites too
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase().trim()
+    items = items.filter(item => 
+      (item.name || '').toLowerCase().includes(query) ||
+      (item.description || '').toLowerCase().includes(query)
+    )
+  }
+  
+  return sortItemsByCurrentKey(items)
+})
+
+// Hidden items for separate display (sorted by current sort key)
+const hiddenItemsList = computed(() => {
+  let items = storeItems.value
+    .filter(item => item.enabled && hiddenItems.value.has(item.bot?.identifier))
+  
+  // Apply search filter to hidden items too
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase().trim()
+    items = items.filter(item => 
+      (item.name || '').toLowerCase().includes(query) ||
+      (item.description || '').toLowerCase().includes(query)
+    )
+  }
+  
+  return sortItemsByCurrentKey(items)
+})
+
+// Total keys available
+const totalKeys = computed(() => {
+  return filteredItems.value.reduce((sum, item) => sum + (item.quantity?.current || 0), 0)
+})
+
+// Sorted items (excludes favorites when showFavorites is on in grid mode, to avoid duplicates)
+const sortedItems = computed(() => {
+  let items = [...filteredItems.value]
+  
+  // In grid mode with favorites section visible, exclude favorites from main grid
+  if (viewMode.value === 'grid' && showFavorites.value) {
+    items = items.filter(item => !favorites.value.has(item.bot?.identifier))
+  }
+  
+  return sortItemsByCurrentKey(items)
 })
 
 // Toggle sort
