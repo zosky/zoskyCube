@@ -1,10 +1,39 @@
 <script setup>
 import { Twitch, Youtube, Steam, GamepadVariantOutline, SkullCrossbones, Store, PlusBox, TrophyOutline, Account, HelpCircleOutline, ChartBar } from 'mdue'
 import { useAuth } from '../composables/useAuth'
+import Points from './Points.vue'
 
 const router = useRouter()
 const route = useRoute()
 const { user, userProfile } = useAuth()
+
+// User points balance
+const userPoints = ref(null)
+const userPointsLoading = ref(false)
+const SE_CHANNEL_ID = '668816ac484cab966df79977'
+
+const fetchUserPoints = async (username) => {
+  if (!username) return
+  userPointsLoading.value = true
+  try {
+    const res = await fetch(`https://api.streamelements.com/kappa/v2/points/${SE_CHANNEL_ID}/${username}`)
+    if (res.ok) {
+      const data = await res.json()
+      userPoints.value = data.points || 0
+    }
+  } catch (err) {
+    console.error('Failed to fetch user points:', err)
+  } finally {
+    userPointsLoading.value = false
+  }
+}
+
+// Watch for userProfile to load and fetch points
+watch(() => userProfile.value?.twitch?.username, (username) => {
+  if (username && userPoints.value === null) {
+    fetchUserPoints(username)
+  }
+}, { immediate: true })
 
 const avatarIndex = ref(0) // 0=twitch, 1=steam, 2=discord
 
@@ -72,6 +101,13 @@ function cycleAvatar(event) {
           @click="$router.push('./collection')"
           title="Game Collection">
           <Steam />
+        </div>
+        <div
+          :class="{ 'active' : $route.path=='/store' }" 
+          class="cursor-pointer"
+          @click="$router.push('/store')"
+          title="Reward Store">
+          <Store />
         </div>
         <div
           :class="{ 'active' : $route.path=='/' }" 
@@ -146,20 +182,40 @@ function cycleAvatar(event) {
         </div>
         <!-- <GamepadVariantOutline /> -->
         
-        <!-- User Avatar (floating right side) - goes to personal stats -->
+        <!-- User Balance & Avatar (floating right side) -->
         <div 
             v-if="user && userProfile && currentAvatar" 
-            class="user-avatar-container"
-            :class="{ 'active' : $route.path.includes('/stats/user') }"
-            @click="navigateToMyStats"
-            @mousedown.middle.prevent="cycleAvatar"
-            :title="`My Personal Stats (Middle-click to cycle avatar)`"
+            class="user-balance-container"
         >
-            <img 
-                :src="currentAvatar" 
-                :alt="`${userProfile.twitch?.username || 'User'} avatar`"
-                class="user-avatar"
-            />
+            <!-- Balance Display -->
+            <div 
+              v-if="userPoints !== null" 
+              class="balance-display"
+              title="Your zCube Balance"
+            >
+              <Points currency="zC" :n="userPoints" />
+            </div>
+            <div 
+              v-else-if="userPointsLoading" 
+              class="balance-display animate-pulse"
+            >
+              ...
+            </div>
+            
+            <!-- Avatar -->
+            <div 
+                class="user-avatar-wrapper"
+                :class="{ 'active' : $route.path.includes('/stats/user') }"
+                @click="navigateToMyStats"
+                @mousedown.middle.prevent="cycleAvatar"
+                :title="`My Personal Stats (Middle-click to cycle avatar)`"
+            >
+                <img 
+                    :src="currentAvatar" 
+                    :alt="`${userProfile.twitch?.username || 'User'} avatar`"
+                    class="user-avatar"
+                />
+            </div>
         </div>
     </nav>
 </template>
@@ -175,10 +231,19 @@ nav .cursor-pointer, nav a
 a { @apply flex flex-row items-center hover:scale-105 transition-transform duration-200 }
 .active { @apply text-yellow-400 scale-110 }
 
-.user-avatar-container {
-    @apply justify-self-end cursor-pointer transition-transform duration-200 hover:scale-110;
+.user-balance-container {
+    @apply flex items-center gap-2 ml-auto;
+}
+
+.balance-display {
+    @apply text-sm font-bold text-yellow-400 bg-gray-900/80 px-2 py-1 rounded-lg;
+    @apply border border-yellow-500/30;
+}
+
+.user-avatar-wrapper {
+    @apply cursor-pointer transition-transform duration-200 hover:scale-110;
     @apply flex items-center justify-center w-12 h-12 rounded-full overflow-hidden;
-    @apply ring-2 ring-blue-400 hover:ring-yellow-400 ml-auto;
+    @apply ring-2 ring-blue-400 hover:ring-yellow-400;
 }
 
 .user-avatar {

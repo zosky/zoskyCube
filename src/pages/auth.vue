@@ -1026,11 +1026,12 @@ onMounted(() => {
   // Fetch whitelisted usernames for referral dropdown
   fetchWhitelistedUsernames()
   
-  // In development, load mock data
-  if (import.meta.env.DEV) {
-    loadMockData()
-    return
-  }
+  // DISABLED: Mock data was polluting localStorage with fake UUID
+  // In development, you can uncomment this for UI testing only
+  // if (import.meta.env.DEV) {
+  //   loadMockData()
+  //   return
+  // }
   
   // Production: Check for OAuth callback first
   handleOAuthCallback()

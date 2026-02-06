@@ -6,7 +6,7 @@ meta:
 <script setup>
 import { Loading } from 'mdue'
 const router = useRouter()
-const redirect = '/'
+const redirect = '/store'
 router.replace(redirect)
 </script>
 
