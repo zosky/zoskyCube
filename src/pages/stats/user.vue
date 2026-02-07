@@ -23,7 +23,7 @@
       </div>
       
       <!-- No Data State -->
-      <div v-else-if="historyData.length === 0" class="bg-white/10 backdrop-blur-md rounded-xl p-12 ring-1 ring-white/20 text-center text-white">
+      <div v-else-if="userHandouts.length === 0" class="bg-white/10 backdrop-blur-md rounded-xl p-12 ring-1 ring-white/20 text-center text-white">
         <h2 class="text-2xl font-bold mb-4">No Data Found</h2>
         <p class="mb-6">No handout history found for {{ username }}</p>
         <button @click="$router.push('/stats')" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
@@ -33,113 +33,222 @@
       
       <!-- Stats Content -->
       <div v-else class="stats-content">
-        <!-- Header with Export Toolbar -->
+        <!-- Header -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-          <h1 class="text-4xl font-bold text-white">
-            📊 {{ username }}'s Stats
-          </h1>
+          <div>
+            <div class="flex items-center gap-3">
+              <h1 class="text-4xl font-bold text-white">
+                📊 {{ username }}'s Stats
+              </h1>
+              <!-- Realtime Connection Indicator -->
+              <div 
+                v-if="isTwitchConnected" 
+                class="flex items-center gap-2 px-3 py-1.5 bg-green-500/20 rounded-full ring-1 ring-green-500/50"
+                title="Connected to Twitch chat - realtime updates enabled"
+              >
+                <span class="relative flex h-2.5 w-2.5">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                </span>
+                <span class="text-green-400 text-sm font-medium">LIVE</span>
+              </div>
+            </div>
+            <p class="text-white/60 mt-1">
+              Rank #{{ userRank }} • Data from {{ loadedMonths.join(' & ') }}
+            </p>
+          </div>
           
           <div class="export-toolbar flex gap-2 print:hidden">
             <button 
-              @click="exportToCSV(username, historyData)" 
+              @click="exportToCSV" 
               class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm"
             >
               📥 Export CSV
-            </button>
-            <button 
-              @click="printToPDF()" 
-              class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors text-sm"
-            >
-              📄 Print PDF
-            </button>
-            <button 
-              @click="clearCacheAndReload()" 
-              class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors text-sm"
-            >
-              🗑️ Clear Cache
             </button>
           </div>
         </div>
         
         <!-- Summary Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 ring-1 ring-white/20">
+            <div class="text-sm text-white/70 mb-1">Total Earned</div>
+            <div class="text-3xl font-bold text-yellow-400"><Points currency="zC" :n="totalAmount" /></div>
+          </div>
+          <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 ring-1 ring-white/20">
+              <div class="text-sm text-white/70 mb-1">Avg Per Win</div>
+              <div class="text-3xl font-bold text-blue-400"><Points currency="zC" :n="avgAmount" /></div>
+          </div>
+          <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 ring-1 ring-white/20">
+            <div class="text-sm text-white/70 mb-1">Total Wins</div>
+            <div class="text-3xl font-bold text-green-400">{{ totalCount }}</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 ring-1 ring-white/20">
+            <div class="text-sm text-white/70 mb-1">Active Days</div>
+            <div class="text-3xl font-bold text-purple-400">{{ activeDays }}</div>
+          </div>
+        </div>
+        
+        <!-- Game Breakdown -->
         <section class="mb-8">
-          <SummaryCards :data="historyData" />
+          <h2 class="text-2xl font-bold text-white mb-4">🎮 Earnings by Game</h2>
+          <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+            <div 
+              v-for="game in gameStats" 
+              :key="game.source"
+              class="bg-white/10 backdrop-blur-md rounded-xl p-4 ring-1 ring-white/20 text-center"
+            >
+              <div class="flex items-center justify-center gap-2 mb-2">
+                <img 
+                  v-if="sourceLogos[game.source]" 
+                  :src="sourceLogos[game.source]" 
+                  :alt="game.source" 
+                  class="w-6 h-6"
+                />
+                <span v-else class="text-xl">{{ sourceIcons[game.source] || '🎮' }}</span>
+                <span class="text-sm text-white/60">{{ game.source }}</span>
+              </div>
+              <div class="text-2xl font-bold" :style="{ color: sourceColors[game.source] || '#94a3b8' }">
+                <Points currency="zC" :n="game.source === 'redeem' ? Math.abs(game.total) : game.total" />
+              </div>
+              <div class="text-xs text-white/40 mt-1">{{ game.count }} wins ({{ game.percentage }}%)</div>
+            </div>
+          </div>
         </section>
         
         <!-- Insights -->
         <section class="mb-8">
           <h2 class="text-2xl font-bold text-white mb-4">🔍 Insights</h2>
-          <InsightsGrid :insights="insights" />
+          <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div 
+              v-for="insight in insights" 
+              :key="insight.type"
+              class="bg-white/10 backdrop-blur-md rounded-xl p-4 ring-1 ring-white/20"
+            >
+              <div class="text-2xl mb-2">{{ insight.icon }}</div>
+              <div class="text-sm font-semibold text-white">{{ insight.title }}</div>
+              <div class="text-xs text-white/60 mt-1">{{ insight.description }}</div>
+            </div>
+          </div>
         </section>
         
         <!-- Charts Row -->
         <div class="grid md:grid-cols-2 gap-6 mb-8">
-          <!-- Source Distribution -->
-          <section class="bg-white/10 backdrop-blur-md rounded-xl p-6 ring-1 ring-white/20">
-            <h2 class="text-xl font-bold text-white mb-4">📊 Source Distribution</h2>
-            <SourcePieChart :data="historyData" />
-          </section>
+          <!-- Daily Earnings Chart -->
+          <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 ring-1 ring-white/20">
+            <h2 class="text-xl font-bold text-white mb-4">📅 Daily Earnings</h2>
+            <div class="h-64">
+              <Bar :data="dailyChartData" :options="barChartOptions" />
+            </div>
+          </div>
           
-          <!-- Hourly Activity -->
-          <section class="bg-white/10 backdrop-blur-md rounded-xl p-6 ring-1 ring-white/20">
-            <h2 class="text-xl font-bold text-white mb-4">🕐 Hourly Activity</h2>
-            <HourlyHeatmap :data="pivotData" />
-          </section>
+          <!-- Source Pie Chart -->
+          <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 ring-1 ring-white/20">
+            <h2 class="text-xl font-bold text-white mb-4">📊 Source Distribution</h2>
+            <div class="h-64">
+              <Doughnut :data="sourceChartData" :options="pieChartOptions" />
+            </div>
+          </div>
         </div>
         
-        <!-- Game Breakdown -->
+        <!-- Activity Timeline -->
         <section class="mb-8">
-          <h2 class="text-2xl font-bold text-white mb-4">📊 Breakdown by Source</h2>
-          <GameBreakdown :stats="gameStats" />
-        </section>
-        
-        <!-- Reason Breakdown -->
-        <section class="mb-8">
-          <h2 class="text-2xl font-bold text-white mb-4">🎯 Breakdown by Reason</h2>
-          <ReasonBreakdown :stats="reasonStats" />
-        </section>
-        
-        <!-- Weekly Chart -->
-        <section class="mb-8">
-          <h2 class="text-2xl font-bold text-white mb-4">📅 Weekly Trends</h2>
+          <h2 class="text-2xl font-bold text-white mb-4">⏱️ Activity Timeline (Last 7 Days)</h2>
           <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 ring-1 ring-white/20">
-            <WeeklyChart ref="weeklyChart" :data="weeklyStats" />
+            <div class="h-64">
+              <Scatter :data="activityTimelineData" :options="scatterChartOptions" />
+            </div>
           </div>
         </section>
         
-        <!-- Monthly Chart -->
+        <!-- Hourly Activity -->
         <section class="mb-8">
-          <h2 class="text-2xl font-bold text-white mb-4">📆 Monthly Trends</h2>
+          <h2 class="text-2xl font-bold text-white mb-4">🕐 Activity by Hour</h2>
           <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 ring-1 ring-white/20">
-            <MonthlyChart ref="monthlyChart" :data="monthlyStats" />
+            <div class="h-48">
+              <Bar :data="hourlyChartData" :options="hourlyChartOptions" />
+            </div>
           </div>
         </section>
         
-        <!-- Pivot Table -->
+        <!-- Recent History Table -->
         <section class="mb-8">
-          <h2 class="text-2xl font-bold text-white mb-4">🕐 Hourly × Source Pivot Table</h2>
-          <PivotTable :data="pivotData" :sources="sources" />
+          <h2 class="text-2xl font-bold text-white mb-4">📜 Recent Activity</h2>
+          <div class="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden ring-1 ring-white/20">
+            <div class="overflow-x-auto max-h-96">
+              <table class="w-full">
+                <thead class="bg-white/5 sticky top-0">
+                  <tr class="text-white/90 text-left">
+                    <th class="px-4 py-3 font-semibold">Date</th>
+                    <th class="px-4 py-3 font-semibold">Source</th>
+                    <th class="px-4 py-3 font-semibold">Reason</th>
+                    <th class="px-4 py-3 font-semibold text-right">Amount</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-white/10">
+                  <tr 
+                    v-for="(item, idx) in recentHistory" 
+                    :key="idx"
+                    class="text-white hover:bg-white/5"
+                  >
+                    <td class="px-4 py-3 text-sm text-white/70">{{ formatDate(item.timestamp) }}</td>
+                    <td class="px-4 py-3">
+                      <span 
+                        class="px-2 py-1 rounded text-xs font-medium"
+                        :style="{ backgroundColor: sourceColors[item.source] + '33', color: sourceColors[item.source] }"
+                      >
+                        {{ item.source }}
+                      </span>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-white/80 max-w-xs truncate">{{ item.reason }}</td>
+                    <td class="px-4 py-3 text-right font-bold text-yellow-400">+<Points currency="zC" :n="item.amount" /></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </section>
-        
-        <!-- Recent History -->
-        <section class="mb-8">
-          <h2 class="text-2xl font-bold text-white mb-4">📜 Recent Activity (Last 10 Entries)</h2>
-          <RecentHistory :data="historyData" />
-        </section>
-        
-        <!-- Footer Info -->
-        <footer class="text-center text-white/50 text-sm mt-12 print:hidden">
-          <p>Last cache update: {{ cacheTimestamp }}</p>
-          <p class="mt-2">Data updates in real-time while viewing</p>
-        </footer>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { useUserHistory } from '../../composables/useUserHistory'
-import { useExport } from '../../composables/useExport'
+import { useHandoutsData } from '../../composables/useHandoutsData'
+import Points from '../../components/Points.vue'
+import zoskyZappersLogo from '../../assets/ttv/zoskyZappers.png'
+import vodVoteLogo from '../../assets/ttv/vodVote.png'
+import pixelPowerLogo from '../../assets/ttv/pixelPower.png'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  TimeScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from 'chart.js'
+import 'chartjs-adapter-date-fns'
+import { Bar, Doughnut, Scatter } from 'vue-chartjs'
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  TimeScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+)
 
 const route = useRoute()
 const router = useRouter()
@@ -147,66 +256,81 @@ const router = useRouter()
 // Get username from query parameter
 const username = computed(() => route.query.username || '')
 
-// User history composable
+// Handouts data composable
 const {
-  historyData,
   isLoading,
   error,
-  loadUserHistory,
-  setupRealtimeListener,
-  cleanupListener,
-  clearCache
-} = useUserHistory()
+  loadedMonths,
+  loadData,
+  getUserHandouts,
+  getUserRank,
+  connectRealtime,
+  isTwitchConnected
+} = useHandoutsData()
 
-// Export composable
-const { exportToCSV, exportChartToPNG, printToPDF } = useExport()
-
-// Chart refs
-const weeklyChart = ref(null)
-const monthlyChart = ref(null)
-
-// Load data on mount
+// Connect to realtime on mount
 onMounted(async () => {
-  await loadUserHistory(username.value)
-  setupRealtimeListener()
-})
-
-// Cleanup on unmount
-onUnmounted(() => {
-  cleanupListener()
-})
-
-// Watch for username changes
-watch(username, async (newUsername) => {
-  cleanupListener()
-  await loadUserHistory(newUsername)
-  setupRealtimeListener()
-})
-
-// Computed: Cache timestamp
-const cacheTimestamp = computed(() => {
-  const cacheKey = `zoskyCube_userHistory_${username.value}`
-  const cached = localStorage.getItem(cacheKey)
-  if (cached) {
-    const cacheData = JSON.parse(cached)
-    return new Date(cacheData.lastUpdated).toLocaleString(undefined, {
-      dateStyle: 'medium',
-      timeStyle: 'medium'
-    })
+  await loadData()
+  // Auto-connect to Twitch chat for realtime updates
+  try {
+    await connectRealtime()
+  } catch (err) {
+    console.warn('Failed to connect to Twitch chat:', err)
   }
-  return 'Never'
 })
+
+// Source colors
+const sourceColors = {
+  'zoskyZappers': 'rgb(59, 130, 246)',
+  'squadRush': 'rgb(239, 68, 68)',
+  'vodVote': 'rgb(34, 197, 94)',
+  'art': 'rgb(168, 85, 247)',
+  'chevos': 'rgb(234, 179, 8)',
+  'voucher': 'rgb(236, 72, 153)',
+  'manual': 'rgb(156, 163, 175)',
+  'referral': 'rgb(20, 184, 166)',
+  'sub': 'rgb(168, 85, 247)',
+  'discoReact': 'rgb(88, 101, 242)',
+  'vodFeedback': 'rgb(251, 146, 60)',
+  'redeem': 'rgb(239, 68, 68)'
+}
+
+// Source logos (image) or icons (emoji)
+const sourceLogos = {
+  'zoskyZappers': zoskyZappersLogo,
+  'vodVote': vodVoteLogo,
+  'art': pixelPowerLogo
+}
+
+const sourceIcons = {
+  'voucher': '💰',
+  'referral': '👥',
+  'sub': '⭐',
+  'discoReact': '💬',
+  'vodFeedback': '📝',
+  'redeem': '🎮',
+  'chevos': '🏆',
+  'squadRush': '👊',
+  'manual': '⚙️'
+}
+
+// Computed: User's handouts
+const userHandouts = computed(() => getUserHandouts(username.value))
+
+// Computed: User's rank
+const userRank = computed(() => getUserRank(username.value))
 
 // Computed: Total stats
-const totalAmount = computed(() => historyData.value.reduce((sum, h) => sum + h.amount, 0))
-const totalCount = computed(() => historyData.value.length)
+const totalAmount = computed(() => userHandouts.value.reduce((sum, h) => sum + h.amount, 0))
+const totalCount = computed(() => userHandouts.value.length)
 const avgAmount = computed(() => totalCount.value > 0 ? Math.round(totalAmount.value / totalCount.value) : 0)
+const activeDays = computed(() => new Set(userHandouts.value.map(h => h.date)).size)
 
-// Computed: Game stats (by source)
+// Computed: Game stats
 const gameStats = computed(() => {
   const stats = {}
   
-  historyData.value.forEach(item => {
+  userHandouts.value.forEach(item => {
     if (!stats[item.source]) {
       stats[item.source] = { count: 0, total: 0 }
     }
@@ -219,209 +343,267 @@ const gameStats = computed(() => {
     count: data.count,
     total: data.total,
     avg: Math.round(data.total / data.count),
-    percentage: Math.round((data.total / totalAmount.value) * 100)
+    percentage: totalAmount.value > 0 ? Math.round((data.total / totalAmount.value) * 100) : 0
   })).sort((a, b) => b.total - a.total)
-})
-
-// Computed: Reason stats
-const reasonStats = computed(() => {
-  const stats = {}
-  
-  historyData.value.forEach(item => {
-    // Clean up reason by extracting meaningful parts
-    let cleanReason = item.reason || 'Unknown'
-    
-    // Extract "winning @ vodVote" type patterns (remove number prefix)
-    const winningMatch = cleanReason.match(/winning\s+@\s+\w+/i)
-    if (winningMatch) {
-      cleanReason = winningMatch[0]
-    } else {
-      // For other patterns, take only part before colon (for "AI Art word: banana" -> "AI Art word")
-      cleanReason = cleanReason.split(':')[0].trim()
-    }
-    
-    if (!stats[cleanReason]) {
-      stats[cleanReason] = { count: 0, total: 0, sources: {} }
-    }
-    stats[cleanReason].count++
-    stats[cleanReason].total += item.amount
-    stats[cleanReason].sources[item.source] = (stats[cleanReason].sources[item.source] || 0) + 1
-  })
-  
-  return Object.entries(stats).map(([reason, data]) => ({
-    reason,
-    count: data.count,
-    total: data.total,
-    topSource: Object.entries(data.sources).sort((a, b) => b[1] - a[1])[0][0]
-  })).sort((a, b) => b.total - a.total)
-})
-
-// Computed: Weekly stats
-const weeklyStats = computed(() => {
-  const weeks = {}
-  
-  historyData.value.forEach(item => {
-    const date = new Date(item.timestamp.seconds * 1000)
-    const weekStart = getWeekStart(date)
-    const weekKey = weekStart.toISOString().split('T')[0]
-    
-    if (!weeks[weekKey]) {
-      weeks[weekKey] = { count: 0, total: 0 }
-    }
-    
-    weeks[weekKey].count++
-    weeks[weekKey].total += item.amount
-  })
-  
-  return Object.entries(weeks)
-    .map(([week, data]) => ({
-      week,
-      count: data.count,
-      total: data.total,
-      avg: Math.round(data.total / data.count)
-    }))
-    .sort((a, b) => new Date(a.week) - new Date(b.week))
-})
-
-// Computed: Monthly stats
-const monthlyStats = computed(() => {
-  const months = {}
-  
-  historyData.value.forEach(item => {
-    const date = new Date(item.timestamp.seconds * 1000)
-    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
-    
-    if (!months[monthKey]) {
-      months[monthKey] = { count: 0, total: 0, days: new Set() }
-    }
-    
-    months[monthKey].count++
-    months[monthKey].total += item.amount
-    months[monthKey].days.add(item.date)
-  })
-  
-  return Object.entries(months)
-    .map(([month, data]) => ({
-      month,
-      count: data.count,
-      total: data.total,
-      activeDays: data.days.size,
-      avgPerDay: Math.round(data.total / data.days.size)
-    }))
-    .sort((a, b) => a.month.localeCompare(b.month))
-})
-
-// Computed: Pivot data (hour × source)
-const pivotData = computed(() => {
-  const pivot = {}
-  
-  historyData.value.forEach(item => {
-    const hour = item.hour
-    if (!pivot[hour]) pivot[hour] = {}
-    pivot[hour][item.source] = (pivot[hour][item.source] || 0) + item.amount
-  })
-  
-  return pivot
-})
-
-// Computed: All sources (for pivot table)
-const sources = computed(() => {
-  const sourcesSet = new Set(historyData.value.map(h => h.source))
-  return Array.from(sourcesSet).sort()
 })
 
 // Computed: Insights
 const insights = computed(() => {
   const patterns = []
   
-  // Peak hour detection
+  // Peak hour
   const hourTotals = {}
-  historyData.value.forEach(item => {
+  userHandouts.value.forEach(item => {
     hourTotals[item.hour] = (hourTotals[item.hour] || 0) + item.amount
   })
   const peakHour = Object.entries(hourTotals).sort((a, b) => b[1] - a[1])[0]
   if (peakHour) {
     patterns.push({
       type: 'peak-hour',
-      title: 'Peak Activity Hour',
-      description: `Most active at ${String(peakHour[0]).padStart(2, '0')}:00 with ${peakHour[1]} zC earned`,
+      title: 'Peak Hour',
+      description: `${String(peakHour[0]).padStart(2, '0')}:00 (${peakHour[1].toLocaleString()} zC)`,
       icon: '⏰'
     })
   }
   
-  // Favorite day detection
-  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+  // Favorite day
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
   const dayTotals = {}
-  historyData.value.forEach(item => {
+  userHandouts.value.forEach(item => {
     dayTotals[item.dayOfWeek] = (dayTotals[item.dayOfWeek] || 0) + 1
   })
   const favDay = Object.entries(dayTotals).sort((a, b) => b[1] - a[1])[0]
   if (favDay) {
     patterns.push({
       type: 'favorite-day',
-      title: 'Most Active Day',
-      description: `${dayNames[favDay[0]]} with ${favDay[1]} wins`,
+      title: 'Best Day',
+      description: `${dayNames[favDay[0]]} (${favDay[1]} wins)`,
       icon: '📅'
     })
   }
   
-  // Streak detection
-  const dates = [...new Set(historyData.value.map(h => h.date))].sort()
-  let currentStreak = 1
-  let maxStreak = 1
-  for (let i = 1; i < dates.length; i++) {
-    const prevDate = new Date(dates[i - 1])
-    const currDate = new Date(dates[i])
-    const dayDiff = Math.floor((currDate - prevDate) / (1000 * 60 * 60 * 24))
-    
-    if (dayDiff === 1) {
-      currentStreak++
-      maxStreak = Math.max(maxStreak, currentStreak)
-    } else {
-      currentStreak = 1
-    }
+  // Top source
+  const topGame = gameStats.value[0]
+  if (topGame) {
+    patterns.push({
+      type: 'top-source',
+      title: 'Top Game',
+      description: `${topGame.source} (${topGame.total.toLocaleString()} zC)`,
+      icon: '🎮'
+    })
   }
+  
+  // Big wins
+  const bigWins = userHandouts.value.filter(h => h.amount >= 100).length
   patterns.push({
-    type: 'streak',
-    title: 'Longest Win Streak',
-    description: `${maxStreak} consecutive days with wins`,
-    icon: '🔥'
+    type: 'big-wins',
+    title: 'Big Wins',
+    description: `${bigWins} wins of 100+ zC`,
+    icon: '💎'
   })
   
   // Source diversity
-  const uniqueSources = new Set(historyData.value.map(h => h.source)).size
+  const uniqueSources = new Set(userHandouts.value.map(h => h.source)).size
   patterns.push({
     type: 'diversity',
-    title: 'Source Diversity',
-    description: `Earned zCubes from ${uniqueSources} different sources`,
+    title: 'Sources',
+    description: `${uniqueSources} different games`,
     icon: '🎯'
   })
-  
-  // Big wins
-  const bigWins = historyData.value.filter(h => h.amount >= 100).length
-  if (bigWins > 0) {
-    patterns.push({
-      type: 'big-wins',
-      title: 'Big Wins',
-      description: `${bigWins} wins of 100+ zC`,
-      icon: '💎'
-    })
-  }
   
   return patterns
 })
 
-// Helper: Get week start (Monday)
-function getWeekStart(date) {
-  const d = new Date(date)
-  const day = d.getDay()
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1) // Adjust when day is Sunday
-  return new Date(d.setDate(diff))
+// Computed: Recent history (last 50)
+const recentHistory = computed(() => 
+  [...userHandouts.value].sort((a, b) => b.timestamp - a.timestamp).slice(0, 50)
+)
+
+// Computed: Daily chart data
+const dailyChartData = computed(() => {
+  const byDateAndSource = {}
+  const sources = new Set()
+  
+  userHandouts.value.forEach(h => {
+    if (!byDateAndSource[h.date]) byDateAndSource[h.date] = {}
+    if (!byDateAndSource[h.date][h.source]) byDateAndSource[h.date][h.source] = 0
+    byDateAndSource[h.date][h.source] += h.amount
+    sources.add(h.source)
+  })
+  
+  const dates = Object.keys(byDateAndSource).sort().slice(-14) // Last 14 days
+  
+  const datasets = Array.from(sources).map(source => ({
+    label: source,
+    data: dates.map(date => byDateAndSource[date]?.[source] || 0),
+    backgroundColor: sourceColors[source] || 'rgb(100, 116, 139)',
+    borderColor: 'rgba(0, 0, 0, 0.3)',
+    borderWidth: 1
+  }))
+  
+  return { labels: dates, datasets }
+})
+
+// Computed: Source pie chart data
+const sourceChartData = computed(() => {
+  const labels = gameStats.value.map(g => g.source)
+  const data = gameStats.value.map(g => g.total)
+  const colors = gameStats.value.map(g => sourceColors[g.source] || 'rgb(100, 116, 139)')
+  
+  return {
+    labels,
+    datasets: [{
+      data,
+      backgroundColor: colors,
+      borderWidth: 2,
+      borderColor: 'rgba(0,0,0,0.8)'
+    }]
+  }
+})
+
+// Computed: Hourly chart data
+const hourlyChartData = computed(() => {
+  const hourTotals = Array(24).fill(0)
+  
+  userHandouts.value.forEach(h => {
+    hourTotals[h.hour] += h.amount
+  })
+  
+  return {
+    labels: Array.from({ length: 24 }, (_, i) => `${i}:00`),
+    datasets: [{
+      label: 'Earnings',
+      data: hourTotals,
+      backgroundColor: 'rgba(59, 130, 246, 0.6)',
+      borderColor: 'rgb(59, 130, 246)',
+      borderWidth: 1
+    }]
+  }
+})
+
+// Computed: Activity timeline (scatter)
+const activityTimelineData = computed(() => {
+  const today = new Date()
+  const sevenDaysAgo = new Date(today)
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6)
+  sevenDaysAgo.setHours(0, 0, 0, 0)
+  const startTs = sevenDaysAgo.getTime()
+  
+  const bySource = {}
+  
+  userHandouts.value.forEach(h => {
+    if (h.timestamp < startTs) return
+    if (!bySource[h.source]) bySource[h.source] = []
+    bySource[h.source].push({
+      x: h.timestamp,
+      y: h.amount,
+      reason: h.reason
+    })
+  })
+  
+  const datasets = Object.entries(bySource).map(([source, points]) => ({
+    label: source,
+    data: points,
+    backgroundColor: sourceColors[source] || 'rgb(100, 116, 139)',
+    borderColor: sourceColors[source] || 'rgb(100, 116, 139)',
+    pointRadius: 6,
+    pointHoverRadius: 10
+  }))
+  
+  return { datasets }
+})
+
+// Chart options
+const barChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { position: 'top', labels: { color: 'rgba(255,255,255,0.8)', font: { size: 10 } } },
+    tooltip: { backgroundColor: 'rgba(0,0,0,0.8)' }
+  },
+  scales: {
+    x: { stacked: true, ticks: { color: 'rgba(255,255,255,0.6)' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+    y: { stacked: true, ticks: { color: 'rgba(255,255,255,0.6)' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+  }
 }
 
-// Helper: Clear cache and reload
-function clearCacheAndReload() {
-  clearCache()
-  location.reload()
+const pieChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { position: 'right', labels: { color: 'rgba(255,255,255,0.8)' } },
+    tooltip: { backgroundColor: 'rgba(0,0,0,0.8)' }
+  }
+}
+
+const hourlyChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+    tooltip: { backgroundColor: 'rgba(0,0,0,0.8)' }
+  },
+  scales: {
+    x: { ticks: { color: 'rgba(255,255,255,0.6)' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+    y: { ticks: { color: 'rgba(255,255,255,0.6)' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+  }
+}
+
+const scatterChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { position: 'top', labels: { color: 'rgba(255,255,255,0.8)', font: { size: 10 } } },
+    tooltip: {
+      backgroundColor: 'rgba(0,0,0,0.9)',
+      callbacks: {
+        title: (ctx) => new Date(ctx[0].parsed.x).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }),
+        label: (ctx) => [`${ctx.dataset.label}: ${ctx.raw.y} zC`, ctx.raw.reason || ''].filter(Boolean)
+      }
+    }
+  },
+  scales: {
+    x: {
+      type: 'time',
+      time: { unit: 'day', displayFormats: { day: 'EEE MMM d' } },
+      ticks: { color: 'rgba(255,255,255,0.6)' },
+      grid: { color: 'rgba(255,255,255,0.1)' }
+    },
+    y: {
+      beginAtZero: true,
+      title: { display: true, text: 'zC Amount', color: 'rgba(255,255,255,0.6)' },
+      ticks: { color: 'rgba(255,255,255,0.6)' },
+      grid: { color: 'rgba(255,255,255,0.1)' }
+    }
+  }
+}
+
+// Methods
+function formatDate(timestamp) {
+  return new Date(timestamp).toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit'
+  })
+}
+
+function exportToCSV() {
+  const headers = ['Date', 'Source', 'Reason', 'Amount']
+  const rows = userHandouts.value.map(h => [
+    new Date(h.timestamp).toISOString(),
+    h.source,
+    `"${h.reason.replace(/"/g, '""')}"`,
+    h.amount
+  ])
+  
+  const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n')
+  const blob = new Blob([csv], { type: 'text/csv' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `${username.value}-stats.csv`
+  a.click()
+  URL.revokeObjectURL(url)
 }
 </script>
