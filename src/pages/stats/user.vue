@@ -320,9 +320,15 @@ const userHandouts = computed(() => getUserHandouts(username.value))
 // Computed: User's rank
 const userRank = computed(() => getUserRank(username.value))
 
-// Computed: Total stats
-const totalAmount = computed(() => userHandouts.value.reduce((sum, h) => sum + h.amount, 0))
-const totalCount = computed(() => userHandouts.value.length)
+// Computed: Total stats (excluding 'redeem' since those are spent, not earned)
+const totalAmount = computed(() => 
+  userHandouts.value
+    .filter(h => h.source !== 'redeem')
+    .reduce((sum, h) => sum + h.amount, 0)
+)
+const totalCount = computed(() => 
+  userHandouts.value.filter(h => h.source !== 'redeem').length
+)
 const avgAmount = computed(() => totalCount.value > 0 ? Math.round(totalAmount.value / totalCount.value) : 0)
 const activeDays = computed(() => new Set(userHandouts.value.map(h => h.date)).size)
 

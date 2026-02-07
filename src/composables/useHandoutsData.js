@@ -262,14 +262,17 @@ export function useHandoutsData() {
         })
       }
       
-      userStats[h.username].totalAmount += h.amount
-      userStats[h.username].totalCount++
+      // Exclude 'redeem' from totals (negative values = spent, not earned)
+      if (h.source !== 'redeem') {
+        userStats[h.username].totalAmount += h.amount
+        userStats[h.username].totalCount++
+      }
       
       if (h.timestamp > userStats[h.username].lastActivity) {
         userStats[h.username].lastActivity = h.timestamp
       }
       
-      // Track per-game stats
+      // Track per-game stats (including redeem for breakdown display)
       if (h.source && userStats[h.username].byGame[h.source]) {
         userStats[h.username].byGame[h.source].amount += h.amount
         userStats[h.username].byGame[h.source].count++
@@ -295,16 +298,19 @@ export function useHandoutsData() {
         })
       }
       
-      userStats[h.username].totalAmount += h.amount
-      userStats[h.username].totalCount++
-      userStats[h.username].realtimeAmount += h.amount
-      userStats[h.username].realtimeCount++
+      // Exclude 'redeem' from totals (negative values = spent, not earned)
+      if (h.source !== 'redeem') {
+        userStats[h.username].totalAmount += h.amount
+        userStats[h.username].totalCount++
+        userStats[h.username].realtimeAmount += h.amount
+        userStats[h.username].realtimeCount++
+      }
       
       if (h.timestamp > userStats[h.username].lastActivity) {
         userStats[h.username].lastActivity = h.timestamp
       }
       
-      // Track per-game stats
+      // Track per-game stats (including redeem for breakdown display)
       if (h.source && userStats[h.username].byGame[h.source]) {
         userStats[h.username].byGame[h.source].amount += h.amount
         userStats[h.username].byGame[h.source].count++
@@ -330,17 +336,25 @@ export function useHandoutsData() {
   })
   
   // Computed: Total distributed (respecting date filter + realtime in now mode)
+  // Excludes 'redeem' source since those are spent points, not earned
   const totalDistributed = computed(() => {
-    const csvTotal = filteredHandouts.value.reduce((sum, h) => sum + h.amount, 0)
+    const csvTotal = filteredHandouts.value
+      .filter(h => h.source !== 'redeem')
+      .reduce((sum, h) => sum + h.amount, 0)
     const realtimeTotal = includeRealtime.value 
-      ? realtimeHandouts.value.reduce((sum, h) => sum + h.amount, 0) 
+      ? realtimeHandouts.value
+          .filter(h => h.source !== 'redeem')
+          .reduce((sum, h) => sum + h.amount, 0) 
       : 0
     return csvTotal + realtimeTotal
   })
   
   // Computed: Realtime total only (for "since page load" indicator)
+  // Excludes 'redeem' source
   const realtimeTotalDistributed = computed(() => 
-    realtimeHandouts.value.reduce((sum, h) => sum + h.amount, 0)
+    realtimeHandouts.value
+      .filter(h => h.source !== 'redeem')
+      .reduce((sum, h) => sum + h.amount, 0)
   )
   
   // Computed: Unique player count
