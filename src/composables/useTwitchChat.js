@@ -441,6 +441,63 @@ const realtimeTotalDistributed = computed(() => {
 })
 
 /**
+ * Prune realtime handouts older than a given timestamp
+ * Used after CSV refresh to remove entries now covered by CSV data
+ * @param {number} newestCsvTimestamp - Remove realtime entries <= this timestamp
+ * @returns {number} - Number of entries pruned
+ */
+function pruneRealtimeHandouts(newestCsvTimestamp) {
+  if (!newestCsvTimestamp || newestCsvTimestamp <= 0) return 0
+  
+  const beforeCount = realtimeHandouts.value.length
+  
+  // Keep only entries newer than the CSV data
+  realtimeHandouts.value = realtimeHandouts.value.filter(h => h.timestamp > newestCsvTimestamp)
+  
+  const prunedCount = beforeCount - realtimeHandouts.value.length
+  
+  if (prunedCount > 0) {
+    console.log(`✂️ Pruned ${prunedCount} realtime entries (now in CSV)`)
+    
+    // Also update realtimeStats by recalculating from remaining handouts
+    recalculateRealtimeStats()
+  }
+  
+  return prunedCount
+}
+
+/**
+ * Recalculate realtimeStats from current realtimeHandouts
+ * Called after pruning to keep stats in sync
+ */
+function recalculateRealtimeStats() {
+  realtimeStats.byUser.clear()
+  
+  realtimeHandouts.value.forEach(h => {
+    if (!realtimeStats.byUser.has(h.username)) {
+      realtimeStats.byUser.set(h.username, {
+        username: h.username,
+        totalAmount: 0,
+        totalCount: 0,
+        byGame: {}
+      })
+    }
+    
+    const userStats = realtimeStats.byUser.get(h.username)
+    userStats.totalAmount += h.amount
+    userStats.totalCount++
+    
+    if (h.source) {
+      if (!userStats.byGame[h.source]) {
+        userStats.byGame[h.source] = { amount: 0, count: 0 }
+      }
+      userStats.byGame[h.source].amount += h.amount
+      userStats.byGame[h.source].count++
+    }
+  })
+}
+
+/**
  * Composable export
  */
 export function useTwitchChat() {
@@ -471,6 +528,9 @@ export function useTwitchChat() {
     getUserRealtimeStats,
     getUserRealtimeHandouts,
     mergeWithUserStats,
+    
+    // Pruning
+    pruneRealtimeHandouts,
     
     // Pattern reference (for debugging/extension)
     PATTERNS

@@ -4,20 +4,31 @@
  * Plus StreamElements leaderboard for current balances
  * Plus realtime Twitch chat data for live updates
  * No Firestore dependency - uses static CSV exports + SE API + IRC
+ * 
+ * Features:
+ * - Hourly CSV refresh with cache busting (?t=timestamp)
+ * - Realtime IRC data pruning on refresh (removes overlap with CSV)
+ * - Automatic refresh timer (every hour on the hour)
  */
 
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
 import { useTwitchChat } from './useTwitchChat'
 
 // StreamElements config
 const SE_CHANNEL_ID = '668816ac484cab966df79977'
 
+// Refresh configuration
+const REFRESH_INTERVAL_MS = 60 * 60 * 1000 // 1 hour
+
 // Shared state across all components using this composable
 const allHandouts = ref([])
 const seLeaderboard = ref([]) // StreamElements current balances
 const isLoading = ref(false)
+const isRefreshing = ref(false) // Separate flag for refresh vs initial load
 const error = ref(null)
 const loadedMonths = ref([])
+const lastRefreshTime = ref(null)
+let refreshTimer = null
 
 // Date range filter state
 const dateFrom = ref(null) // null = use earliest data
@@ -83,13 +94,21 @@ function parseCSV(csvText) {
 }
 
 /**
- * Load CSV file for a specific month
+ * Load CSV file for a specific month from zoskyCube-archive repo
+ * Dev: proxied via Vite to https://zosky.github.io/zoskyCube-archive/
+ * Prod: direct fetch from GitHub Pages (same path works!)
+ * @param {boolean} bustCache - If true, append timestamp to URL for cache busting
  */
-async function loadMonthCSV(year, month) {
+async function loadMonthCSV(year, month, bustCache = false) {
   const monthStr = String(month).padStart(2, '0')
-  // Use BASE_URL to handle /zoskyCube/ prefix in production (GitHub Pages)
-  const baseUrl = import.meta.env.BASE_URL || '/'
-  const fileName = `${baseUrl}data/handouts-${year}-${monthStr}.csv`
+  // In dev, Vite proxies /zoskyCube-archive to GitHub Pages
+  // In prod, we're on GitHub Pages so /zoskyCube-archive/ is the sibling repo
+  let fileName = `/zoskyCube-archive/data/handouts-${year}-${monthStr}.csv`
+  
+  // Cache busting for hourly refresh
+  if (bustCache) {
+    fileName += `?t=${Date.now()}`
+  }
   
   try {
     const response = await fetch(fileName)
@@ -100,7 +119,7 @@ async function loadMonthCSV(year, month) {
     
     const csvText = await response.text()
     const records = parseCSV(csvText)
-    console.log(`✅ Loaded ${records.length} records from ${fileName}`)
+    console.log(`✅ Loaded ${records.length} records from ${fileName}${bustCache ? ' (cache-busted)' : ''}`)
     return records
   } catch (err) {
     console.warn(`⚠️ Error loading ${fileName}:`, err.message)
@@ -152,21 +171,29 @@ const AVAILABLE_MONTHS = [
 
 /**
  * Load all available CSV files + SE leaderboard
+ * @param {boolean} isRefresh - If true, bust cache and prune realtime data
  */
-async function loadData() {
-  if (isLoading.value) return
-  if (allHandouts.value.length > 0) {
+async function loadData(isRefresh = false) {
+  if (isLoading.value || isRefreshing.value) return
+  
+  // Skip if already loaded and not a refresh
+  if (!isRefresh && allHandouts.value.length > 0) {
     console.log('📦 Using cached handouts data')
     return
   }
   
-  isLoading.value = true
+  if (isRefresh) {
+    isRefreshing.value = true
+    console.log('🔄 Refreshing CSV data with cache bust...')
+  } else {
+    isLoading.value = true
+  }
   error.value = null
   
   try {
-    // Load all CSVs in parallel
+    // Load all CSVs in parallel (with cache busting on refresh)
     const csvPromises = AVAILABLE_MONTHS.map(({ year, month }) => 
-      loadMonthCSV(year, month)
+      loadMonthCSV(year, month, isRefresh)
     )
     
     // Fire SE leaderboard load in parallel
@@ -177,9 +204,15 @@ async function loadData() {
     await sePromise // Ensure SE data is loaded too
     
     // Combine all months and sort by timestamp (newest first)
-    allHandouts.value = allCsvData
+    const newHandouts = allCsvData
       .flat()
       .sort((a, b) => b.timestamp - a.timestamp)
+    
+    // Get the newest timestamp from CSV data for pruning realtime
+    const newestCsvTimestamp = newHandouts.length > 0 ? newHandouts[0].timestamp : 0
+    
+    allHandouts.value = newHandouts
+    lastRefreshTime.value = Date.now()
     
     // Track which months were loaded
     loadedMonths.value = AVAILABLE_MONTHS.map(({ year, month }) => 
@@ -187,13 +220,58 @@ async function loadData() {
     )
     
     console.log(`📊 Total handouts loaded: ${allHandouts.value.length} from ${AVAILABLE_MONTHS.length} months`)
+    
+    // Return newest timestamp for realtime pruning
+    return newestCsvTimestamp
   } catch (err) {
     console.error('❌ Error loading handouts:', err)
     error.value = err.message
+    return 0
   } finally {
     isLoading.value = false
+    isRefreshing.value = false
   }
 }
+
+/**
+ * Start hourly refresh timer
+ * Schedules refresh to run on the hour (e.g., 2:00, 3:00, 4:00)
+ */
+function startRefreshTimer() {
+  if (refreshTimer) return // Already running
+  
+  // Calculate time until next hour
+  const now = new Date()
+  const msUntilNextHour = (60 - now.getMinutes()) * 60 * 1000 - now.getSeconds() * 1000 - now.getMilliseconds()
+  
+  console.log(`⏰ Next CSV refresh in ${Math.round(msUntilNextHour / 60000)} minutes`)
+  
+  // First timeout to align to the hour, then interval
+  setTimeout(() => {
+    // Trigger first refresh
+    triggerRefresh()
+    
+    // Then set up hourly interval
+    refreshTimer = setInterval(triggerRefresh, REFRESH_INTERVAL_MS)
+  }, msUntilNextHour + 5000) // Add 5 seconds buffer for GitHub Pages to update
+}
+
+/**
+ * Stop refresh timer
+ */
+function stopRefreshTimer() {
+  if (refreshTimer) {
+    clearInterval(refreshTimer)
+    refreshTimer = null
+    console.log('⏹️ Stopped CSV refresh timer')
+  }
+}
+
+/**
+ * Trigger a refresh - called by timer or manually
+ * This is defined later in useHandoutsData to access pruneRealtimeHandouts
+ */
+let triggerRefresh = null
 
 export function useHandoutsData() {
   // Game sources for per-game stats
@@ -204,8 +282,20 @@ export function useHandoutsData() {
     realtimeHandouts, 
     realtimeStats,
     connect: connectTwitchChat,
-    isConnected: isTwitchConnected
+    isConnected: isTwitchConnected,
+    pruneRealtimeHandouts
   } = useTwitchChat()
+  
+  // Wire up the triggerRefresh function now that we have access to pruning
+  triggerRefresh = async () => {
+    console.log('🔄 Hourly refresh triggered')
+    const newestCsvTimestamp = await loadData(true)
+    
+    // Prune realtime data that's now covered by CSV
+    if (newestCsvTimestamp > 0) {
+      pruneRealtimeHandouts(newestCsvTimestamp)
+    }
+  }
   
   // Computed: Filter handouts by date range
   const filteredHandouts = computed(() => {
@@ -388,7 +478,7 @@ export function useHandoutsData() {
   }
   
   /**
-   * Force reload data
+   * Force reload data (clears cache)
    */
   async function reloadData() {
     allHandouts.value = []
@@ -396,9 +486,22 @@ export function useHandoutsData() {
   }
   
   /**
+   * Manually trigger a refresh with cache busting and pruning
+   */
+  async function refreshData() {
+    const newestCsvTimestamp = await loadData(true)
+    if (newestCsvTimestamp > 0) {
+      pruneRealtimeHandouts(newestCsvTimestamp)
+    }
+  }
+  
+  /**
    * Connect to Twitch chat for realtime updates
+   * Also starts the hourly refresh timer
    */
   async function connectRealtime() {
+    // Start refresh timer when connecting to realtime
+    startRefreshTimer()
     return await connectTwitchChat()
   }
   
@@ -430,8 +533,10 @@ export function useHandoutsData() {
     combinedHandouts,
     filteredHandouts,
     isLoading,
+    isRefreshing,
     error,
     loadedMonths,
+    lastRefreshTime,
     
     // Date filter state
     dateFrom,
@@ -454,10 +559,13 @@ export function useHandoutsData() {
     // Methods
     loadData,
     reloadData,
+    refreshData,
     getUserHandouts,
     getUserRank,
     connectRealtime,
     setDateRange,
-    toggleNowMode
+    toggleNowMode,
+    startRefreshTimer,
+    stopRefreshTimer
   }
 }

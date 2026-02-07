@@ -18,6 +18,11 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, ''),
         secure: true,
       },
+      '/zoskyCube-archive': {
+        target: 'https://zosky.github.io',
+        changeOrigin: true,
+        secure: true,
+      },
     }
   },
   build: {
