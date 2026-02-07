@@ -87,7 +87,9 @@ function parseCSV(csvText) {
  */
 async function loadMonthCSV(year, month) {
   const monthStr = String(month).padStart(2, '0')
-  const fileName = `/data/handouts-${year}-${monthStr}.csv`
+  // Use BASE_URL to handle /zoskyCube/ prefix in production (GitHub Pages)
+  const baseUrl = import.meta.env.BASE_URL || '/'
+  const fileName = `${baseUrl}data/handouts-${year}-${monthStr}.csv`
   
   try {
     const response = await fetch(fileName)
