@@ -124,6 +124,129 @@
           </div>
         </div>
         
+        <!-- Game-Specific Stats Chicklets -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 mb-8">
+          <!-- VOD Vote + QA combined -->
+          <div class="col-span-2 sm:col-span-3 lg:col-span-2 bg-gradient-to-br from-green-900/40 to-green-800/20 backdrop-blur-md rounded-xl p-3 ring-1 ring-green-500/30">
+            <div class="flex items-center gap-2 mb-2">
+              <img :src="vodVoteLogo" alt="VOD Vote" class="w-5 h-5" />
+              <span class="text-green-400 font-bold text-xs">VOD Vote</span>
+            </div>
+            <div class="flex justify-around text-xs">
+              <div class="text-center">
+                <div class="text-white/50">Starts</div>
+                <div class="text-white font-bold">{{ gameBreakdown.vodVote.starts.toLocaleString() }}</div>
+                <div class="text-green-400/80"><Points currency="zC" :n="gameBreakdown.vodVote.startsTotal" /></div>
+              </div>
+              <div class="text-center">
+                <div class="text-white/50">Votes</div>
+                <div class="text-white font-bold">{{ gameBreakdown.vodVote.votes.toLocaleString() }}</div>
+                <div class="text-green-400/80"><Points currency="zC" :n="gameBreakdown.vodVote.votesTotal" /></div>
+              </div>
+              <div class="text-center">
+                <div class="text-white/50">Wins</div>
+                <div class="text-white font-bold">{{ gameBreakdown.vodVote.wins.toLocaleString() }}</div>
+                <div class="text-green-400/80"><Points currency="zC" :n="gameBreakdown.vodVote.winsTotal" /></div>
+              </div>
+              <div v-if="gameBreakdown.vodFeedback.count > 0" class="text-center border-l border-white/20 pl-3">
+                <div class="text-white/50">QA</div>
+                <div class="text-white font-bold">{{ gameBreakdown.vodFeedback.count }}</div>
+                <div class="text-teal-400/80"><Points currency="zC" :n="gameBreakdown.vodFeedback.total" /></div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- zoskyZappers -->
+          <div class="col-span-2 sm:col-span-3 lg:col-span-2 bg-gradient-to-br from-blue-900/40 to-blue-800/20 backdrop-blur-md rounded-xl p-3 ring-1 ring-blue-500/30">
+            <div class="flex items-center gap-2 mb-2">
+              <img :src="zoskyZappersLogo" alt="zoskyZappers" class="w-5 h-5" />
+              <span class="text-blue-400 font-bold text-xs">zoskyZappers</span>
+            </div>
+            <div class="flex justify-around text-xs">
+              <div class="text-center">
+                <div class="text-white/50">PvE</div>
+                <div class="text-white font-bold">{{ gameBreakdown.zoskyZappers.pveWins }}</div>
+                <div class="text-blue-400/80"><Points currency="zC" :n="gameBreakdown.zoskyZappers.pveWinsTotal" /></div>
+              </div>
+              <div class="text-center">
+                <div class="text-white/50">PvP</div>
+                <div class="text-white font-bold">{{ gameBreakdown.zoskyZappers.pvpWins }}</div>
+                <div class="text-blue-400/80"><Points currency="zC" :n="gameBreakdown.zoskyZappers.pvpWinsTotal" /></div>
+              </div>
+              <div class="text-center">
+                <div class="text-white/50">Loss</div>
+                <div class="text-white font-bold">{{ gameBreakdown.zoskyZappers.losses }}</div>
+                <div class="text-red-400/80"><Points currency="zC" :n="gameBreakdown.zoskyZappers.lossesTotal" /></div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Pixel Power -->
+          <div class="bg-gradient-to-br from-purple-900/40 to-purple-800/20 backdrop-blur-md rounded-xl p-3 ring-1 ring-purple-500/30">
+            <div class="flex items-center gap-2 mb-2">
+              <img :src="pixelPowerLogo" alt="Pixel Power" class="w-5 h-5" />
+              <span class="text-purple-400 font-bold text-xs">Pixel Power</span>
+            </div>
+            <div class="space-y-1 text-xs">
+              <div class="flex justify-between"><span class="text-white/50">Words</span><span class="text-white font-medium">{{ gameBreakdown.art.count.toLocaleString() }}</span></div>
+              <div class="flex justify-between"><span class="text-white/50">Total</span><span class="text-purple-400"><Points currency="zC" :n="gameBreakdown.art.total" /></span></div>
+              <div class="flex justify-between"><span class="text-white/50">Avg</span><span class="text-white/70"><Points currency="zC" :n="gameBreakdown.art.avg" /></span></div>
+            </div>
+          </div>
+          
+          <!-- Daily Dose -->
+          <div class="bg-gradient-to-br from-pink-900/40 to-pink-800/20 backdrop-blur-md rounded-xl p-3 ring-1 ring-pink-500/30">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-base">💊</span>
+              <span class="text-pink-400 font-bold text-xs">Daily Dose</span>
+            </div>
+            <div class="space-y-1 text-xs">
+              <div class="flex justify-between"><span class="text-white/50">Claims</span><span class="text-white font-medium">{{ gameBreakdown.dailyDose.count }}</span></div>
+              <div class="flex justify-between"><span class="text-white/50">Total</span><span class="text-pink-400"><Points currency="zC" :n="gameBreakdown.dailyDose.total" /></span></div>
+              <div class="flex justify-between"><span class="text-white/50">Users</span><span class="text-white/70">{{ gameBreakdown.dailyDose.uniqueUsers }}</span></div>
+            </div>
+          </div>
+          
+          <!-- Vouchers -->
+          <div class="bg-gradient-to-br from-yellow-900/40 to-yellow-800/20 backdrop-blur-md rounded-xl p-3 ring-1 ring-yellow-500/30">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-base">🎟️</span>
+              <span class="text-yellow-400 font-bold text-xs">Vouchers</span>
+            </div>
+            <div class="space-y-1 text-xs">
+              <div class="flex justify-between"><span class="text-white/50">Count</span><span class="text-white font-medium">{{ gameBreakdown.vouchers.count }}</span></div>
+              <div class="flex justify-between"><span class="text-white/50">Total</span><span class="text-yellow-400"><Points currency="zC" :n="gameBreakdown.vouchers.total" /></span></div>
+              <div class="flex justify-between"><span class="text-white/50">Avg</span><span class="text-white/70"><Points currency="zC" :n="gameBreakdown.vouchers.avg" /></span></div>
+            </div>
+          </div>
+          
+          <!-- Discord Reactions -->
+          <div class="bg-gradient-to-br from-indigo-900/40 to-indigo-800/20 backdrop-blur-md rounded-xl p-3 ring-1 ring-indigo-500/30">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-base">💬</span>
+              <span class="text-indigo-400 font-bold text-xs">Discord</span>
+            </div>
+            <div class="space-y-1 text-xs">
+              <div class="flex justify-between"><span class="text-white/50">Reacts</span><span class="text-white font-medium">{{ gameBreakdown.discoReact.count }}</span></div>
+              <div class="flex justify-between"><span class="text-white/50">Total</span><span class="text-indigo-400"><Points currency="zC" :n="gameBreakdown.discoReact.total" /></span></div>
+              <div class="flex justify-between"><span class="text-white/50">Users</span><span class="text-white/70">{{ gameBreakdown.discoReact.uniqueUsers }}</span></div>
+            </div>
+          </div>
+          
+          <!-- Referrals -->
+          <div v-if="gameBreakdown.referral.count > 0" class="bg-gradient-to-br from-orange-900/40 to-orange-800/20 backdrop-blur-md rounded-xl p-3 ring-1 ring-orange-500/30">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-base">🔗</span>
+              <span class="text-orange-400 font-bold text-xs">Referrals</span>
+            </div>
+            <div class="space-y-1 text-xs">
+              <div class="flex justify-between"><span class="text-white/50">Bonuses</span><span class="text-white font-medium">{{ gameBreakdown.referral.count }}</span></div>
+              <div class="flex justify-between"><span class="text-white/50">Total</span><span class="text-orange-400"><Points currency="zC" :n="gameBreakdown.referral.total" /></span></div>
+              <div class="flex justify-between"><span class="text-white/50">Referrers</span><span class="text-white/70">{{ gameBreakdown.referral.uniqueUsers }}</span></div>
+            </div>
+          </div>
+        </div>
+        
         <!-- Search Box -->
         <div class="mb-6">
           <input
@@ -255,7 +378,9 @@ const {
   dateFrom,
   dateTo,
   isNowMode,
-  availableDateRange
+  availableDateRange,
+  // For game breakdown
+  combinedHandouts
 } = useHandoutsData()
 
 // Local state
@@ -290,6 +415,100 @@ function resetDateFilter() {
 const currentUsername = computed(() => 
   userProfile.value?.twitch?.username?.toLowerCase() || null
 )
+
+// Computed: Game-specific breakdown stats
+const gameBreakdown = computed(() => {
+  const handouts = combinedHandouts.value
+  
+  // VOD Vote breakdown
+  const vodVoteHandouts = handouts.filter(h => h.source === 'vodVote')
+  const vodVoteStarts = vodVoteHandouts.filter(h => h.reason?.includes('Starting a new game'))
+  const vodVoteVotes = vodVoteHandouts.filter(h => h.reason === 'Successful game vote')
+  const vodVoteWins = vodVoteHandouts.filter(h => h.reason?.includes('winning @ vodVote'))
+  
+  // VOD Feedback (separate source)
+  const vodFeedbackHandouts = handouts.filter(h => h.source === 'vodFeedback')
+  
+  // Art / Pixel Power (source = 'art', reason starts with 'AI Art word:')
+  const artHandouts = handouts.filter(h => h.source === 'art')
+  
+  // zoskyZappers breakdown
+  const zzHandouts = handouts.filter(h => h.source === 'zoskyZappers')
+  const zzPveWins = zzHandouts.filter(h => h.reason?.includes('PVE Victory'))
+  const zzPvpWins = zzHandouts.filter(h => h.reason?.includes('PVP Victory'))
+  const zzLosses = zzHandouts.filter(h => h.reason?.includes('Defeat'))
+  
+  // Vouchers - separate dailyDose from others
+  const voucherHandouts = handouts.filter(h => h.source === 'voucher')
+  const dailyDoseHandouts = voucherHandouts.filter(h => h.reason === 'dailyDose')
+  const otherVouchers = voucherHandouts.filter(h => h.reason !== 'dailyDose')
+  
+  // Discord reactions
+  const discoReactHandouts = handouts.filter(h => h.source === 'discoReact')
+  
+  // Referrals
+  const referralHandouts = handouts.filter(h => h.source === 'referral')
+  
+  // Bits
+  const bitsHandouts = handouts.filter(h => h.source === 'bits')
+  
+  return {
+    vodVote: {
+      starts: vodVoteStarts.length,
+      startsTotal: vodVoteStarts.reduce((sum, h) => sum + h.amount, 0),
+      votes: vodVoteVotes.length,
+      votesTotal: vodVoteVotes.reduce((sum, h) => sum + h.amount, 0),
+      wins: vodVoteWins.length,
+      winsTotal: vodVoteWins.reduce((sum, h) => sum + h.amount, 0)
+    },
+    vodFeedback: {
+      count: vodFeedbackHandouts.length,
+      total: vodFeedbackHandouts.reduce((sum, h) => sum + h.amount, 0),
+      uniqueUsers: new Set(vodFeedbackHandouts.map(h => h.username)).size
+    },
+    art: {
+      count: artHandouts.length,
+      total: artHandouts.reduce((sum, h) => sum + h.amount, 0),
+      avg: artHandouts.length > 0 
+        ? Math.round(artHandouts.reduce((sum, h) => sum + h.amount, 0) / artHandouts.length) 
+        : 0
+    },
+    zoskyZappers: {
+      pveWins: zzPveWins.length,
+      pveWinsTotal: zzPveWins.reduce((sum, h) => sum + h.amount, 0),
+      pvpWins: zzPvpWins.length,
+      pvpWinsTotal: zzPvpWins.reduce((sum, h) => sum + h.amount, 0),
+      losses: zzLosses.length,
+      lossesTotal: zzLosses.reduce((sum, h) => sum + h.amount, 0)
+    },
+    dailyDose: {
+      count: dailyDoseHandouts.length,
+      total: dailyDoseHandouts.reduce((sum, h) => sum + h.amount, 0),
+      uniqueUsers: new Set(dailyDoseHandouts.map(h => h.username)).size
+    },
+    vouchers: {
+      count: otherVouchers.length,
+      total: otherVouchers.reduce((sum, h) => sum + h.amount, 0),
+      avg: otherVouchers.length > 0 
+        ? Math.round(otherVouchers.reduce((sum, h) => sum + h.amount, 0) / otherVouchers.length) 
+        : 0
+    },
+    discoReact: {
+      count: discoReactHandouts.length,
+      total: discoReactHandouts.reduce((sum, h) => sum + h.amount, 0),
+      uniqueUsers: new Set(discoReactHandouts.map(h => h.username)).size
+    },
+    referral: {
+      count: referralHandouts.length,
+      total: referralHandouts.reduce((sum, h) => sum + h.amount, 0),
+      uniqueUsers: new Set(referralHandouts.map(h => h.username)).size
+    },
+    bits: {
+      count: bitsHandouts.length,
+      total: bitsHandouts.reduce((sum, h) => sum + h.amount, 0)
+    }
+  }
+})
 
 // Computed: Sorted leaderboard based on sortBy
 const sortedLeaderboard = computed(() => {

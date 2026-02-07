@@ -368,15 +368,13 @@ export function useHandoutsData() {
   )
   
   /**
-   * Get handouts for a specific user (CSV + realtime)
+   * Get handouts for a specific user (respects date filter + realtime in now mode)
    */
   function getUserHandouts(username) {
     if (!username) return []
     const lowerUsername = username.toLowerCase()
-    const csvHandouts = allHandouts.value.filter(h => h.username === lowerUsername)
-    const realtimeUserHandouts = realtimeHandouts.value.filter(h => h.username === lowerUsername)
-    // Combine with realtime first (newest)
-    return [...realtimeUserHandouts, ...csvHandouts]
+    // Use combinedHandouts which respects date filter and includes realtime
+    return combinedHandouts.value.filter(h => h.username === lowerUsername)
   }
   
   /**
