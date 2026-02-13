@@ -16,9 +16,9 @@
           <li><a href="#limits">Submission Limits</a></li>
           <li><a href="#dictionary">Word Rules</a></li>
           <li><a href="#scoring">Scrabble Scoring</a></li>
-          <li><a href="#display">Word Display</a></li>
+          <!-- <li><a href="#display">Word Display</a></li> -->
           <li><a href="#generation">Image Generation</a></li>
-          <li><a href="#rewards">Rewards</a></li>
+          <!-- <li><a href="#rewards">Rewards</a></li> -->
           <li><a href="#tips">Pro Tips</a></li>
         </ul>
       </nav>
@@ -29,21 +29,21 @@
         
         <div class="content-block">
           <h3>What is Pixel Power?</h3>
-          <p>Pixel Power is a collaborative AI art creation game where the Twitch community works together to generate unique images! Submit words in chat through 12 rounds (3 words per round = 36 total), and the AI creates a stunning video game-style artwork based on ALL submitted words combined!</p>
+          <p>Pixel Power is a collaborative AI art creation game where the Twitch community works together to generate unique images! Submit words in chat and the AI creates a stunning video game-style artwork based on ALL submitted words combined!</p>
           
           <h3>How It Works</h3>
           <ol>
-            <li><strong>Round System:</strong> Game has 12 rounds, each accepting 3 words starting with a specific letter</li>
-            <li><strong>Submit Words:</strong> When each round starts, the starting letter is displayed on stream.<br> Type <code class="crt-text-yellow">!art [word-with-matching-first-letter]</code> in chat</li>
-            <li><strong>Collection Builds:</strong> 3 words per round x 12 rounds = 36 words across all rounds</li>
+            <li><strong>Round System:</strong> Game has 2-3min rounds, each accepting words that start with a specific letter</li>
+            <li><strong>Submit Words:</strong> When each round starts, the starting letter is displayed on stream.<br> Type <code class="crt-text-yellow">!pp [word-with-matching-first-letter]</code> in chat</li>
+            <!-- <li><strong>Collection Builds:</strong> 3 words per round x 12 rounds = 36 words across all rounds</li> -->
             <!-- <li><strong>Words Display:</strong> Each word shows with definition for 60 seconds</li> -->
-            <li><strong>Image Generated:</strong> AI creates art when 36 words reached every 4-6 hours<br>(or in the very unlikely event 24 hours pass without collecting enough words)</li>
+            <li><strong>Image Generated:</strong> AI creates art when 100 words reached every 4-6 hours<br>(or in the very unlikely event 24 hours pass without collecting enough words)</li>
             <li><strong>Earn Rewards:</strong> Get zCubes based on a mod'd Scrabble score × 13 multiplier!</li>
           </ol>
 
-          <div class="pro-tip">
+          <!-- <div class="pro-tip">
             <strong>💡 Cool Feature:</strong> each round will end after 3 words are submitted. There is a 5-10 min cooldown before the next round. This prevents spam and gives everyone time to participate across different time zones!
-          </div>
+          </div> -->
         </div>
 
         <a href="#top" class="back-to-top">↑ Back to Top</a>
@@ -55,17 +55,17 @@
 
         <div class="command-list">
           <div class="command-item">
-            <h3><code class="crt-text-yellow">!art [word]</code></h3>
+            <h3><code class="crt-text-yellow">!pp [word]</code></h3>
             <p>Submit a single dictionary word to the collection</p>
             <p><strong>Examples:</strong></p>
             <ul>
-              <li><code>!art dragon</code> - Submit the word "dragon"</li>
-              <li><code>!art sword</code> - Submit the word "sword"</li>
-              <li><code>!art crystal</code> - Submit the word "crystal"</li>
+              <li><code>!pp dragon</code> - Submit the word "dragon"</li>
+              <li><code>!pp sword</code> - Submit the word "sword"</li>
+              <li><code>!pp crystal</code> - Submit the word "crystal"</li>
             </ul>
 
             <div class="note">
-              <strong>⚠️ Important:</strong> Only ONE word at a time! Words like "fire dragon" won't work. Submit them separately: <code>!art fire</code> then <code>!art dragon</code>
+              <strong>⚠️ Important:</strong> Only ONE word at a time! Words like "fire dragon" won't work. Submit them separately: <code>!pp fire</code> then <code>!pp dragon</code>
             </div>
           </div>
 
@@ -92,57 +92,74 @@
         <h2 class="crt-text-green">⏱️ Submission Limits</h2>
 
         <div class="content-block">
-          <h3>Per-User Limits</h3>
-          <p>To keep things fair and give everyone a chance to contribute:</p>
+          <h3>Personal Timer System</h3>
+          <p>Pixel Power uses a <strong>personal timer system</strong> to keep things fair and give everyone a chance to contribute across different time zones:</p>
           
-          <!-- <div class="limit-box hourly">
-            <h4>🕐 Hourly Limit</h4>
-            <ul>
-              <li><strong>3 words per hour</strong> per user</li>
-              <li>Resets every 60 minutes from your first word</li>
-              <li>Timer is tracked individually for each user</li>
-            </ul>
-            
-            <div class="example">
-              <strong>Example:</strong>
-              <ul>
-                <li>🕐 12:00 PM - Submit "dragon" (2 left this hour)</li>
-                <li>🕐 12:15 PM - Submit "sword" (1 left this hour)</li>
-                <li>🕐 12:30 PM - Submit "fire" (0 left this hour)</li>
-                <li>🚫 12:45 PM - Try "crystal" → ❌ Hourly limit reached!</li>
-                <li>✅ 1:00 PM - Your hour resets, can submit 3 more!</li>
-              </ul>
-            </div>
-          </div> -->
-
           <div class="limit-box daily">
-            <h4>📅 Daily Limit</h4>
+            <h4>📅 Daily Allowance: 12 Words</h4>
             <ul>
-              <li><strong>12 words per day</strong> per user</li>
-              <li>Reset when the next picture is created <strong>after midnight EST (UTC-5) or in summer EDT (UTC-4)</strong></li>
-              <li>Shared across all users (everyone resets together)</li>
+              <li><strong>12 words per 25-hour cycle</strong> per user</li>
+              <li>Your personal timer starts when you submit your <strong>first word</strong></li>
+              <li>After 25 hours, your allowance resets to 12 words</li>
+              <li>Each person has their own independent timer!</li>
             </ul>
 
             <div class="example">
               <strong>Example:</strong>
               <ul>
-                <li>If the session started (in winter) at 5:01 UTC</li>
-                <li>You can submit up to 12 words total until 5:00 UTC</li>
-                <li>At 5:00 UTC, everyone's daily limit resets to 12</li>
+                <li>🕐 Monday 2:00 PM - You submit your first word (timer starts, 11 left)</li>
+                <li>🕐 Monday 8:00 PM - You use all 12 words (0 left)</li>
+                <li>🚫 Monday 9:00 PM - Try to submit → Over-limit penalty applies</li>
+                <li>✅ Tuesday 3:00 PM - Your 25h timer expires, reset to 12 words!</li>
               </ul>
             </div>
           </div>
 
-          <h3>What Happens When You Hit a Limit?</h3>
+          <div class="limit-box hourly">
+            <h4>💓 Personal Cooldown: 22 Minutes</h4>
+            <ul>
+              <li><strong>22-minute cooldown</strong> between each word submission</li>
+              <li>Submitting during cooldown triggers <strong>Hurry-Tax</strong> penalty</li>
+              <li>Hurry-Tax stacks: 50% → 25% → 12.5% of normal points</li>
+              <li>After 5 hurry-tax violations: 6-hour timeout!</li>
+            </ul>
+
+            <div class="example">
+              <strong>Example:</strong>
+              <ul>
+                <li>🕐 12:00 PM - Submit "dragon" (cooldown starts, expires 12:22)</li>
+                <li>🚫 12:10 PM - Submit "sword" → ⏱️ Hurry-Tax #1 (50% points, cooldown resets to 12:32)</li>
+                <li>🚫 12:20 PM - Submit "fire" → ⏱️ Hurry-Tax #2 (25% points, cooldown resets to 12:42)</li>
+                <li>✅ 12:42 PM - Cooldown expires, submit normally (hurry-tax count resets)!</li>
+              </ul>
+            </div>
+          </div>
+
+          <h3>Over-Limit Submissions</h3>
+          <p>You can <strong>still submit</strong> after using all 12 words, but with penalties:</p>
+          <ul>
+            <li>⚠️ <strong>Stacking penalty:</strong> 50% → 33% → 25% → ... of normal points</li>
+            <li>⏰ <strong>Reset delay:</strong> Each over-limit word adds hours to your reset timer</li>
+            <li>Formula: 1st over = +1h, 2nd = +2h more, 3rd = +3h more... (triangular)</li>
+          </ul>
+
+          <div class="pro-tip">
+            <strong>💡 Strategy:</strong> Pace yourself! Spreading your 12 words over time is better than burning through them all at once with hurry-tax penalties.
+          </div>
+
+          <h3>What Messages Will You See?</h3>
           <div class="limit-messages">
             <div class="message-box">
-              <code class="crt-text-red">🔄 @username You've added your word this round! Wait for the next round (check overlay for cooldown).</code>
-              <p>each user may submit 1 word per round, please wait for the next round</p>
+              <code class="crt-text-yellow">⏱️ hurry #1 (50%)</code>
+              <p>You submitted during your 22-minute cooldown. Points reduced, but word still counts!</p>
             </div>
             <div class="message-box">
-              <code class="crt-text-red">🎨 @username 🟨 YELLOW card! You've hit your daily limit. Half points on your next word tomorrow 🌙</code>
-              <p>each successful submission will tell you how many words you have left. when you have used all 12, your avatar will also display on stream beside a lock symbol as a reminder with a timer counting down till "tomorrow" (in EDT/EST) then it will say "reset after round 12"</p>
-              <p>reset happens after a new picture is made every "new day" (relative to the streamer's timezone)</p>
+              <code class="crt-text-red">⚠️ Over-limit: 50% reward, +1h delay</code>
+              <p>You've used all 12 words. Submission accepted with penalty and delayed reset.</p>
+            </div>
+            <div class="message-box">
+              <code class="crt-text-red">🟨 YELLOW card!</code>
+              <p>3 invalid words in a row = half points on your next submission.</p>
             </div>
           </div>
         </div>
@@ -170,6 +187,7 @@
             <li>❌ Misspellings: "dragn" → Won't be accepted</li>
             <li>❌ Made-up words: "flibbertigibbet" → Depends on dictionary!</li>
             <li>❌ Numbers/symbols: "dr4gon" → Letters only</li>
+            <li>❌ Profanity/Sexual Content: let's keep it family-friendly!</li>
           </ul>
 
           <div class="pro-tip">
@@ -277,7 +295,7 @@
 
           <h3>Display Flow</h3>
           <ol>
-            <li>User submits word via <code>!art dragon</code></li>
+            <li>User submits word via <code>!pp dragon</code></li>
             <li>Word is validated and scored</li>
             <li>Dictionary view appears for 60 seconds</li>
             <li>View switches back to word cloud automatically</li>
@@ -302,30 +320,31 @@
 
           <div class="trigger-conditions">
             <div class="trigger">
-              <h4 class="crt-text-yellow">🎯 36 Words Collected</h4>
-              <p>When the 36th word is submitted, image generation starts immediately!</p>
+              <h4 class="crt-text-yellow">🎯 100 Words Collected</h4>
+              <p>When the 100th word is submitted, image generation starts immediately!</p>
             </div>
 
             <div class="trigger">
               <h4 class="crt-text-cyan">⏰ 24-Hour Timer Expires</h4>
-              <p>If 36 words aren't reached in 24 hours, the AI generates from whatever words are available (even if just 5 or 10 words!).</p>
+              <p>If 100 words aren't reached in 24 hours, the AI generates from whatever words are available (even if just 5 or 10 words!).</p>
             </div>
           </div>
 
           <h3>The Generation Process</h3>
           <ol>
-            <li><strong>Collection Completes:</strong> 36 words OR timer expires</li>
+            <li><strong>Collection Completes:</strong> 100 words OR timer expires</li>
             <li><strong>Prompt Building:</strong> All words combined into AI prompt</li>
             <li><strong>AI Generation:</strong> Nano Banana creates the image</li>
-            <li><strong>Style Applied:</strong> "video game art, concept art, cinematic lighting"</li>
+            <li><strong>Style Applied:</strong> "comic book, video game, concept art"</li>
             <li><strong>Display:</strong> Generated image appears in carousel</li>
-            <li><strong>Reset:</strong> New session begins with 0/36 words!</li>
+            <li><strong>Reset:</strong> New session begins with 0/100 words!</li>
           </ol>
 
           <h3>What Makes the Art Unique?</h3>
           <p>The AI combines ALL submitted words into a single coherent image with these characteristics:</p>
           <ul>
-            <li>🎮 Video game art style</li>
+            <li>🖌️ Comic book style</li>
+            <li>🎮 Video game theme</li>
             <li>✨ Cinematic lighting and atmosphere</li>
             <li>🖼️ Ultra-detailed, intricate elements</li>
             <li>🎭 Dramatic composition</li>
@@ -423,10 +442,10 @@
             <p>Don't just use common words! "ETHEREAL" or "LUMINOUS" make for better art than "THING" or "STUFF".</p>
           </div>
 
-          <div class="tip-card">
+          <!-- <div class="tip-card">
             <h3>📚 Expand Your Vocabulary</h3>
             <p>Every word is shown with its definition. Learn new words while playing!</p>
-          </div>
+          </div> -->
 
           <div class="tip-card">
             <h3>🤝 Collaborate</h3>
@@ -449,7 +468,7 @@
 
       <!-- Footer -->
       <footer v-if="!autoScroll" class="help-footer">
-        <p class="crt-text-green">Ready to create amazing art together? Jump in chat and type !art [word]! 🎨✨</p>
+        <p class="crt-text-green">Ready to create amazing art together? Jump in chat and type !pp [word]! 🎨✨</p>
         <p><a href="/art" class="back-link">← Back to Pixel Power</a></p>
       </footer>
     </div>

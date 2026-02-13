@@ -13,15 +13,20 @@
         
         <div class="content-block">
           <h3>Overview</h3>
-          <p>vodVote lets the chat decide which video plays next! When the game carousel appears, you have a limited time to vote for your favorite option. The most popular choice wins and plays next!
-          <span style="font-weight: bold; color: #ffff00;">...but anyone who picks the <u>correct choice</u> will win <Points currency="zc" class="points-inline" /> (zC) to spend in the store!</span>
+          <p>vodVote is a prediction game where you guess which VOD will play next! At the start of each round, a <strong>winning game is secretly preselected</strong> at random. Vote for your prediction using <code>!gXX</code> commands shown on the overlay.
+          <span style="font-weight: bold; color: #ffff00;">Anyone who picks the <u>preselected winner</u> will share the jackpot and win <Points currency="zc" class="points-inline" /> (zC) to spend in the store!</span>
           </p>
+        </div>
+
+        <div class="content-block">
+          <h3>🔓 Voting is Always Open!</h3>
+          <p>Unlike traditional voting, <strong>you can vote at any time</strong> during the round! No need to wait for a specific voting window - just use <code>!gXX</code> whenever you're ready. Once you vote, your choice is locked in for the round.</p>
         </div>
 
       </section>
 
     <div class="pro-tip">
-        <strong>💡 Important:</strong> You must vote while the carousel is visible! Once it disappears, voting closes.
+        <strong>💡 How It Works:</strong> A random timer (7-15 min) counts down. When it reaches zero, the <code>!v###</code> code appears on stream. Anyone who types that code ends the round and reveals the winner!
     </div>
 
 
@@ -32,14 +37,14 @@
         <div class="content-block">
           <h3>💰 Reward Breakdown</h3>
           <ul>
-            <li><strong>+86 zC</strong> - Start a new game with <code>!v###</code> after cooldown</li>
-            <li><strong>+75 zC</strong> - Vote for any game during voting period</li>
-            <li><strong>+722 zC Jackpot!</strong> - Split among all winners if you picked the winning game!</li>
+            <li><strong>+86 zC</strong> - End the round with <code>!v###</code> when code is revealed</li>
+            <li><strong>+75 zC</strong> - Vote for any game with <code>!gXX</code></li>
+            <li><strong>+722 zC Jackpot!</strong> - Split among all players who predicted the preselected winner!</li>
           </ul>
-          <p>Everyone who votes for the winner shares the jackpot evenly. More winners = smaller individual share, but you still win!</p>
+          <p>The winner is secretly chosen at random when the round starts. Everyone who correctly predicted it shares the jackpot evenly!</p>
           
           <div class="pro-tip">
-            <strong>💡 Example:</strong> If 3 people vote for the winner, each gets 722 ÷ 3 = 240 zC. If you're the only winner, you get the full 722 zC!
+            <strong>💡 Example:</strong> If 3 people predicted correctly, each gets 722 ÷ 3 = 240 zC. If you're the only one who guessed right, you get the full 722 zC!
           </div>
         </div>
     </section>
@@ -79,28 +84,28 @@
 
         <div class="tips-grid">
           <div class="tip-card">
-            <h3>⏰ Don't Wait Too Long</h3>
-            <p>You have ~2 minutes, but don't wait until the last second! Get your vote in early to avoid missing out.</p>
+            <h3>🎲 It's a Prediction Game</h3>
+            <p>The winner is randomly preselected - it's NOT based on votes. Trust your gut and pick what you think will win!</p>
           </div>
 
           <div class="tip-card">
-            <h3>👥 Check What Chat Wants</h3>
-            <p>Watch what others are voting for! Sometimes the crowd has the right idea, and you'll increase your chances of winning zCubes.</p>
+            <h3>⏰ Vote Early</h3>
+            <p>Voting is always open, but you can only change your vote until the round ends. Get your prediction in early!</p>
           </div>
 
           <div class="tip-card">
-            <h3>🎯 Don't Remember the Codes</h3>
-            <p>Entry codes are rotated regularly, so don't expect the same code to work the next game</p>
+            <h3>🎯 Codes Change Each Round</h3>
+            <p>Game codes (<code>!gXX</code>) and reveal codes (<code>!v###</code>) are randomized each round. Check the overlay!</p>
           </div>
 
           <div class="tip-card">
             <h3>🎬 Vote for What You Want to See</h3>
-            <p>While winning zCubes is fun, remember you'll be watching this video! Pick something you actually want to see.</p>
+            <p>Even if you don't win the jackpot, the winning game plays next! Pick something you actually want to watch.</p>
           </div>
 
           <div class="tip-card">
-            <h3>⚡ !v### Starts the Fun</h3>
-            <p>After cooldown, be the first to type <code>!v###</code> (as seen on stream) to get the next round started! Community participation keeps it exciting.</p>
+            <h3>⚡ Be the Revealer!</h3>
+            <p>When the <code>!v###</code> code appears on stream (after 7-15 min), be first to type it! You'll trigger the winner reveal and earn bonus zCubes.</p>
           </div>
         </div>
 
@@ -113,28 +118,28 @@
 
         <div class="grid-container">
           <div class="ref-block">
-            <h3 class="crt-text-cyan">Vote Duration</h3>
-            <p class="big-number">2.5 min</p>
-            <p>Time to choose</p>
+            <h3 class="crt-text-cyan">Voting Open</h3>
+            <p class="big-number">Always!</p>
+            <p>Vote anytime</p>
           </div>
 
           <div class="ref-block">
-            <h3 class="crt-text-yellow">Vote Command</h3>
+            <h3 class="crt-text-yellow">Predict Command</h3>
             <p class="big-number">!gXX</p>
-            <p>Pick a game</p>
+            <p>Pick your winner</p>
           </div>
 
 
           <div class="ref-block">
-            <h3 class="crt-text-red">Cooldown Period</h3>
-            <p class="big-number">7-12 min</p>
-            <p>Enjoy the VOD</p>
+            <h3 class="crt-text-red">Round Timer</h3>
+            <p class="big-number">7-15 min</p>
+            <p>Until code reveal</p>
           </div>
 
           <div class="ref-block">
-            <h3 class="crt-text-green">New game</h3>
+            <h3 class="crt-text-green">End Round</h3>
             <p class="big-number">!v###</p>
-            <p>Begin new round</p>
+            <p>Reveal winner</p>
           </div>
         </div>
       </section>

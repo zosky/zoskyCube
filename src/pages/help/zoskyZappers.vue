@@ -70,7 +70,7 @@
           <ul>
             <li><strong>Miss:</strong> If your throw doesn't hit the opponent, no strike. make adjustments for your next turn<br>(and remember to account for the wind!)</li>
             <li><strong>Miss a Turn:</strong> If you don't take a shot during your turn (1 minute) you will get a strike!</li>
-
+            <li><strong>Hit yourself:</strong> If you do, you give your opponent a point.</li>
             <li><strong>3 Strikes:</strong> You're out! Your opponent wins & you forfeit for being AFK (0 <Points currency="zc" class="points-inline" />)</li>
           </ul>
 
