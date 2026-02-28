@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>zoskyCube Timeline App</title>
+    <meta name="theme-color" content="#ffffff">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+    <link rel="mask-icon" href="/masked-icon.svg" color="#FFFFFF">
+    <script>
+        // Dynamically set base href based on environment
+        const isProd = window.location.hostname === 'zosky.github.io';
+        document.write(`<base href="${isProd ? 'https://zosky.github.io/zoskyCube/' : '/'}" />`);
+    </script>
+    <noscript>
+        <base href="https://zosky.github.io/zoskyCube/" />
+    </noscript>
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TCPDMW1ERZ"></script>
+    <script>
+        // Unregister old service worker (PWA removed in v1.2.0)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for (let registration of registrations) {
+                    registration.unregister();
+                    console.log('Old service worker unregistered');
+                }
+            });
+        }
+    </script>
+  <script type="module" crossorigin src="/assets/index.be84e892.js"></script>
+  <link rel="stylesheet" href="/assets/index.305da4ee.css">
+</head>
+<body>
+    <div id="app"></div>
+    
+</body>
+</html>
