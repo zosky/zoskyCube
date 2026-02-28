@@ -6,8 +6,7 @@ import arkDinoImages from './modules/arkDinoImages';
 import { initializeGA, trackPageView } from './utils/analytics';
 import './main.css';
 
-// Use base path for GitHub Pages - must match vite.config.js base
-const basePath = import.meta.env.MODE === 'production' ? '/zoskyCube/' : '/'
+const basePath = '/'
 const router = createRouter({history: createWebHistory(basePath)})
 const app = createApp(App);
 
