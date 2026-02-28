@@ -8,7 +8,7 @@ import { HeadlessUiResolver } from 'unplugin-vue-components/resolvers'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
-  base: process.env.NODE_ENV === 'production' ? '/zoskyCube/' : '/',
+  // base: process.env.NODE_ENV === 'production' ? '/zoskyCube/' : '/',
   server: { 
     open: true,
     proxy: {
