@@ -95,15 +95,16 @@ function parseCSV(csvText) {
 
 /**
  * Load CSV file for a specific month from zoskyCube-archive repo
- * Dev: proxied via Vite to https://zosky.github.io/zoskyCube-archive/
+ * Dev: proxied via Vite to https://archive.zoskycube.com/
  * Prod: direct fetch from GitHub Pages (same path works!)
  * @param {boolean} bustCache - If true, append timestamp to URL for cache busting
  */
 async function loadMonthCSV(year, month, bustCache = false) {
   const monthStr = String(month).padStart(2, '0')
-  // In dev, Vite proxies /zoskyCube-archive to GitHub Pages
-  // In prod, we're on GitHub Pages so /zoskyCube-archive/ is the sibling repo
-  let fileName = `/zoskyCube-archive/data/handouts-${year}-${monthStr}.csv`
+  // In dev, Vite proxies archive.zoskycube.com >> GitHub Pages w/ CNAME file
+  const isDev = import.meta.env.MODE === 'development'
+  const fPreName = isDev ?'/zoskyCube-archive' : '//archive.zoskycube.com'
+  let fileName = `${fPreName}/data/handouts-${year}-${monthStr}.csv`
   
   // Cache busting for hourly refresh
   if (bustCache) {

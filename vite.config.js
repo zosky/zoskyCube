@@ -19,7 +19,7 @@ export default defineConfig({
         secure: true,
       },
       '/zoskyCube-archive': {
-        target: 'https://zosky.github.io',
+        target: 'https://archive.zoskycube.come',
         changeOrigin: true,
         secure: true,
       },
