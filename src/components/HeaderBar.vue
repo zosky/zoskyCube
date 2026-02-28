@@ -94,7 +94,7 @@ function cycleAvatar(event) {
         <a href="https://twitch.tv/zoskyCube" :title="'ttv:zoskyCube'">
             <ttv-status />
         </a>
-        <header-bar-yt />
+        <!-- <header-bar-yt /> -->
         <div
           :class="{ 'active' : $route.path=='/collection' }" 
           class="cursor-pointer"
