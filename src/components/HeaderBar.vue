@@ -110,10 +110,10 @@ function cycleAvatar(event) {
           <Store />
         </div>
         <div
-          :class="{ 'active' : $route.path=='/' }" 
+          :class="{ 'active' : $route.path=='/failCount' }" 
           class="cursor-pointer"
           title="Death Counter"
-          @click="$router.push('/')">
+          @click="$router.push('/failCount')">
           <SkullCrossbones />
         </div>
         <div
