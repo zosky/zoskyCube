@@ -159,16 +159,24 @@ async function loadSELeaderboard() {
 }
 
 /**
- * Known CSV files available in public/data/
- * This list is used to discover all available months
- * TODO: Replace with aggregate monthly summary files for performance
+ * Generate all months from the first data month (2025-11) up to now.
+ * No more hardcoded list — automatically includes the current month.
  */
-const AVAILABLE_MONTHS = [
-  { year: 2025, month: 11 },
-  { year: 2025, month: 12 },
-  { year: 2026, month: 1 },
-  { year: 2026, month: 2 }
-]
+function getAvailableMonths() {
+  const start = { year: 2025, month: 11 }
+  const now = new Date()
+  const end = { year: now.getFullYear(), month: now.getMonth() + 1 }
+  const months = []
+  let y = start.year
+  let m = start.month
+  while (y < end.year || (y === end.year && m <= end.month)) {
+    months.push({ year: y, month: m })
+    m++
+    if (m > 12) { m = 1; y++ }
+  }
+  return months
+}
+const AVAILABLE_MONTHS = getAvailableMonths()
 
 /**
  * Load all available CSV files + SE leaderboard

@@ -24,15 +24,24 @@ const lastRefreshTime = ref(null)
 let refreshTimer = null
 
 /**
- * Known CSV files available in archive repo
- * Redeems started December 2025
+ * Generate all months from first redeems data (2025-12) up to now.
+ * No more hardcoded list — automatically includes the current month.
  */
-const AVAILABLE_MONTHS = [
-  { year: 2025, month: 12 },
-  { year: 2026, month: 1 },
-  { year: 2026, month: 2 },
-  { year: 2026, month: 3 }
-]
+function getAvailableMonths() {
+  const start = { year: 2025, month: 12 }
+  const now = new Date()
+  const end = { year: now.getFullYear(), month: now.getMonth() + 1 }
+  const months = []
+  let y = start.year
+  let m = start.month
+  while (y < end.year || (y === end.year && m <= end.month)) {
+    months.push({ year: y, month: m })
+    m++
+    if (m > 12) { m = 1; y++ }
+  }
+  return months
+}
+const AVAILABLE_MONTHS = getAvailableMonths()
 
 /**
  * Parse redeems CSV text into array of redeem objects
