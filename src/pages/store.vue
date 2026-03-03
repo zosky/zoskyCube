@@ -31,7 +31,7 @@ meta:
       <p class="font-bold">Failed to load store</p>
       <p class="text-sm">{{ error }}</p>
       <button 
-        @click="fetchStoreItems" 
+        @click="refetchStoreItems" 
         class="mt-3 px-4 py-2 bg-red-700 hover:bg-red-600 rounded text-white text-sm"
       >
         Retry
@@ -254,89 +254,16 @@ meta:
       </div>
 
       <!-- Grid View -->
-      <div 
-        v-if="viewMode === 'grid'" 
-        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
-      >
-        <div 
-          v-for="item in sortedItems" 
-          :key="item._id"
-          @click="openDetails(item)"
-          class="bg-gray-900 rounded-lg overflow-hidden border transition-all hover:scale-105 shadow-lg cursor-pointer"
-          :class="{
-            'border-yellow-500/50 ring-1 ring-yellow-500/30 hover:shadow-yellow-500/20': isFavorite(item.bot?.identifier),
-            'border-gray-800 hover:border-cyan-500 hover:shadow-cyan-500/20': !isFavorite(item.bot?.identifier),
-            'opacity-50': isHidden(item.bot?.identifier)
-          }"
-        >
-          <!-- Thumbnail -->
-          <div class="bg-gray-800 relative overflow-hidden">
-            <img 
-              :src="item.thumbnail || getDefaultThumbnail(item)"
-              :alt="item.name"
-              class="w-full h-fit object-fit aspect-[16/9]"
-              loading="lazy"
-              @error="handleImageError($event, item)"
-            />
-            <!-- Featured Badge -->
-            <div 
-              v-if="item.featured"
-              class="absolute top-2 left-2 px-2 py-1 bg-yellow-500 text-black rounded text-xs font-bold"
-            >
-              ⭐ Featured
-            </div>
-          </div>
-
-          <!-- Info Bar (Bottom) -->
-          <div class="p-3 bg-gray-950 border-t border-gray-800">
-            <h3 class="font-bold text-white text-sm line-clamp-1 mb-2" :title="item.name">
-              {{ item.name }}
-            </h3>
-            <div class="flex justify-between items-center text-sm">
-              <!-- Keys -->
-              <span class="flex items-center gap-1" :class="item.quantity.current > 0 ? 'text-green-400' : 'text-red-400'">
-                🔑 {{ item.quantity.current }}
-              </span>
-              <!-- Price -->
-              <span class="flex items-center gap-1">
-                💰 <Points currency="zC" :n="item.cost" />
-              </span>
-              <!-- Action Buttons -->
-              <div class="flex items-center gap-1">
-                <!-- Favorite -->
-                <button
-                  @click.stop="toggleFavorite(item.bot?.identifier)"
-                  :class="isFavorite(item.bot?.identifier) ? 'text-yellow-400' : 'text-gray-500 hover:text-yellow-400'"
-                  class="transition-colors"
-                  :title="isFavorite(item.bot?.identifier) ? 'Remove from favorites' : 'Add to favorites'"
-                >
-                  <Star v-if="isFavorite(item.bot?.identifier)" class="w-5 h-5" />
-                  <StarOutline v-else class="w-5 h-5" />
-                </button>
-                <!-- Hide -->
-                <button
-                  @click.stop="toggleHidden(item.bot?.identifier)"
-                  :class="isHidden(item.bot?.identifier) ? 'text-red-400' : 'text-gray-500 hover:text-red-400'"
-                  class="transition-colors"
-                  :title="isHidden(item.bot?.identifier) ? 'Unhide item' : 'Hide item'"
-                >
-                  <EyeOffOutline class="w-5 h-5" />
-                </button>
-                <!-- Steam Link -->
-                <a 
-                  :href="getSteamLink(item)"
-                  target="_blank"
-                  @click.stop
-                  class="text-blue-400 hover:text-blue-300"
-                  title="View on Steam"
-                >
-                  <Steam class="w-5 h-5" />
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <StoreGrid
+        v-if="viewMode === 'grid'"
+        :items="sortedItems"
+        :showActions="true"
+        :isFavorite="isFavorite"
+        :isHidden="isHidden"
+        @select="openDetails"
+        @toggleFavorite="toggleFavorite"
+        @toggleHidden="toggleHidden"
+      />
 
       <!-- Table View -->
       <div v-else class="overflow-x-auto rounded-lg border border-gray-800">
@@ -460,8 +387,8 @@ meta:
         </table>
       </div>
 
-      <!-- Empty State -->
-      <div v-if="sortedItems.length === 0" class="text-center py-16 text-gray-500">
+      <!-- Empty State (table view only, StoreGrid handles its own) -->
+      <div v-if="viewMode === 'table' && sortedItems.length === 0" class="text-center py-16 text-gray-500">
         <p class="text-4xl mb-4">🏪</p>
         <p>No items available in the store right now.</p>
       </div>
@@ -644,24 +571,35 @@ meta:
 <script setup>
 import { Steam, StarOutline, Star, EyeOffOutline, EyeOutline } from 'mdue'
 import Points from '@/components/Points.vue'
+import StoreGrid from '@/components/StoreGrid.vue'
 import { useAuth } from '@/composables/useAuth'
+import { useStoreData } from '@/composables/useStoreData'
 
 // Auth
 const { user, userProfile, loading: authLoading } = useAuth()
 
-// StreamElements Channel ID (public)
-const SE_CHANNEL_ID = '668816ac484cab966df79977'
-const SE_API_URL = `https://api.streamelements.com/kappa/v2/store/${SE_CHANNEL_ID}/items`
-const SE_POINTS_URL = `https://api.streamelements.com/kappa/v2/points/${SE_CHANNEL_ID}`
+// Store data composable
+const {
+  storeItems,
+  isLoading,
+  error,
+  enabledItems,
+  getSteamAppId,
+  getSteamLink,
+  getDefaultThumbnail,
+  handleImageError,
+  formatDate,
+  fetchStoreItems,
+  refetchStoreItems,
+  fetchUserPoints: fetchUserPointsAPI,
+  steamCache
+} = useStoreData()
 
 // User points state
 const userPoints = ref(null)
 const userPointsLoading = ref(false)
 
 // State
-const storeItems = ref([])
-const isLoading = ref(true)
-const error = ref(null)
 const viewMode = ref('grid')
 const sortKey = ref('cost')
 const sortDirection = ref('desc')
@@ -710,9 +648,6 @@ const steamDataError = ref(null)
 const currentMedia = ref(null)
 const videoPlayer = ref(null)
 
-// Steam data cache
-const steamCache = new Map()
-
 // Sort options for grid mode buttons
 const sortOptions = [
   { key: 'cost', label: 'Price' },
@@ -723,7 +658,7 @@ const sortOptions = [
 
 // Filtered items (only enabled items, optionally filtered by affordability, favorites, hidden, search)
 const filteredItems = computed(() => {
-  let items = storeItems.value.filter(item => item.enabled)
+  let items = enabledItems.value
   
   // Filter by search query
   if (searchQuery.value.trim()) {
@@ -744,60 +679,27 @@ const filteredItems = computed(() => {
     items = items.filter(item => !hiddenItems.value.has(item.bot?.identifier))
   }
   
-  // If showFavorites is off, hide favorites from main list
-  // (This would only make sense in a "non-favorites" view, but we keep it simple)
-  
   return items
 })
 
 // Count of favorites and hidden for display
 const favoritesCount = computed(() => {
-  return storeItems.value.filter(item => item.enabled && favorites.value.has(item.bot?.identifier)).length
+  return enabledItems.value.filter(item => favorites.value.has(item.bot?.identifier)).length
 })
 const hiddenCount = computed(() => {
-  return storeItems.value.filter(item => item.enabled && hiddenItems.value.has(item.bot?.identifier)).length
+  return enabledItems.value.filter(item => hiddenItems.value.has(item.bot?.identifier)).length
 })
 
 // Helper function to sort items by current sortKey and sortDirection
 function sortItemsByCurrentKey(items) {
-  return [...items].sort((a, b) => {
-    let aVal, bVal
-    
-    switch (sortKey.value) {
-      case 'name':
-        aVal = a.name?.toLowerCase() || ''
-        bVal = b.name?.toLowerCase() || ''
-        break
-      case 'cost':
-        aVal = a.cost || 0
-        bVal = b.cost || 0
-        break
-      case 'createdAt':
-        aVal = new Date(a.createdAt).getTime()
-        bVal = new Date(b.createdAt).getTime()
-        break
-      case 'quantity':
-        aVal = a.quantity?.current || 0
-        bVal = b.quantity?.current || 0
-        break
-      default:
-        return 0
-    }
-    
-    if (sortKey.value === 'name') {
-      const result = aVal.localeCompare(bVal)
-      return sortDirection.value === 'asc' ? result : -result
-    }
-    
-    const result = aVal - bVal
-    return sortDirection.value === 'asc' ? result : -result
-  })
+  const { sortItems } = useStoreData()
+  return sortItems(items, sortKey.value, sortDirection.value)
 }
 
 // Favorite items for separate display (sorted by current sort key)
 const favoriteItems = computed(() => {
-  let items = storeItems.value
-    .filter(item => item.enabled && favorites.value.has(item.bot?.identifier))
+  let items = enabledItems.value
+    .filter(item => favorites.value.has(item.bot?.identifier))
   
   // Apply search filter to favorites too
   if (searchQuery.value.trim()) {
@@ -813,8 +715,8 @@ const favoriteItems = computed(() => {
 
 // Hidden items for separate display (sorted by current sort key)
 const hiddenItemsList = computed(() => {
-  let items = storeItems.value
-    .filter(item => item.enabled && hiddenItems.value.has(item.bot?.identifier))
+  let items = enabledItems.value
+    .filter(item => hiddenItems.value.has(item.bot?.identifier))
   
   // Apply search filter to hidden items too
   if (searchQuery.value.trim()) {
@@ -859,53 +761,6 @@ function toggleSort(key) {
 function getSortIndicator(key) {
   if (sortKey.value !== key) return ''
   return sortDirection.value === 'asc' ? '↑' : '↓'
-}
-
-// Format date
-function formatDate(dateStr) {
-  if (!dateStr) return 'N/A'
-  const date = new Date(dateStr)
-  return date.toLocaleDateString('en-US', { 
-    month: 'short', 
-    day: 'numeric',
-    year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
-  })
-}
-
-// Get Steam link from bot.identifier
-function getSteamLink(item) {
-  const identifier = item.bot?.identifier || ''
-  const steamId = identifier.replace('steam', '')
-  if (steamId && /^\d+$/.test(steamId)) {
-    return `https://store.steampowered.com/app/${steamId}`
-  }
-  return 'https://store.steampowered.com'
-}
-
-// Get Steam app ID
-function getSteamAppId(item) {
-  const identifier = item.bot?.identifier || ''
-  const match = identifier.match(/steam(\d+)/)
-  return match ? match[1] : null
-}
-
-// Get default thumbnail from Steam
-function getDefaultThumbnail(item) {
-  const appId = getSteamAppId(item)
-  if (appId) {
-    return `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${appId}/header.jpg`
-  }
-  return 'https://via.placeholder.com/460x215?text=No+Image'
-}
-
-// Handle image error
-function handleImageError(event, item) {
-  const appId = getSteamAppId(item)
-  if (appId && !event.target.src.includes('steamstatic')) {
-    event.target.src = `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${appId}/header.jpg`
-  } else {
-    event.target.src = 'https://via.placeholder.com/460x215?text=No+Image'
-  }
 }
 
 // Open detail modal
@@ -1121,56 +976,16 @@ function closeDetails() {
   currentMedia.value = null
 }
 
-// Fetch store items
-async function fetchStoreItems() {
-  isLoading.value = true
-  error.value = null
-  
-  try {
-    console.log('🏪 Fetching StreamElements store items...')
-    
-    const response = await fetch(SE_API_URL)
-    
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`)
-    }
-    
-    const data = await response.json()
-    
-    console.log(`📦 Loaded ${data.length} store items`)
-    
-    storeItems.value = data
-    
-  } catch (err) {
-    console.error('❌ Failed to fetch store items:', err)
-    error.value = err.message
-  } finally {
-    isLoading.value = false
-  }
-}
-
-// Fetch user points from StreamElements
+// Fetch user points (wraps composable with local state)
 async function fetchUserPoints(username) {
   if (!username) return
-  
   userPointsLoading.value = true
-  
   try {
     console.log(`💰 Fetching points for ${username}...`)
-    
-    const response = await fetch(`${SE_POINTS_URL}/${username.toLowerCase()}`)
-    
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`)
-    }
-    
-    const data = await response.json()
-    userPoints.value = data.points || 0
-    
+    const points = await fetchUserPointsAPI(username)
+    userPoints.value = points
     console.log(`💰 ${username} has ${userPoints.value} points`)
-    
   } catch (err) {
-    console.error('❌ Failed to fetch user points:', err)
     userPoints.value = null
   } finally {
     userPointsLoading.value = false

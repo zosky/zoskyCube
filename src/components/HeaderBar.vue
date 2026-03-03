@@ -1,5 +1,5 @@
 <script setup>
-import { Twitch, Youtube, Steam, GamepadVariantOutline, SkullCrossbones, Store, PlusBox, TrophyOutline, Account, HelpCircleOutline, ChartBar } from 'mdue'
+import { Twitch, Youtube, Steam, GamepadVariantOutline, SkullCrossbones, Store, GiftOutline, PlusBox, TrophyOutline, Account, HelpCircleOutline, ChartBar } from 'mdue'
 import { useAuth } from '../composables/useAuth'
 import Points from './Points.vue'
 
@@ -96,13 +96,6 @@ function cycleAvatar(event) {
         </a>
         <!-- <header-bar-yt /> -->
         <div
-          :class="{ 'active' : $route.path=='/collection' }" 
-          class="cursor-pointer"
-          @click="$router.push('./collection')"
-          title="Game Collection">
-          <Steam />
-        </div>
-        <div
           :class="{ 'active' : $route.path=='/store' }" 
           class="cursor-pointer"
           @click="$router.push('/store')"
@@ -110,9 +103,16 @@ function cycleAvatar(event) {
           <Store />
         </div>
         <div
+          :class="{ 'active' : $route.path.startsWith('/redeems') }" 
+          class="cursor-pointer"
+          @click="$router.push('/redeems')"
+          title="Redeems">
+          <GiftOutline />
+        </div>
+        <div
           :class="{ 'active' : $route.path=='/failCount' }" 
           class="cursor-pointer"
-          title="Death Counter"
+          title="failAttempts"
           @click="$router.push('/failCount')">
           <SkullCrossbones />
         </div>
@@ -144,6 +144,13 @@ function cycleAvatar(event) {
           @click="navigateToLeaderboard"
           title="Leaderboard / Table of Contents">
           <ChartBar />
+        </div>
+        <div
+          :class="{ 'active' : $route.path=='/collection' }" 
+          class="cursor-pointer"
+          @click="$router.push('./collection')"
+          title="zoskys Game Collection">
+          <Steam />
         </div>
         <div             
           :class="{ 'active' : $route.path=='/auth' }" 

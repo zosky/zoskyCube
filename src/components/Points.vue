@@ -46,6 +46,10 @@ const props = defineProps({
     type: [Number, String],
     default: null
   },
+  relative: {
+    type: Boolean,
+    default: false
+  },
   size: {
     type: String,
     default: '1.5em'
@@ -83,6 +87,12 @@ const currencyName = computed(() => {
 const formattedNumber = computed(() => {
   if (props.n === null || props.n === undefined) return ''
   const num = typeof props.n === 'string' ? parseFloat(props.n) : props.n
+  if (props.relative) {
+    if (num >= 1_000_000_000) return `${(num / 1_000_000_000).toFixed(1).replace(/\.0$/, '')}B`
+    if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`
+    if (num >= 1_000) return `${(num / 1_000).toFixed(1).replace(/\.0$/, '')}K`
+    return num.toLocaleString()
+  }
   return num.toLocaleString()
 })
 </script>

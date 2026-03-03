@@ -19,7 +19,8 @@ export default defineConfig({
         secure: true,
       },
       '/zoskyCube-archive': {
-        target: 'https://archive.zoskycube.come',
+        target: 'https://archive.zoskycube.com',
+        rewrite: (path) => path.replace(/^\/zoskyCube-archive/, ''),
         changeOrigin: true,
         secure: true,
       },

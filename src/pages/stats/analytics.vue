@@ -282,9 +282,8 @@ const sourceColors = {
 }
 
 // Current user's Twitch username (lowercase for matching)
-// DEV MODE: Hardcoded for testing - remove in production
 const currentUsername = computed(() => 
-  'wolfmaron999' // userProfile.value?.twitch?.username?.toLowerCase() || null
+  userProfile.value?.twitch?.username?.toLowerCase() || null
 )
 
 // Computed stats
