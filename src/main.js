@@ -22,6 +22,20 @@ gameStore.fetchData(true);
 
 app.use(router);
 
+// Handle stale chunk errors after redeployment
+// When GitHub Pages deploys new assets with different hashes,
+// cached index.js may reference old chunk filenames that 404.
+// Detect this and force a full page reload to get fresh assets.
+router.onError((error, to) => {
+  if (
+    error.message.includes('Failed to fetch dynamically imported module') ||
+    error.message.includes('Importing a module script failed')
+  ) {
+    console.warn('🔄 Stale chunk detected, reloading page...', error.message)
+    window.location.href = to.fullPath
+  }
+})
+
 // Initialize GA4 AFTER router is registered
 initializeGA();
 
