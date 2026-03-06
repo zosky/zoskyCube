@@ -81,6 +81,7 @@ meta:
           <label class="text-gray-400 text-sm font-medium">User:</label>
           <select
             v-model="selectedUser"
+            @change="selectedUser ? router.push(`/redeems/${selectedUser}`) : router.push('/redeems')"
             class="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 max-w-xs"
           >
             <option :value="null">All Users ({{ uniqueUsers }})</option>
@@ -98,7 +99,7 @@ meta:
         <!-- Reset -->
         <button
           v-if="selectedGame || selectedUser"
-          @click="selectedGame = null; selectedUser = null"
+          @click="selectedGame = null; selectedUser = null; router.push('/redeems')"
           class="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
         >
           🔄 Reset
@@ -157,35 +158,13 @@ const {
   startRefreshTimer
 } = useRedeemsData()
 
-// Sync user dropdown → URL (cosmetic only, no navigation)
-// Only update URL when this component is the active route (not when embedded)
-watch(selectedUser, (newUser) => {
-  const base = import.meta.env.BASE_URL || '/'
-  const basePath = `${base}redeems`.replace(/\/+/g, '/')
-  const newPath = newUser ? `${basePath}/${newUser}` : basePath
-  const currentPath = window.location.pathname
-  // Avoid fighting with [username].vue router
-  if (currentPath.startsWith(basePath)) {
-    window.history.replaceState(null, '', newPath)
-  }
-})
-
-// Read username from URL path on mount (supports /redeems/username deep links)
-function readUsernameFromPath() {
-  const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '')
-  const path = window.location.pathname.replace(base, '')
-  // path is now /redeems or /redeems/username
-  const match = path.match(/^\/redeems\/(.+)$/)
-  return match ? decodeURIComponent(match[1]).toLowerCase() : null
-}
-
 onMounted(async () => {
   await loadData()
   startRefreshTimer()
-  // Pre-populate user filter from URL (e.g. /redeems/foreeveeer)
-  const urlUser = readUsernameFromPath()
-  if (urlUser) {
-    selectedUser.value = urlUser
+  // Pick up username from route param (e.g. /redeems/valase)
+  const username = route.params.username?.toLowerCase()
+  if (username && !selectedUser.value) {
+    selectedUser.value = username
   }
 })
 </script>
