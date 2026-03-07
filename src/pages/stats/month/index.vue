@@ -10,7 +10,7 @@ meta:
  * Self-contained page that reads all data from zoskyCube-archive CSV files.
  * No Koa API, no Cloud Functions, no Firestore. Pure CSV parsing.
  *
- * Route: /stats/month (current) or /stats/month/:monthIndex
+ * Route: /stats/month (current) or /stats/month?m=5 (specific month)
  * User filter: "me" toggle auto-selects logged-in user, or pick any user
  */
 import { useMonthlyStats } from '@/composables/useMonthlyStats'
@@ -34,10 +34,10 @@ const {
 
 const { fetchAvatar } = useTwitchAvatars()
 
-// Month selection — initialised from route param or current month
+// Month selection — initialised from query param or current month
 const selectedMonth = ref(
-  route.params.month !== undefined
-    ? parseInt(route.params.month) || 0
+  route.query.m !== undefined
+    ? parseInt(route.query.m) || 0
     : getCurrentMonthIndex()
 )
 
@@ -270,13 +270,13 @@ function changeMonth(delta) {
   const newMonth = selectedMonth.value + delta
   if (newMonth >= 0 && newMonth <= getCurrentMonthIndex()) {
     selectedMonth.value = newMonth
-    router.push(`/stats/month/${newMonth}`)
+    router.push({ path: '/stats/month', query: { m: newMonth } })
     fetchData()
   }
 }
 
-// Watch route param changes (browser back/forward)
-watch(() => route.params.month, (val) => {
+// Watch query param changes (browser back/forward)
+watch(() => route.query.m, (val) => {
   if (val !== undefined) {
     const m = parseInt(val) || 0
     if (m !== selectedMonth.value && m >= 0
