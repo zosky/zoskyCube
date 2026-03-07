@@ -81,7 +81,7 @@ meta:
           <label class="text-gray-400 text-sm font-medium">User:</label>
           <select
             v-model="selectedUser"
-            @change="selectedUser ? router.push(`/redeems/${selectedUser}`) : router.push('/redeems')"
+            @change="selectedUser ? router.push({ path: '/redeems', query: { u: selectedUser } }) : router.push('/redeems')"
             class="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 max-w-xs"
           >
             <option :value="null">All Users ({{ uniqueUsers }})</option>
@@ -99,7 +99,7 @@ meta:
         <!-- Reset -->
         <button
           v-if="selectedGame || selectedUser"
-          @click="selectedGame = null; selectedUser = null; router.push('/redeems')"
+          @click="selectedGame = null; selectedUser = null; router.push({ path: '/redeems' })"
           class="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
         >
           🔄 Reset
@@ -161,10 +161,10 @@ const {
 onMounted(async () => {
   await loadData()
   startRefreshTimer()
-  // Pick up username from route param (e.g. /redeems/valase)
-  const username = route.params.username?.toLowerCase()
+  // Pick up username from query param (e.g. /redeems?u=valase)
+  const username = route.query.u
   if (username && !selectedUser.value) {
-    selectedUser.value = username
+    selectedUser.value = username.toLowerCase()
   }
 })
 </script>

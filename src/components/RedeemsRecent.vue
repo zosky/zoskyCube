@@ -116,7 +116,7 @@ const displayRedeems = computed(() => {
 
 const moreLink = computed(() => {
   if (mode.value === 'me' && currentUsername.value) {
-    return `/redeems/${currentUsername.value}`
+    return `/redeems?u=${currentUsername.value}`
   }
   return '/redeems'
 })
