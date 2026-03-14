@@ -140,7 +140,7 @@ gtag('config', measurementId, {
    ```
 
 2. **Visit production URL**:
-   https://zoskycube.github.io/zoskyCube/auth
+   https://zoskycube.com/auth
 
 3. **Check GA4 Realtime**:
    - Reports → Realtime

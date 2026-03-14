@@ -28,7 +28,7 @@
         <div class="content-block">
           <h3>Step-by-Step</h3>
           <ol>
-            <li><strong>Complete Triple OAuth</strong> - Must link Twitch, Discord, AND Steam accounts at <a href="https://zosky.github.io/zoskyCube/auth" class="crt-text-cyan">zosky.github.io/zoskyCube/auth</a></li>
+            <li><strong>Complete Triple OAuth</strong> - Must link Twitch, Discord, AND Steam accounts at <a href="https://zoskycube.com/auth" class="crt-text-cyan">zoskycube.com/auth</a></li>
             <li><strong>Open Channel Points</strong> - Click the <Points currency="zB" class="points-inline h-6 w-6 -mt-3" /> (zBlock icon) below the chat</li>
             <li><strong>Find "dailyDose"</strong> - Look for the reward in the list</li>
             <li><strong>Click Redeem</strong> - Spend your Twitch channel points</li>
@@ -118,7 +118,7 @@
           </div>
 
           <p class="center-text">
-            <a href="https://zosky.github.io/zoskyCube/auth" class="auth-button">Complete Triple OAuth →</a>
+            <a href="https://zoskycube.com/auth" class="auth-button">Complete Triple OAuth →</a>
           </p>
 
           <div class="warning-box">

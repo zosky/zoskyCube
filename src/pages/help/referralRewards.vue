@@ -39,7 +39,7 @@
         <div class="content-block">
           <h3>For New Users (Being Referred)</h3>
           <ol>
-            <li><strong>Complete Triple OAuth:</strong> Go to <a href="https://zosky.github.io/zoskyCube/auth" class="crt-text-cyan">zosky.github.io/zoskyCube/auth</a></li>
+            <li><strong>Complete Triple OAuth:</strong> Go to <a href="https://zoskycube.com/auth" class="crt-text-cyan">zoskycube.com/auth</a></li>
             <li><strong>Link All 3 Services:</strong> Connect Twitch, Discord, and Steam</li>
             <li><strong>Select Referrer:</strong> Choose who referred you from the dropdown menu of all whitelisted users</li>
             <li><strong>Start Earning:</strong> Play mini-games and earn zCubes!</li>
@@ -108,7 +108,7 @@
 
           <div class="tip-card">
             <h3>🔗 Share the Auth Link</h3>
-            <p>Make it easy for friends by sending the direct link: <a href="https://zosky.github.io/zoskyCube/auth">auth</a></p>
+            <p>Make it easy for friends by sending the direct link: <a href="https://zoskycube.com/auth">auth</a></p>
           </div>
 
           <div class="tip-card">
