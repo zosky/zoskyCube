@@ -45,25 +45,47 @@ const AVAILABLE_MONTHS = getAvailableMonths()
 
 /**
  * Parse redeems CSV text into array of redeem objects
- * Format: timestamp,steamid,username,cost,gamename
- * gamename is last because it may contain commas - split first 4 on comma, rest is name
+ * Format (legacy): timestamp,steamid,username,cost,gamename
+ * Format (v2):     timestamp,steamid,username,cost,hadAtPurchase,activated,playtimeMinutes,gamename
+ * gamename is always last because it may contain commas
+ * Auto-detects format from header row
  */
 function parseRedeemsCSV(csvText) {
   const lines = csvText.trim().split('\n')
   if (lines.length < 2) return []
 
+  // Detect v2 format by checking header for activation columns
+  const header = lines[0].toLowerCase()
+  const isV2 = header.includes('hadatpurchase') || header.includes('activated')
+  // v2 has 7 fixed columns before gamename, legacy has 4
+  const fixedCols = isV2 ? 7 : 4
+
   // Skip header row
   return lines.slice(1).map(line => {
-    // Split on first 4 commas only — everything after 4th comma is gamename
     const parts = line.split(',')
-    if (parts.length < 5) return null
+    if (parts.length < fixedCols + 1) return null
 
     const timestamp = parts[0] || ''
     const steamid = parts[1] || ''
     const username = (parts[2] || '').toLowerCase()
     const cost = parseInt(parts[3]) || 0
-    // Everything from index 4 onward is the game name (may contain commas)
-    const gamename = parts.slice(4).join(',').trim()
+
+    let hadAtPurchase = null
+    let activated = null
+    let playtimeMinutes = null
+
+    if (isV2) {
+      hadAtPurchase = parts[4] !== '' ? parseInt(parts[4]) : null
+      activated = parts[5] !== '' ? parseInt(parts[5]) : null
+      playtimeMinutes = parts[6] !== '' ? parseInt(parts[6]) : null
+    }
+
+    // Everything after fixed columns is the game name (may contain commas)
+    const gamename = parts.slice(fixedCols).join(',').trim()
+
+    // Detect refund entries: gamename starts with 'Refund dedKey: '
+    const isRefund = gamename.startsWith('Refund dedKey:')
+    const cleanGamename = isRefund ? gamename.replace(/^Refund dedKey:\s*/, '') : gamename
 
     // Detect gift cards: export script writes 'GIFT_CARD' as steamid for actual gift cards
     // Empty steamid just means missing data, not a gift card
@@ -77,8 +99,12 @@ function parseRedeemsCSV(csvText) {
       steamid: cleanSteamid,
       username,
       cost,
-      gamename,
+      gamename: cleanGamename,
+      isRefund,
       isGiftCard,
+      hadAtPurchase,
+      activated,
+      playtimeMinutes,
       // Parsed timestamp for sorting
       ts: new Date(timestamp).getTime()
     }

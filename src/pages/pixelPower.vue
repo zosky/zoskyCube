@@ -52,13 +52,15 @@ meta:
             <!-- Masonry Grid -->
             <div class="masonry-grid">
                 <div 
-                    v-for="image in filteredImages" 
+                    v-for="(image, imgIdx) in filteredImages" 
                     :key="image.id"
-                    class="masonry-item group"
+                    class="masonry-item group relative"
                 >
                     <!-- Image Card -->
-                    <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300">
-                        <!-- Image -->
+                    <div 
+                        class="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 cursor-pointer"
+                        @click="togglePanel(image.id)"
+                    >
                         <div class="relative overflow-hidden bg-gray-900">
                             <img 
                                 :src="image.downloadURL"
@@ -67,77 +69,41 @@ meta:
                                 loading="lazy"
                                 @error="handleImageError"
                             />
-                            <!-- Overlay on hover -->
-                            <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
-                                <p class="text-white text-sm text-center line-clamp-6">{{ image.prompt }}</p>
-                            </div>
                         </div>
-                        
-                        <!-- Info Section -->
-                        <div class="p-4">
-                            <!-- Date -->
-                            <div class="text-xs text-gray-400 mb-2 flex items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                {{ formatDate(image.createdAt) }}
-                            </div>
+                    </div>
 
-                            <!-- Extracted Words/Sentence (from prompt) -->
-                            <div class="space-y-2">
-                                <!-- Main Keywords -->
-                                <!-- <div class="flex flex-wrap gap-1">
-                                    <span 
-                                        v-for="(word, idx) in getKeywords(image.prompt)" 
-                                        :key="idx"
-                                        class="px-2 py-1 bg-purple-900/50 text-purple-300 text-xs rounded-full"
-                                    >
-                                        {{ word }}
-                                    </span>
-                                </div> -->
-                                
-                                <!-- Prompt Preview -->
-                                <!-- <p class="text-sm text-gray-300 line-clamp-2" :title="image.prompt">
-                                    {{ image.prompt }}
-                                </p> -->
+                    <!-- Side Panel -->
+                    <div 
+                        v-if="openPanel === image.id"
+                        class="pp-side-panel absolute top-0 bottom-0 z-50 w-72 overflow-y-auto bg-gray-900/95 backdrop-blur-md rounded-lg ring-1 ring-purple-500/50 p-4"
+                        :class="getPanelSide(imgIdx)"
+                    >
+                        <!-- Close -->
+                        <button @click.stop="openPanel = null" class="absolute top-2 right-2 text-gray-400 hover:text-white text-xs">✕</button>
 
-                                <!-- Generated Sentence (if exists) -->
-                                <div v-if="image.generatedSentence" class="mt-2 p-2 bg-blue-900/30 rounded text-sm text-blue-200 border-l-2 border-blue-400">
-                                    <span class="font-semibold">Generated Sentence:</span><br>
-                                    {{ image.generatedSentence }}
-                                </div>
+                        <!-- Date -->
+                        <div class="text-xs text-gray-400 mb-2 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            {{ formatDate(image.createdAt) }}
+                        </div>
 
-                                <!-- Words Array (if exists) -->
-                                <div v-if="image.words && image.words.length > 0" class="mt-2">
-                                    <span class="text-xs font-semibold text-gray-400">Words:</span>
-                                    <div class="flex flex-wrap gap-1 mt-1">
-                                        <span 
-                                            v-for="(word, idx) in image.words" 
-                                            :key="idx"
-                                            class="px-2 py-0.5 bg-green-900/50 text-green-300 text-xs rounded"
-                                        >
-                                            {{ word }}
-                                        </span>
-                                    </div>
-                                </div>
+                        <!-- Generated Sentence -->
+                        <div v-if="image.generatedSentence" class="p-2 bg-blue-900/30 rounded text-sm text-blue-200 border-l-2 border-blue-400 mb-2">
+                            {{ image.generatedSentence }}
+                        </div>
 
-                                <!-- Technical Details (collapsible on click) -->
-                                <details class="text-xs text-gray-500 mt-2">
-                                    <summary class="cursor-pointer hover:text-gray-300 transition-colors">
-                                        Technical Details
-                                    </summary>
-                                    <div class="mt-2 space-y-1 pl-2 border-l-2 border-purple-500/30">
-                                        <div v-if="image.guidance_scale">
-                                            <span class="font-semibold">Guidance:</span> {{ image.guidance_scale }}
-                                        </div>
-                                        <div v-if="image.num_inference_steps">
-                                            <span class="font-semibold">Steps:</span> {{ image.num_inference_steps }}
-                                        </div>
-                                        <div v-if="image.negative_prompt" class="text-red-400/70">
-                                            <span class="font-semibold">Negative:</span> {{ image.negative_prompt }}
-                                        </div>
-                                    </div>
-                                </details>
+                        <!-- Words -->
+                        <div v-if="image.words && image.words.length > 0">
+                            <div class="flex flex-wrap gap-1">
+                                <span 
+                                    v-for="(word, idx) in image.words" 
+                                    :key="idx"
+                                    class="px-2 py-0.5 bg-green-900/50 text-green-300 text-xs rounded"
+                                >
+                                    {{ word }}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -162,7 +128,33 @@ const images = ref([])
 const isLoading = ref(true)
 const error = ref(null)
 const searchTerm = ref('')
+const openPanel = ref(null)
 const CACHE_KEY = 'zoskyCube_generatedImages'
+
+function togglePanel(id) {
+    openPanel.value = openPanel.value === id ? null : id
+}
+
+// Columns: masonry uses CSS columns, items flow top→bottom per column
+// We detect column count from viewport and derive column index
+function getColCount() {
+    const w = window.innerWidth
+    if (w >= 1536) return 4
+    if (w >= 1024) return 3
+    if (w >= 640) return 2
+    return 1
+}
+
+function getPanelSide(imgIdx) {
+    const cols = getColCount()
+    if (cols <= 1) return 'pp-panel-below'
+    // CSS columns fill top→bottom; estimate column by dividing total items evenly
+    const total = filteredImages.value.length
+    const perCol = Math.ceil(total / cols)
+    const col = Math.floor(imgIdx / perCol)
+    const mid = Math.ceil(cols / 2)
+    return col < mid ? 'pp-panel-right' : 'pp-panel-left'
+}
 
 // Computed: Cache timestamp
 const cacheTimestamp = computed(() => {
@@ -425,8 +417,19 @@ function handleImageError(event) {
 }
 
 // Load images on mount
+const onClickOutside = (e) => {
+    if (openPanel.value && !e.target.closest('.masonry-item')) {
+        openPanel.value = null
+    }
+}
+
 onMounted(() => {
     fetchImages()
+    document.addEventListener('click', onClickOutside)
+})
+
+onUnmounted(() => {
+    document.removeEventListener('click', onClickOutside)
 })
 </script>
 
@@ -460,6 +463,50 @@ onMounted(() => {
     margin-bottom: 1rem;
     display: inline-block;
     width: 100%;
+}
+
+.pp-panel-right {
+    left: calc(100% + 0.5rem);
+}
+.pp-panel-left {
+    right: calc(100% + 0.5rem);
+}
+.pp-panel-below {
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: auto;
+    width: auto;
+    position: relative;
+    margin-top: 0.5rem;
+}
+
+/* Panel drop shadow for depth */
+.pp-side-panel {
+    box-shadow:
+        0 0 30px rgba(168, 85, 247, 0.3),
+        0 10px 40px rgba(0, 0, 0, 0.8),
+        0 0 80px rgba(168, 85, 247, 0.1);
+}
+
+/* Themed scrollbar */
+.pp-side-panel::-webkit-scrollbar {
+    width: 6px;
+}
+.pp-side-panel::-webkit-scrollbar-track {
+    background: rgba(30, 30, 50, 0.5);
+    border-radius: 3px;
+}
+.pp-side-panel::-webkit-scrollbar-thumb {
+    background: rgba(168, 85, 247, 0.5);
+    border-radius: 3px;
+}
+.pp-side-panel::-webkit-scrollbar-thumb:hover {
+    background: rgba(168, 85, 247, 0.8);
+}
+.pp-side-panel {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(168, 85, 247, 0.5) rgba(30, 30, 50, 0.5);
 }
 
 /* Text truncation utilities */

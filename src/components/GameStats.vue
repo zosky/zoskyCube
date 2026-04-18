@@ -1,12 +1,12 @@
 <template>
-  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+  <div class="flex flex-wrap gap-3">
     <!-- VOD Vote -->
-    <div class="game-stat-card bg-gradient-to-br from-green-900/40 to-green-800/20 rounded-xl p-3 ring-1 ring-green-500/30">
+    <div class="game-stat-card game-stat-wide bg-gradient-to-br from-green-900/40 to-green-800/20 rounded-xl p-3 ring-1 ring-green-500/30">
       <div class="flex items-center gap-2 mb-2">
-        <img :src="vodVoteLogo" alt="VOD Vote" class="w-5 h-5" />
-        <span class="text-green-400 font-bold text-xs">VOD Vote</span>
+        <img :src="vodVoteLogo" alt="VOD Vote" class="stat-logo" />
+        <span class="text-green-400 font-bold text-xs ml-auto">VOD Vote</span>
       </div>
-      <div class="grid grid-cols-3 gap-1 text-xs text-center">
+      <div class="grid gap-1 text-xs text-center" :class="gb.vodVote.overtime > 0 ? 'grid-cols-4' : 'grid-cols-3'">
         <div>
           <div class="text-white/50">Starts</div>
           <div class="text-white font-bold">{{ gb.vodVote.starts.toLocaleString() }}</div>
@@ -17,6 +17,11 @@
           <div class="text-white font-bold">{{ gb.vodVote.votes.toLocaleString() }}</div>
           <div class="text-green-400/80"><Points currency="zC" :n="gb.vodVote.votesTotal" relative /></div>
         </div>
+        <div v-if="gb.vodVote.overtime > 0">
+          <div class="text-white/50">Overtime</div>
+          <div class="text-white font-bold">{{ gb.vodVote.overtime.toLocaleString() }}</div>
+          <div class="text-green-400/80"><Points currency="zC" :n="gb.vodVote.overtimeTotal" relative /></div>
+        </div>
         <div>
           <div class="text-white/50">Wins</div>
           <div class="text-white font-bold">{{ gb.vodVote.wins.toLocaleString() }}</div>
@@ -26,10 +31,10 @@
     </div>
 
     <!-- zoskyZappers -->
-    <div class="game-stat-card bg-gradient-to-br from-blue-900/40 to-blue-800/20 rounded-xl p-3 ring-1 ring-blue-500/30">
+    <div class="game-stat-card game-stat-wide bg-gradient-to-br from-blue-900/40 to-blue-800/20 rounded-xl p-3 ring-1 ring-blue-500/30">
       <div class="flex items-center gap-2 mb-2">
-        <img :src="zoskyZappersLogo" alt="zoskyZappers" class="w-5 h-5" />
-        <span class="text-blue-400 font-bold text-xs">zoskyZappers</span>
+        <img :src="zoskyZappersLogo" alt="zoskyZappers" class="stat-logo" />
+        <span class="text-blue-400 font-bold text-xs ml-auto">zoskyZappers</span>
       </div>
       <div class="grid grid-cols-3 gap-1 text-xs text-center">
         <div>
@@ -53,8 +58,8 @@
     <!-- Pixel Power -->
     <div class="game-stat-card bg-gradient-to-br from-purple-900/40 to-purple-800/20 rounded-xl p-3 ring-1 ring-purple-500/30">
       <div class="flex items-center gap-2 mb-2">
-        <img :src="pixelPowerLogo" alt="Pixel Power" class="w-5 h-5" />
-        <span class="text-purple-400 font-bold text-xs">Pixel Power</span>
+        <img :src="pixelPowerLogo" alt="Pixel Power" class="stat-logo" />
+        <span class="text-purple-400 font-bold text-xs ml-auto">Pixel Power</span>
       </div>
       <div class="space-y-1 text-xs">
         <div class="flex justify-between"><span class="text-white/50">Words</span><span class="text-white font-medium">{{ gb.art.count.toLocaleString() }}</span></div>
@@ -63,11 +68,24 @@
       </div>
     </div>
 
+    <!-- gameplayGauntlet -->
+    <div v-if="gb.gauntlet.count > 0" class="game-stat-card bg-gradient-to-br from-yellow-900/40 to-yellow-800/20 rounded-xl p-3 ring-1 ring-yellow-500/30">
+      <div class="flex items-center gap-2 mb-2">
+        <img :src="gauntletLogo" alt="gameplayGauntlet" class="stat-logo" />
+        <span class="text-yellow-400 font-bold text-xs ml-auto">gameplayGauntlet</span>
+      </div>
+      <div class="space-y-1 text-xs">
+        <div class="flex justify-between"><span class="text-white/50">Votes</span><span class="text-white font-medium">{{ gb.gauntlet.count }}</span></div>
+        <div class="flex justify-between"><span class="text-white/50">Total</span><span class="text-yellow-400"><Points currency="zC" :n="gb.gauntlet.total" relative /></span></div>
+        <div class="flex justify-between"><span class="text-white/50">Users</span><span class="text-white/70">{{ gb.gauntlet.uniqueUsers }}</span></div>
+      </div>
+    </div>
+
     <!-- Daily Dose -->
     <div class="game-stat-card bg-gradient-to-br from-pink-900/40 to-pink-800/20 rounded-xl p-3 ring-1 ring-pink-500/30">
       <div class="flex items-center gap-2 mb-2">
-        <span class="text-base">💊</span>
-        <span class="text-pink-400 font-bold text-xs">Daily Dose</span>
+        <span class="stat-logo stat-logo-emoji">💊</span>
+        <span class="text-pink-400 font-bold text-xs ml-auto">Daily Dose</span>
       </div>
       <div class="space-y-1 text-xs">
         <div class="flex justify-between"><span class="text-white/50">Claims</span><span class="text-white font-medium">{{ gb.dailyDose.count }}</span></div>
@@ -79,8 +97,8 @@
     <!-- Discord Reactions -->
     <div class="game-stat-card bg-gradient-to-br from-indigo-900/40 to-indigo-800/20 rounded-xl p-3 ring-1 ring-indigo-500/30">
       <div class="flex items-center gap-2 mb-2">
-        <span class="text-base">💬</span>
-        <span class="text-indigo-400 font-bold text-xs">Discord</span>
+        <span class="stat-logo stat-logo-emoji">💬</span>
+        <span class="text-indigo-400 font-bold text-xs ml-auto">Discord</span>
       </div>
       <div class="space-y-1 text-xs">
         <div class="flex justify-between"><span class="text-white/50">Reacts</span><span class="text-white font-medium">{{ gb.discoReact.count }}</span></div>
@@ -96,6 +114,7 @@ import Points from './Points.vue'
 import zoskyZappersLogo from '../assets/ttv/zoskyZappers.png'
 import vodVoteLogo from '../assets/ttv/vodVote.png'
 import pixelPowerLogo from '../assets/ttv/pixelPower.png'
+import gauntletLogo from '../assets/ttv/gameplayGauntlet.png'
 
 const props = defineProps({
   handouts: {
@@ -116,9 +135,13 @@ const gb = computed(() => {
   const vvStarts = vv.filter(h => h.reason?.includes('Starting a new game'))
   const vvVotes = vv.filter(h => h.reason === 'Successful game vote')
   const vvWins = vv.filter(h => h.reason?.includes('winning @ vodVote'))
+  const vvOvertime = vv.filter(h => h.reason?.includes('overtimeOverdose'))
 
   // Art / Pixel Power
   const art = handouts.filter(h => h.source === 'art')
+
+  // Gauntlet
+  const gauntlet = handouts.filter(h => h.source === 'gauntlet')
 
   // zoskyZappers
   const zz = handouts.filter(h => h.source === 'zoskyZappers')
@@ -142,6 +165,8 @@ const gb = computed(() => {
       startsTotal: sum(vvStarts),
       votes: vvVotes.length,
       votesTotal: sum(vvVotes),
+      overtime: vvOvertime.length,
+      overtimeTotal: sum(vvOvertime),
       wins: vvWins.length,
       winsTotal: sum(vvWins)
     },
@@ -167,6 +192,11 @@ const gb = computed(() => {
       count: disco.length,
       total: sum(disco),
       uniqueUsers: uniq(disco)
+    },
+    gauntlet: {
+      count: gauntlet.length,
+      total: sum(gauntlet),
+      uniqueUsers: uniq(gauntlet)
     }
   }
 })
@@ -174,6 +204,12 @@ const gb = computed(() => {
 
 <style scoped>
 .game-stat-card {
+  position: relative;
+  overflow: visible;
+  padding-left: 1.25rem;
+  min-width: 140px;
+  flex: 1 1 140px;
+  max-width: 280px;
   box-shadow:
     0 4px 12px rgba(0, 0, 0, 0.6),
     0 0 15px rgba(6, 182, 212, 0.1),
@@ -187,5 +223,28 @@ const gb = computed(() => {
     0 0 25px rgba(6, 182, 212, 0.25),
     0 0 50px rgba(6, 182, 212, 0.1),
     inset 0 1px 0 rgba(6, 182, 212, 0.15);
+}
+.game-stat-wide {
+  min-width: 260px;
+  flex: 2 1 260px;
+  max-width: 400px;
+}
+
+.stat-logo {
+  position: absolute;
+  top: -18px;
+  left: -18px;
+  width: 4.5rem;
+  height: 4.5rem;
+  opacity: 1;
+  pointer-events: none;
+  z-index: 0;
+  object-fit: contain;
+}
+.stat-logo-emoji {
+  font-size: 3rem;
+  line-height: 1;
+  top: -12px;
+  left: -12px;
 }
 </style>

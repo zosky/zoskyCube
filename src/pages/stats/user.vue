@@ -114,6 +114,27 @@
             </div>
           </div>
         </section>
+
+        <!-- Redeems Section -->
+        <section v-if="!redeemsLoading && userRedeems.length > 0" class="mb-8">
+          <h2 class="text-xl font-bold text-cyan-400 flex items-center gap-2 mb-4">
+            🎁 Redeems
+            <span class="text-sm font-normal text-white/50">({{ userRedeems.length }})</span>
+          </h2>
+          <RedeemsGrid
+            :redeems="userRedeems"
+            :limit="redeemsLimit"
+            hideAvatars
+          />
+          <div v-if="userRedeems.length > 12" class="mt-3 flex justify-center">
+            <button
+              @click="redeemsLimit = redeemsLimit < userRedeems.length ? Math.min(redeemsLimit + 12, userRedeems.length) : 12"
+              class="px-4 py-1.5 text-sm rounded-lg bg-cyan-600/30 text-cyan-300 hover:bg-cyan-600/50 transition-colors"
+            >
+              {{ redeemsLimit < userRedeems.length ? `Show more (${userRedeems.length - redeemsLimit} remaining)` : 'Show less' }}
+            </button>
+          </div>
+        </section>
         
         <!-- Insights -->
         <section class="mb-8">
@@ -207,6 +228,8 @@
             </div>
           </div>
         </section>
+
+
       </div>
     </div>
   </div>
@@ -214,10 +237,13 @@
 
 <script setup>
 import { useHandoutsData } from '../../composables/useHandoutsData'
+import { useRedeemsData } from '../../composables/useRedeemsData'
 import Points from '../../components/Points.vue'
+import RedeemsGrid from '../../components/RedeemsGrid.vue'
 import zoskyZappersLogo from '../../assets/ttv/zoskyZappers.png'
 import vodVoteLogo from '../../assets/ttv/vodVote.png'
 import pixelPowerLogo from '../../assets/ttv/pixelPower.png'
+import gauntletLogo from '../../assets/ttv/gameplayGauntlet.png'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -254,7 +280,7 @@ const route = useRoute()
 const router = useRouter()
 
 // Get username from query parameter
-const username = computed(() => route.query.username || '')
+const username = computed(() => route.query.u || route.query.username || '')
 
 // Handouts data composable
 const {
@@ -268,9 +294,17 @@ const {
   isTwitchConnected
 } = useHandoutsData()
 
+// Redeems data
+const { allRedeems, isLoading: redeemsLoading, loadData: loadRedeems } = useRedeemsData()
+const userRedeems = computed(() =>
+  allRedeems.value.filter(r => r.username.toLowerCase() === username.value.toLowerCase())
+)
+const redeemsLimit = ref(12)
+
 // Connect to realtime on mount
 onMounted(async () => {
   await loadData()
+  await loadRedeems()
   // Auto-connect to Twitch chat for realtime updates
   try {
     await connectRealtime()
@@ -292,14 +326,16 @@ const sourceColors = {
   'sub': 'rgb(168, 85, 247)',
   'discoReact': 'rgb(88, 101, 242)',
   'vodFeedback': 'rgb(251, 146, 60)',
-  'redeem': 'rgb(239, 68, 68)'
+  'redeem': 'rgb(239, 68, 68)',
+  'gauntlet': 'rgb(255, 215, 0)'
 }
 
 // Source logos (image) or icons (emoji)
 const sourceLogos = {
   'zoskyZappers': zoskyZappersLogo,
   'vodVote': vodVoteLogo,
-  'art': pixelPowerLogo
+  'art': pixelPowerLogo,
+  'gauntlet': gauntletLogo
 }
 
 const sourceIcons = {
@@ -311,6 +347,7 @@ const sourceIcons = {
   'redeem': '🎮',
   'chevos': '🏆',
   'squadRush': '👊',
+  'gauntlet': '🎮',
   'manual': '⚙️'
 }
 

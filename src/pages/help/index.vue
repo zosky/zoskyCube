@@ -79,6 +79,20 @@
           </div>
         </router-link>
 
+        <router-link to="/help/gameplayGauntlet" class="help-card gauntlet">
+          <div class="card-icon"><img :src="gauntletLogo" alt="Gameplay Gauntlet" class="card-logo" /></div>
+          <h2>Gameplay Gauntlet</h2>
+          <p class="card-subtitle">Vote for the Next Game</p>
+          <p class="card-description">
+            Choose which Steam game gets played next! Use your vote budget wisely across ~1,500 games. First to 11 votes wins!
+          </p>
+          <div class="card-features">
+            <span class="feature">🗳️ Vote Budget</span>
+            <span class="feature">🏆 Community Pick</span>
+            <span class="feature-reward">earn <Points currency="zc" class="points-inline" /></span>
+          </div>
+        </router-link>
+
         <router-link to="/help/squadRush" class="help-card boss hiatus">
           <div class="hiatus-badge">On Hiatus</div>
           <div class="card-icon">🎮</div>
@@ -149,7 +163,7 @@
 </template>
 
 <script setup>
-// No special logic needed for index page
+import gauntletLogo from '@/assets/ttv/gameplayGauntlet.png'
 </script>
 
 <style scoped>
@@ -317,6 +331,29 @@
   border-color: #ffa500;
   box-shadow: 0 0 30px rgba(255, 165, 0, 0.3);
   transform: translateY(-5px);
+}
+
+.help-card.gauntlet {
+  --accent-color: #ffd700;
+  border-color: rgba(255, 215, 0, 0.3);
+}
+
+.help-card.gauntlet:hover {
+  border-color: #ffd700;
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+  transform: translateY(-5px);
+}
+
+.help-card.gauntlet h2 {
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+}
+
+.card-logo {
+  max-width: 80px;
+  margin: 0 auto;
+  display: block;
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.4));
 }
 
 .help-card.coming-soon {

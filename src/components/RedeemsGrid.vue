@@ -22,7 +22,10 @@
         v-for="redeem in displayedRedeems"
         :key="redeem.timestamp + redeem.username"
         class="redeem-card bg-gray-900 rounded-lg overflow-hidden border transition-all hover:scale-105 group"
-        :class="redeem.isGiftCard ? 'border-orange-500/40' : 'border-gray-800/80 hover:border-cyan-500/70'"
+        :class="[
+          redeem.isGiftCard ? 'border-orange-500/40' : 'border-gray-800/80 hover:border-cyan-500/70',
+          redeem.isRefund ? 'opacity-40 grayscale' : ''
+        ]"
       >
         <!-- Thumbnail -->
         <div class="relative aspect-[16/9] bg-gray-800 overflow-hidden">
@@ -56,6 +59,13 @@
             class="absolute top-2 left-2 px-2 py-0.5 bg-orange-500 text-black rounded text-[10px] font-bold"
           >
             🎁 Gift Card
+          </div>
+          <!-- Refund badge -->
+          <div
+            v-if="redeem.isRefund"
+            class="absolute top-2 left-2 px-2 py-0.5 bg-red-600 text-white rounded text-[10px] font-bold"
+          >
+            ↩ Refunded
           </div>
 
           <!-- Info label: game name + date + avatar -->
@@ -115,14 +125,26 @@ const effectiveLimit = computed(() => {
   return null // no limit — show all
 })
 
+// Collapse original+refund pairs: if a refund exists for a game+user, hide the original
+const refundKeys = computed(() => {
+  const keys = new Set()
+  for (const r of props.redeems) {
+    if (r.isRefund) keys.add(`${r.username}|${r.steamid}|${r.gamename}`)
+  }
+  return keys
+})
+const dedupedRedeems = computed(() =>
+  props.redeems.filter(r => r.isRefund || !refundKeys.value.has(`${r.username}|${r.steamid}|${r.gamename}`))
+)
+
 const displayedRedeems = computed(() => {
-  if (effectiveLimit.value === null) return props.redeems
-  return props.redeems.slice(0, effectiveLimit.value)
+  if (effectiveLimit.value === null) return dedupedRedeems.value
+  return dedupedRedeems.value.slice(0, effectiveLimit.value)
 })
 
-const totalCount = computed(() => props.redeems.length)
+const totalCount = computed(() => dedupedRedeems.value.length)
 const hasMore = computed(() =>
-  effectiveLimit.value !== null && props.redeems.length > effectiveLimit.value
+  effectiveLimit.value !== null && dedupedRedeems.value.length > effectiveLimit.value
 )
 
 const gridClass = computed(() =>

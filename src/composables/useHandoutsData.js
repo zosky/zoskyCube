@@ -284,7 +284,7 @@ let triggerRefresh = null
 
 export function useHandoutsData() {
   // Game sources for per-game stats
-  const gameSources = ['zoskyZappers', 'vodVote', 'art', 'voucher', 'chevos']
+  const gameSources = ['zoskyZappers', 'vodVote', 'art', 'voucher', 'chevos', 'gauntlet']
   
   // Get realtime Twitch chat data
   const { 

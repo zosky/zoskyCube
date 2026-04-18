@@ -38,7 +38,7 @@
             <!-- <li><strong>Collection Builds:</strong> 3 words per round x 12 rounds = 36 words across all rounds</li> -->
             <!-- <li><strong>Words Display:</strong> Each word shows with definition for 60 seconds</li> -->
             <li><strong>Image Generated:</strong> AI creates art when 100 words reached every 4-6 hours<br>(or in the very unlikely event 24 hours pass without collecting enough words)</li>
-            <li><strong>Earn Rewards:</strong> Get zCubes based on a mod'd Scrabble score × 13 multiplier!</li>
+            <li><strong>Earn Rewards:</strong> Get zCubes based on a mod'd Scrabble score × 8 multiplier!</li>
           </ol>
 
           <!-- <div class="pro-tip">
@@ -211,7 +211,7 @@
 
         <div class="content-block">
           <h3>How Scoring Works</h3>
-          <p>Each word earns a Scrabble score based on letter values, multiplied by 13! Higher scores mean more zCubes. This rewards creative vocabulary!</p>
+          <p>Each word earns a Scrabble score based on letter values, multiplied by 8! Higher scores mean more zCubes. This rewards creative vocabulary!</p>
 
           <div class="score-table">
             <h4>Letter Values</h4>

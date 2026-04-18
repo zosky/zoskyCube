@@ -143,6 +143,11 @@
                 <div class="text-white font-bold">{{ gameBreakdown.vodVote.votes.toLocaleString() }}</div>
                 <div class="text-green-400/80"><Points currency="zC" :n="gameBreakdown.vodVote.votesTotal" /></div>
               </div>
+              <div v-if="gameBreakdown.vodVote.overtime > 0" class="text-center">
+                <div class="text-white/50">Overtime</div>
+                <div class="text-white font-bold">{{ gameBreakdown.vodVote.overtime.toLocaleString() }}</div>
+                <div class="text-green-400/80"><Points currency="zC" :n="gameBreakdown.vodVote.overtimeTotal" /></div>
+              </div>
               <div class="text-center">
                 <div class="text-white/50">Wins</div>
                 <div class="text-white font-bold">{{ gameBreakdown.vodVote.wins.toLocaleString() }}</div>
@@ -194,6 +199,19 @@
             </div>
           </div>
           
+          <!-- Gameplay Gauntlet -->
+          <div v-if="gameBreakdown.gauntlet.count > 0" class="bg-gradient-to-br from-yellow-900/40 to-yellow-800/20 backdrop-blur-md rounded-xl p-3 ring-1 ring-yellow-500/30">
+            <div class="flex items-center gap-2 mb-2">
+              <img :src="gauntletLogo" alt="Gauntlet" class="w-5 h-5" />
+              <span class="text-yellow-400 font-bold text-xs">Gauntlet</span>
+            </div>
+            <div class="space-y-1 text-xs">
+              <div class="flex justify-between"><span class="text-white/50">Votes</span><span class="text-white font-medium">{{ gameBreakdown.gauntlet.count }}</span></div>
+              <div class="flex justify-between"><span class="text-white/50">Total</span><span class="text-yellow-400"><Points currency="zC" :n="gameBreakdown.gauntlet.total" /></span></div>
+              <div class="flex justify-between"><span class="text-white/50">Users</span><span class="text-white/70">{{ gameBreakdown.gauntlet.uniqueUsers }}</span></div>
+            </div>
+          </div>
+
           <!-- Daily Dose -->
           <div class="bg-gradient-to-br from-pink-900/40 to-pink-800/20 backdrop-blur-md rounded-xl p-3 ring-1 ring-pink-500/30">
             <div class="flex items-center gap-2 mb-2">
@@ -283,6 +301,9 @@
                   <th class="px-3 py-3 font-semibold text-right" title="Pixel Power">
                     <img :src="pixelPowerLogo" alt="Pixel Power" class="w-auto h-11 -my-3 inline-block" />
                   </th>
+                  <th class="px-3 py-3 font-semibold text-right" title="Gameplay Gauntlet">
+                    <img :src="gauntletLogo" alt="Gauntlet" class="w-auto h-11 -my-3 inline-block" />
+                  </th>
                   <th v-if="isTwitchConnected" class="px-3 py-3 font-semibold text-right text-green-400" title="Realtime gains since page load">
                     ⚡ Live
                   </th>
@@ -324,6 +345,9 @@
                   <td class="px-3 py-3 text-right text-purple-300 text-sm">
                     <Points v-if="user.byGame?.art?.amount" currency="zC" :n="user.byGame.art.amount" />
                   </td>
+                  <td class="px-3 py-3 text-right text-yellow-300 text-sm">
+                    <Points v-if="user.byGame?.gauntlet?.amount" currency="zC" :n="user.byGame.gauntlet.amount" />
+                  </td>
                   <!-- Realtime Gains -->
                   <td v-if="isTwitchConnected" class="px-3 py-3 text-right">
                     <span v-if="user.realtimeAmount > 0" class="text-green-400 text-sm font-medium animate-pulse">
@@ -357,6 +381,7 @@ import Points from '../../components/Points.vue'
 import zoskyZappersLogo from '../../assets/ttv/zoskyZappers.png'
 import vodVoteLogo from '../../assets/ttv/vodVote.png'
 import pixelPowerLogo from '../../assets/ttv/pixelPower.png'
+import gauntletLogo from '../../assets/ttv/gameplayGauntlet.png'
 
 const router = useRouter()
 const { userProfile } = useAuth()
@@ -425,6 +450,7 @@ const gameBreakdown = computed(() => {
   const vodVoteStarts = vodVoteHandouts.filter(h => h.reason?.includes('Starting a new game'))
   const vodVoteVotes = vodVoteHandouts.filter(h => h.reason === 'Successful game vote')
   const vodVoteWins = vodVoteHandouts.filter(h => h.reason?.includes('winning @ vodVote'))
+  const vodVoteOvertime = vodVoteHandouts.filter(h => h.reason?.includes('overtimeOverdose'))
   
   // VOD Feedback (separate source)
   const vodFeedbackHandouts = handouts.filter(h => h.source === 'vodFeedback')
@@ -443,6 +469,9 @@ const gameBreakdown = computed(() => {
   const dailyDoseHandouts = voucherHandouts.filter(h => h.reason === 'dailyDose')
   const otherVouchers = voucherHandouts.filter(h => h.reason !== 'dailyDose')
   
+  // Gauntlet
+  const gauntletHandouts = handouts.filter(h => h.source === 'gauntlet')
+
   // Discord reactions
   const discoReactHandouts = handouts.filter(h => h.source === 'discoReact')
   
@@ -458,6 +487,8 @@ const gameBreakdown = computed(() => {
       startsTotal: vodVoteStarts.reduce((sum, h) => sum + h.amount, 0),
       votes: vodVoteVotes.length,
       votesTotal: vodVoteVotes.reduce((sum, h) => sum + h.amount, 0),
+      overtime: vodVoteOvertime.length,
+      overtimeTotal: vodVoteOvertime.reduce((sum, h) => sum + h.amount, 0),
       wins: vodVoteWins.length,
       winsTotal: vodVoteWins.reduce((sum, h) => sum + h.amount, 0)
     },
@@ -480,6 +511,11 @@ const gameBreakdown = computed(() => {
       pvpWinsTotal: zzPvpWins.reduce((sum, h) => sum + h.amount, 0),
       losses: zzLosses.length,
       lossesTotal: zzLosses.reduce((sum, h) => sum + h.amount, 0)
+    },
+    gauntlet: {
+      count: gauntletHandouts.length,
+      total: gauntletHandouts.reduce((sum, h) => sum + h.amount, 0),
+      uniqueUsers: new Set(gauntletHandouts.map(h => h.username)).size
     },
     dailyDose: {
       count: dailyDoseHandouts.length,
@@ -550,7 +586,7 @@ function getRealRank(username) {
 }
 
 function viewUserStats(username) {
-  router.push(`/stats/user?username=${username}`)
+  router.push(`/stats/user?u=${username}`)
 }
 
 function showMore() {

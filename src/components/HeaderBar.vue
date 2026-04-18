@@ -75,7 +75,7 @@ function navigateToLeaderboard() {
 // Avatar icon - goes to user's personal stats
 function navigateToMyStats() {
   if (user.value && userProfile.value?.twitch?.username) {
-    router.push(`/stats/user?username=${userProfile.value.twitch.username}`)
+    router.push(`/stats/user?u=${userProfile.value.twitch.username}`)
   }
 }
 
@@ -88,6 +88,7 @@ function cycleAvatar(event) {
 
 <template>
     <nav class="custom-cyan-shadow">
+      <div class="nav-scroll">
         <a href="./">
             <img id="logo" src="@/assets/logo.png" alt="zoskyCube Logo" />
         </a>
@@ -224,6 +225,7 @@ function cycleAvatar(event) {
                 />
             </div>
         </div>
+      </div>
     </nav>
 </template>
 
@@ -232,14 +234,32 @@ nav {
     @apply text-2xl font-bold flex items-center gap-2 -mb-7 bg-blue-950 px-3 py-1; 
     filter: drop-shadow(0 10px 15px rgba(6, 182, 212, 0.5));
 }
+/* Scroll wrapper clips only horizontally, logo overflows vertically */
+.nav-scroll {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex: 1 1 0%;
+    min-width: 0;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+    margin-top: -5rem;
+    margin-bottom: -5rem;
+}
+.nav-scroll::-webkit-scrollbar { display: none; }
 nav .cursor-pointer, nav a 
-  { @apply hover:scale-110 transition-all }
-#logo { @apply h-20 -mt-20 -mb-20 }
-a { @apply flex flex-row items-center hover:scale-105 transition-transform duration-200 }
+  { @apply hover:scale-110 transition-all shrink-0 }
+#logo { @apply h-20 -mt-20 -mb-20 shrink-0 }
+a { @apply flex flex-row items-center hover:scale-105 transition-transform duration-200 shrink-0 }
 .active { @apply text-yellow-400 scale-110 }
 
 .user-balance-container {
-    @apply flex items-center gap-2 ml-auto;
+    @apply flex items-center gap-2 ml-auto shrink-0;
 }
 
 .balance-display {

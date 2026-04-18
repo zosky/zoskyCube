@@ -4,7 +4,7 @@ meta:
 </route>
 
 <template>
-  <div class="mx-auto p-4 max-w-7xl">
+  <div class="mx-auto p-4">
 
     <!-- Hero -->
     <div class="mt-10 mb-4 text-left">
@@ -17,12 +17,12 @@ meta:
     </div>
 
     <!-- Quick Nav Cards -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3 mb-10">
+    <div class="flex flex-wrap gap-3 mb-10">
       <router-link
         v-for="link in quickLinks"
         :key="link.to"
         :to="link.to"
-        class="nav-card bg-gray-900/80 rounded-lg p-4 text-center ring-1 ring-cyan-500/20 hover:ring-cyan-400/60 hover:scale-105 transition-all group"
+        class="nav-card bg-gray-900/80 rounded-lg p-4 text-center ring-1 ring-cyan-500/20 hover:ring-cyan-400/60 hover:scale-105 transition-all group min-w-[100px] flex-1"
       >
         <component :is="link.icon" class="w-7 h-7 mx-auto mb-1 text-gray-400 group-hover:text-cyan-400 transition-colors" />
         <div class="text-xs text-gray-400 group-hover:text-white transition-colors">{{ link.label }}</div>
@@ -31,7 +31,7 @@ meta:
       <!-- Auth card with service status icons -->
       <router-link
         to="/auth"
-        class="nav-card bg-gray-900/80 rounded-lg p-4 text-center ring-1 ring-cyan-500/20 hover:ring-cyan-400/60 hover:scale-105 transition-all group"
+        class="nav-card bg-gray-900/80 rounded-lg p-4 text-center ring-1 ring-cyan-500/20 hover:ring-cyan-400/60 hover:scale-105 transition-all group min-w-[100px] flex-1"
       >
         <div class="flex items-center justify-center gap-1 mb-1">
           <img
@@ -102,7 +102,7 @@ meta:
         :items="newestStoreItems"
         :showActions="false"
         compact
-        gridClass="grid-cols-2 sm:grid-cols-3 md:grid-cols-5"
+        gridClass="grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8"
         @select="goToStore"
       />
     </details>
@@ -234,7 +234,7 @@ const {
   connectRealtime
 } = useHandoutsData()
 
-const newestStoreItems = getNewest(10)
+const newestStoreItems = getNewest(16)
 
 const router = useRouter()
 function goToStore(item) {

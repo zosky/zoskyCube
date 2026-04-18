@@ -37,15 +37,34 @@
         <div class="content-block">
           <h3>💰 Reward Breakdown</h3>
           <ul>
-            <li><strong>+86 zC</strong> - End the round with <code>!v###</code> when code is revealed</li>
-            <li><strong>+75 zC</strong> - Vote for any game with <code>!gXX</code></li>
-            <li><strong>+722 zC Jackpot!</strong> - Split among all players who predicted the preselected winner!</li>
+            <li><strong>+38 zC</strong> - Vote for any game with <code>!gXX</code></li>
+            <li><strong>+361 zC Jackpot!</strong> - Split among all players who predicted the preselected winner!</li>
           </ul>
           <p>The winner is secretly chosen at random when the round starts. Everyone who correctly predicted it shares the jackpot evenly!</p>
           
           <div class="pro-tip">
-            <strong>💡 Example:</strong> If 3 people predicted correctly, each gets 722 ÷ 3 = 240 zC. If you're the only one who guessed right, you get the full 722 zC!
+            <strong>💡 Example:</strong> If 3 people predicted correctly, each gets 361 ÷ 3 = 120 zC. If you're the only one who guessed right, you get the full 361 zC!
           </div>
+        </div>
+
+        <div class="content-block">
+          <h3>⏱️ Overtime Phase</h3>
+          <p>When the round timer expires, a <code>!v###</code> code appears on stream. This starts <strong>Overtime</strong> (3–6 min countdown):</p>
+          <ul>
+            <li>Each viewer enters the code <strong>once</strong> to subtract 5 seconds from the timer</li>
+            <li><strong>+44 zC</strong> for the 1st claimer, <strong>−6 zC per position</strong> (44, 38, 32, 26…)</li>
+            <li>When the overtime timer hits zero, the round ends and the winner is revealed</li>
+          </ul>
+        </div>
+
+        <div class="content-block">
+          <h3>🟥 Red Card Penalty</h3>
+          <p>If you receive a <strong>Red Card</strong> (for rule violations), your next vote reward is reduced to just <strong>4 zC</strong> instead of 38. The card is cleared after the penalty is served.</p>
+        </div>
+
+        <div class="content-block">
+          <h3>🔥 Vote Streaks</h3>
+          <p>Voting in consecutive rounds builds a <strong>streak bonus</strong>! Each consecutive vote adds +1 zC on top of your base reward.</p>
         </div>
     </section>
     
