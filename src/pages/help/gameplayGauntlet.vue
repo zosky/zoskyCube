@@ -19,7 +19,7 @@
           <p>
             Gameplay Gauntlet is a <strong>community voting game</strong> where viewers decide which Steam game gets played next!
             A pool of ~1,500 games scrolls across the stream overlay — use your <strong>vote budget</strong> to back your favorites.
-            The first game to hit <strong>11 votes</strong> after the 24-hour session timer expires is declared the <span class="highlight-gold">Community Pick</span> and gets played on stream!
+            The first game to hit <strong>11 votes</strong> when the weekly Saturday deadline arrives is declared the <span class="highlight-gold">Community Pick</span> and gets played on stream!
           </p>
         </div>
 
@@ -96,8 +96,8 @@
         <div class="content-block">
           <h3>How a Winner Is Declared</h3>
           <ol class="list-disc">
-            <li>A <strong>24-hour session timer</strong> counts down from when the gauntlet starts</li>
-            <li>Once the timer expires, the leading game with <strong>11+ votes</strong> is declared the winner</li>
+            <li>Voting runs all week — the <strong>Saturday deadline</strong> (midnight EST) triggers the winner check</li>
+            <li>The leading game with <strong>11+ votes</strong> from 3+ voters is declared the winner</li>
             <li>A <span class="highlight-gold">winner banner</span> is automatically generated and posted to Discord</li>
             <li>The winning game gets played on the next stream!</li>
           </ol>
